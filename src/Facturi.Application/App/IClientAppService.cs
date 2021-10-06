@@ -13,5 +13,6 @@ namespace Facturi.App
         Task<ClientDto> GetByIdClient(long id);
         Task<ListResultDto<ClientDto>> GetByCategClient(string categ);
         Task<ListResultDto<ClientDto>> GetAllClients(ListCriteriaDto listCriteria);
+        Task<ListResultDto<ClientForAutoCompleteDto>> GetClientForAutoComplete(string motCle);
     }
 }

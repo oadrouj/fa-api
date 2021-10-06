@@ -13,6 +13,8 @@ namespace Facturi.EntityFrameworkCore
 
         public DbSet<InfosEntreprise> InfosEntreprises { get; set; }
         public DbSet<Client> Clients { get; set; }
+        public DbSet<Devis> Devis { get; set; }
+        public DbSet<DevisItem> DevisItems { get; set; }
 
         public FacturiDbContext(DbContextOptions<FacturiDbContext> options)
             : base(options)
