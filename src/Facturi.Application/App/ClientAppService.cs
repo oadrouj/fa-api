@@ -121,7 +121,7 @@ namespace Facturi.App
             var result = await _clientRepository.GetAll()
                 .Where(c => c.CreatorUserId == AbpSession.UserId || c.LastModifierUserId == AbpSession.UserId)
                 .Where(c => (c.Nom != null && c.Nom.Contains(motCle)) || (c.RaisonSociale != null && c.RaisonSociale.Contains(motCle)))
-                .Select(c => new ClientForAutoCompleteDto() { Id = c.Id, FullName = c.Nom ?? c.RaisonSociale })
+                .Select(c => new ClientForAutoCompleteDto() { Id = c.Id, Nom = c.Nom ?? c.RaisonSociale })
                 .ToListAsync();
 
             return new ListResultDto<ClientForAutoCompleteDto>(result);
