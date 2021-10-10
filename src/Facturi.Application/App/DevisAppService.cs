@@ -29,14 +29,7 @@ namespace Facturi.App
             {
                 //Gerer reference
                 var devis = ObjectMapper.Map<Devis>(input);
-                var newDevisId = _devisRepository.InsertAndGetId(devis);
-
-                var devisItems = ObjectMapper.Map<List<DevisItem>>(devis.DevisItems);
-                for (int i = 0; i < devisItems.Count; i++)
-                {
-                    devisItems.ElementAt(i).DevisId = newDevisId;
-                    await _devisItemRepository.InsertAsync(devisItems.ElementAt(i));
-                }
+                var newDevisId = await _devisRepository.InsertAndGetIdAsync(devis);
 
                 return true;
             }
@@ -60,14 +53,7 @@ namespace Facturi.App
                 }
 
                 var devis = ObjectMapper.Map<Devis>(input);
-                await _devisRepository.UpdateAsync(devis);
-
-                var devisItemsToInsert = ObjectMapper.Map<List<DevisItem>>(devis.DevisItems);
-                for (int i = 0; i < devisItemsToInsert.Count; i++)
-                {
-                    devisItemsToInsert.ElementAt(i).DevisId = devis.Id;
-                    await _devisItemRepository.InsertAsync(devisItemsToInsert.ElementAt(i));
-                }
+                await _devisRepository.InsertOrUpdateAsync(devis);
 
                 return true;
             }
@@ -86,61 +72,6 @@ namespace Facturi.App
             return result;
         }
 
-        //public async Task<ListResultDto<DevisDto>> GetAllDevis(ListCriteriaDto listCriteria)
-        //{
-        //    bool isRef = false;
-        //    int minRef = 0;
-        //    int maxRef = 0;
-
-        //    if (listCriteria.ChampsRecherche != null && listCriteria.ChampsRecherche.Trim().ToLower().StartsWith('c'))
-        //    {
-        //        string strRef = listCriteria.ChampsRecherche.Trim().Remove(0, 1);
-        //        if (Int32.TryParse(strRef, out int n))
-        //        {
-        //            isRef = true;
-        //            minRef = Int32.Parse(strRef + new String('0', 5 - strRef.Length));
-        //            maxRef = Int32.Parse(strRef + new String('9', 5 - strRef.Length));
-        //        }
-        //    }
-        //    var Deviss = new List<Devis>();
-        //    var query = _devisRepository.GetAll()
-        //        .Where(c => (c.CreatorUserId == AbpSession.UserId || c.LastModifierUserId == AbpSession.UserId))
-        //        .WhereIf(listCriteria.ChampsRecherche != null & !isRef,
-        //            c => c.Nom.Trim().Contains(listCriteria.ChampsRecherche.Trim())
-        //            || c.RaisonSociale.Trim().Contains(listCriteria.ChampsRecherche.Trim()))
-        //        .WhereIf(isRef, c => minRef <= c.Reference && c.Reference <= maxRef)
-        //        .WhereIf(!listCriteria.DevisCategory.Equals("0"), c => c.CategorieDevis.Equals(listCriteria.DevisCategory));
-
-        //    if (listCriteria.SortField != null && listCriteria.SortField.Length != 0)
-        //    {
-        //        switch (listCriteria.SortField)
-        //        {
-        //            case "reference":
-        //                if (listCriteria.SortOrder == 1) { Deviss = await query.OrderBy(c => c.Reference).ToListAsync(); }
-        //                else { Deviss = await query.OrderByDescending(c => c.Reference).ToListAsync(); }
-        //                break;
-        //            case "creationTime":
-        //                if (listCriteria.SortOrder == 1) { Deviss = await query.OrderBy(c => c.CreationTime).ToListAsync(); }
-        //                else { Deviss = await query.OrderByDescending(c => c.CreationTime).ToListAsync(); }
-        //                break;
-        //            case "nom":
-        //                if (listCriteria.SortOrder == 1) { Deviss = await query.OrderBy(c => c.RaisonSociale + c.Nom).ToListAsync(); }
-        //                else { Deviss = await query.OrderByDescending(c => c.Nom + c.RaisonSociale).ToListAsync(); }
-        //                break;
-        //            default:
-        //                Deviss = await query.OrderByDescending(c => c.LastModificationTime != null ? c.LastModificationTime : c.CreationTime).ToListAsync();
-        //                break;
-        //        }
-
-        //    }
-        //    else
-        //    {
-        //        Deviss = await query.OrderByDescending(c => c.LastModificationTime != null ? c.LastModificationTime : c.CreationTime).ToListAsync();
-        //    }
-        //    var result = new ListResultDto<DevisDto>(ObjectMapper.Map<List<DevisDto>>(Deviss));
-        //    return result;
-        //}
-
         public async Task DeleteDevis(long DevisId)
         {
             var devisItemsToDelete = _devisItemRepository.GetAll().Where(di => di.DevisId == DevisId).Select(di => di.Id).ToArray();
@@ -148,7 +79,7 @@ namespace Facturi.App
             {
                 foreach (long devisItemId in devisItemsToDelete)
                 {
-                    _devisItemRepository.Delete(devisItemId);
+                    await _devisItemRepository.DeleteAsync(devisItemId);
                 }
             }
             await _devisRepository.DeleteAsync(DevisId);
@@ -169,5 +100,92 @@ namespace Facturi.App
                 return 0;
             }
         }
+
+        public async Task<bool> ValiderDevis(long DevisId)
+        {
+            return await ChangeDevisListtatut(DevisId, DevisStatutEnum.Valide);
+        }
+
+        public async Task<bool> RejeterDevis(long DevisId)
+        {
+            return await ChangeDevisListtatut(DevisId, DevisStatutEnum.rejete);
+        }
+
+        public async Task<bool> ConvertirDevis(long DevisId)
+        {
+            return await ChangeDevisListtatut(DevisId, DevisStatutEnum.Converti);
+        }
+
+        private async Task<bool> ChangeDevisListtatut(long DevisId, DevisStatutEnum statut)
+        {
+            try
+            {
+                var devis = (await _devisRepository.GetAllIncluding(d => d.DevisItems, d => d.Client)
+                                .Where(d => (d.CreatorUserId == AbpSession.UserId || d.LastModifierUserId == AbpSession.UserId) && d.Id == DevisId)
+                                .ToListAsync()).First();
+                devis.Statut = statut;
+                await _devisRepository.UpdateAsync(devis);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        //public async Task<ListResultDto<DevisDto>> GetAllDevis(ListCriteriaDto listCriteria)
+        //{
+        //    bool isRef = false;
+        //    int minRef = 0;
+        //    int maxRef = 0;
+
+        //    if (listCriteria.ChampsRecherche != null && listCriteria.ChampsRecherche.Trim().ToLower().StartsWith('c'))
+        //    {
+        //        string strRef = listCriteria.ChampsRecherche.Trim().Remove(0, 1);
+        //        if (Int32.TryParse(strRef, out int n))
+        //        {
+        //            isRef = true;
+        //            minRef = Int32.Parse(strRef + new String('0', 5 - strRef.Length));
+        //            maxRef = Int32.Parse(strRef + new String('9', 5 - strRef.Length));
+        //        }
+        //    }
+        //    var DevisList = new List<Devis>();
+        //    var query = _devisRepository.GetAll()
+        //        .Where(c => (c.CreatorUserId == AbpSession.UserId || c.LastModifierUserId == AbpSession.UserId))
+        //        .WhereIf(listCriteria.ChampsRecherche != null & !isRef,
+        //            c => c.Nom.Trim().Contains(listCriteria.ChampsRecherche.Trim())
+        //            || c.RaisonSociale.Trim().Contains(listCriteria.ChampsRecherche.Trim()))
+        //        .WhereIf(isRef, c => minRef <= c.Reference && c.Reference <= maxRef)
+        //        .WhereIf(!listCriteria.DevisCategory.Equals("0"), c => c.CategorieDevis.Equals(listCriteria.DevisCategory));
+
+        //    if (listCriteria.SortField != null && listCriteria.SortField.Length != 0)
+        //    {
+        //        switch (listCriteria.SortField)
+        //        {
+        //            case "reference":
+        //                if (listCriteria.SortOrder == 1) { DevisList = await query.OrderBy(c => c.Reference).ToListAsync(); }
+        //                else { DevisList = await query.OrderByDescending(c => c.Reference).ToListAsync(); }
+        //                break;
+        //            case "creationTime":
+        //                if (listCriteria.SortOrder == 1) { DevisList = await query.OrderBy(c => c.CreationTime).ToListAsync(); }
+        //                else { DevisList = await query.OrderByDescending(c => c.CreationTime).ToListAsync(); }
+        //                break;
+        //            case "nom":
+        //                if (listCriteria.SortOrder == 1) { DevisList = await query.OrderBy(c => c.RaisonSociale + c.Nom).ToListAsync(); }
+        //                else { DevisList = await query.OrderByDescending(c => c.Nom + c.RaisonSociale).ToListAsync(); }
+        //                break;
+        //            default:
+        //                DevisList = await query.OrderByDescending(c => c.LastModificationTime != null ? c.LastModificationTime : c.CreationTime).ToListAsync();
+        //                break;
+        //        }
+
+        //    }
+        //    else
+        //    {
+        //        DevisList = await query.OrderByDescending(c => c.LastModificationTime != null ? c.LastModificationTime : c.CreationTime).ToListAsync();
+        //    }
+        //    var result = new ListResultDto<DevisDto>(ObjectMapper.Map<List<DevisDto>>(DevisList));
+        //    return result;
+        //}
     }
 }

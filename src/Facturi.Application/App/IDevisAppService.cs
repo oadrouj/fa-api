@@ -12,6 +12,9 @@ namespace Facturi.App
         Task DeleteDevis(long DevisId);
         Task<DevisDto> GetByIdDevis(long id);
         Task<int> GetLastReference();
+        Task<bool> ValiderDevis(long DevisId);
+        Task<bool> RejeterDevis(long DevisId);
+        Task<bool> ConvertirDevis(long DevisId);
         //Task<ListResultDto<DevisDto>> GetAllDevis(ListCriteriaDto listCriteria);
     }
 }
