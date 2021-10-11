@@ -101,22 +101,7 @@ namespace Facturi.App
             }
         }
 
-        public async Task<bool> ValiderDevis(long DevisId)
-        {
-            return await ChangeDevisListtatut(DevisId, DevisStatutEnum.Valide);
-        }
-
-        public async Task<bool> RejeterDevis(long DevisId)
-        {
-            return await ChangeDevisListtatut(DevisId, DevisStatutEnum.rejete);
-        }
-
-        public async Task<bool> ConvertirDevis(long DevisId)
-        {
-            return await ChangeDevisListtatut(DevisId, DevisStatutEnum.Converti);
-        }
-
-        private async Task<bool> ChangeDevisListtatut(long DevisId, DevisStatutEnum statut)
+        public async Task<bool> ChangeDevistatut(long DevisId, DevisStatutEnum statut)
         {
             try
             {
