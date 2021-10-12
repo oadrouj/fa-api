@@ -101,7 +101,7 @@ namespace Facturi.App
             }
         }
 
-        public async Task<bool> ChangeDevistatut(long DevisId, DevisStatutEnum statut)
+        public async Task<bool> ChangeDevisStatut(long DevisId, DevisStatutEnum statut)
         {
             try
             {
