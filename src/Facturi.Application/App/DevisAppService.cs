@@ -143,7 +143,7 @@ namespace Facturi.App
                 }
             }
             var DevisList = new List<Devis>();
-            var query = _devisRepository.GetAllIncluding(d => d.DevisItems, d => d.Client).Skip(devisCriterias.First).Take(devisCriterias.Rows)
+            var query = _devisRepository.GetAllIncluding(d => d.DevisItems, d => d.Client)
                 .Where(d => (d.CreatorUserId == AbpSession.UserId || d.LastModifierUserId == AbpSession.UserId))
                 .WhereIf(devisCriterias.GlobalFilter != null & !isRef,
                     d => d.Client.Nom.Trim().Contains(devisCriterias.GlobalFilter.Trim())
@@ -158,26 +158,26 @@ namespace Facturi.App
                 switch (devisCriterias.SortField)
                 {
                     case "reference":
-                        if (devisCriterias.SortOrder.Equals("1")) { DevisList = await query.OrderBy(d => d.Reference).ToListAsync(); }
-                        else if (devisCriterias.SortOrder.Equals("-1")) { DevisList = await query.OrderByDescending(d => d.Reference).ToListAsync(); }
+                        if (devisCriterias.SortOrder.Equals("1")) { DevisList = await query.OrderBy(d => d.Reference).Skip(devisCriterias.First).Take(devisCriterias.Rows).ToListAsync(); }
+                        else if (devisCriterias.SortOrder.Equals("-1")) { DevisList = await query.OrderByDescending(d => d.Reference).Skip(devisCriterias.First).Take(devisCriterias.Rows).ToListAsync(); }
                         break;
                     case "client":
-                        if (devisCriterias.SortOrder.Equals("1")) { DevisList = await query.OrderBy(d => d.Client.RaisonSociale + d.Client.Nom).ToListAsync(); }
-                        else if (devisCriterias.SortOrder.Equals("-1")) { DevisList = await query.OrderByDescending(d => d.Client.Nom + d.Client.RaisonSociale).ToListAsync(); }
+                        if (devisCriterias.SortOrder.Equals("1")) { DevisList = await query.OrderBy(d => d.Client.RaisonSociale + d.Client.Nom).Skip(devisCriterias.First).Take(devisCriterias.Rows).ToListAsync(); }
+                        else if (devisCriterias.SortOrder.Equals("-1")) { DevisList = await query.OrderByDescending(d => d.Client.Nom + d.Client.RaisonSociale).Skip(devisCriterias.First).Take(devisCriterias.Rows).ToListAsync(); }
                         break;
                     case "dateEmission":
-                        if (devisCriterias.SortOrder.Equals("1")) { DevisList = await query.OrderBy(d => d.DateEmission).ToListAsync(); }
-                        else if (devisCriterias.SortOrder.Equals("-1")) { DevisList = await query.OrderByDescending(d => d.DateEmission).ToListAsync(); }
+                        if (devisCriterias.SortOrder.Equals("1")) { DevisList = await query.OrderBy(d => d.DateEmission).Skip(devisCriterias.First).Take(devisCriterias.Rows).ToListAsync(); }
+                        else if (devisCriterias.SortOrder.Equals("-1")) { DevisList = await query.OrderByDescending(d => d.DateEmission).Skip(devisCriterias.First).Take(devisCriterias.Rows).ToListAsync(); }
                         break;
                     default:
-                        DevisList = await query.OrderByDescending(d => d.LastModificationTime != null ? d.LastModificationTime : d.CreationTime).ToListAsync();
+                        DevisList = await query.OrderByDescending(d => d.LastModificationTime != null ? d.LastModificationTime : d.CreationTime).Skip(devisCriterias.First).Take(devisCriterias.Rows).ToListAsync();
                         break;
                 }
 
             }
             else
             {
-                DevisList = await query.OrderByDescending(d => d.LastModificationTime != null ? d.LastModificationTime : d.CreationTime).ToListAsync();
+                DevisList = await query.OrderByDescending(d => d.LastModificationTime != null ? d.LastModificationTime : d.CreationTime).Skip(devisCriterias.First).Take(devisCriterias.Rows).ToListAsync();
             }
             var result = new ListResultDto<DevisDto>(ObjectMapper.Map<List<DevisDto>>(DevisList));
             return result;
