@@ -7,9 +7,9 @@ namespace Facturi.App
 {
     public interface IDevisAppService : IApplicationService
     {
-        Task<bool> CreateDevis(CreateDevisInput input);
+        Task<long> CreateDevis(CreateDevisInput input);
         Task<bool> UpdateDevis(UpdateDevisInput input);
-        Task DeleteDevis(long DevisId);
+        Task<bool> DeleteDevis(long DevisId);
         Task<DevisDto> GetByIdDevis(long id);
         Task<int> GetLastReference();
         Task<bool> ChangeDevisStatut(long DevisId, DevisStatutEnum statut);
