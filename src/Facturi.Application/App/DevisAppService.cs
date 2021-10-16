@@ -118,46 +118,48 @@ namespace Facturi.App
             }
         }
 
-        public async Task<ListResultDto<DevisDto>> GetAllDevis(DevisCriteriasDto listCriteria)
+        public async Task<ListResultDto<DevisDto>> GetAllDevis(DevisCriteriasDto devisCriterias)
         {
-            //bool isRef = false;
-            //int minRef = 0;
-            //int maxRef = 0;
+            bool isRef = false;
+            int minRef = 0;
+            int maxRef = 0;
 
-            //if (listCriteria.ChampsRecherche != null && listCriteria.ChampsRecherche.Trim().ToLower().StartsWith('d'))
-            //{
-            //    string strRef = listCriteria.ChampsRecherche.Trim().Remove(0, 1);
-            //    if (Int32.TryParse(strRef, out int n))
-            //    {
-            //        isRef = true;
-            //        minRef = Int32.Parse(strRef + new String('0', 5 - strRef.Length));
-            //        maxRef = Int32.Parse(strRef + new String('9', 5 - strRef.Length));
-            //    }
-            //}
-            var DevisList = new List<Devis>();
-            var query = _devisRepository.GetAllIncluding(d => d.DevisItems, d => d.Client)
-                .Where(d => (d.CreatorUserId == AbpSession.UserId || d.LastModifierUserId == AbpSession.UserId));
-                //.WhereIf(listCriteria.ChampsRecherche != null & !isRef,
-                //    d => d.Client.Nom.Trim().Contains(listCriteria.ChampsRecherche.Trim())
-                //    || d.Client.RaisonSociale.Trim().Contains(listCriteria.ChampsRecherche.Trim()))
-                //.WhereIf(isRef, d => minRef <= d.Reference && d.Reference <= maxRef);
-                //.WhereIf(!listCriteria.DevisCategory.Equals("0"), d => d.CategorieDevis.Equals(listCriteria.DevisCategory));
-
-            if (listCriteria.SortField != null && listCriteria.SortField.Length != 0)
+            if (devisCriterias.GlobalFilter != null && devisCriterias.GlobalFilter.Trim().ToLower().StartsWith('d'))
             {
-                switch (listCriteria.SortField)
+                string strRef = devisCriterias.GlobalFilter.Trim().Remove(0, 1);
+                if (Int32.TryParse(strRef, out int n))
+                {
+                    isRef = true;
+                    minRef = Int32.Parse(strRef + new String('0', 5 - strRef.Length));
+                    maxRef = Int32.Parse(strRef + new String('9', 5 - strRef.Length));
+                }
+            }
+            var DevisList = new List<Devis>();
+            var query = _devisRepository.GetAllIncluding(d => d.DevisItems, d => d.Client).Skip(devisCriterias.First).Take(devisCriterias.Rows)
+                .Where(d => (d.CreatorUserId == AbpSession.UserId || d.LastModifierUserId == AbpSession.UserId))
+                .WhereIf(devisCriterias.GlobalFilter != null & !isRef,
+                    d => d.Client.Nom.Trim().Contains(devisCriterias.GlobalFilter.Trim())
+                    || d.Client.RaisonSociale.Trim().Contains(devisCriterias.GlobalFilter.Trim()))
+                .WhereIf(isRef, d => minRef <= d.Reference && d.Reference <= maxRef);
+
+
+            //.WhereIf(!devisCriterias.DevisCategory.Equals("0"), d => d.CategorieDevis.Equals(devisCriterias.DevisCategory));
+
+            if (devisCriterias.SortField != null && devisCriterias.SortField.Length != 0)
+            {
+                switch (devisCriterias.SortField)
                 {
                     case "reference":
-                        if (listCriteria.SortOrder.Equals("1")) { DevisList = await query.OrderBy(d => d.Reference).ToListAsync(); }
-                        else if (listCriteria.SortOrder.Equals("-1")) { DevisList = await query.OrderByDescending(d => d.Reference).ToListAsync(); }
+                        if (devisCriterias.SortOrder.Equals("1")) { DevisList = await query.OrderBy(d => d.Reference).ToListAsync(); }
+                        else if (devisCriterias.SortOrder.Equals("-1")) { DevisList = await query.OrderByDescending(d => d.Reference).ToListAsync(); }
                         break;
                     case "client":
-                        if (listCriteria.SortOrder.Equals("1")) { DevisList = await query.OrderBy(d => d.Client.RaisonSociale + d.Client.Nom).ToListAsync(); }
-                        else if (listCriteria.SortOrder.Equals("-1")) { DevisList = await query.OrderByDescending(d => d.Client.Nom + d.Client.RaisonSociale).ToListAsync(); }
+                        if (devisCriterias.SortOrder.Equals("1")) { DevisList = await query.OrderBy(d => d.Client.RaisonSociale + d.Client.Nom).ToListAsync(); }
+                        else if (devisCriterias.SortOrder.Equals("-1")) { DevisList = await query.OrderByDescending(d => d.Client.Nom + d.Client.RaisonSociale).ToListAsync(); }
                         break;
                     case "dateEmission":
-                        if (listCriteria.SortOrder.Equals("1")) { DevisList = await query.OrderBy(d => d.DateEmission).ToListAsync(); }
-                        else if (listCriteria.SortOrder.Equals("-1")) { DevisList = await query.OrderByDescending(d => d.DateEmission).ToListAsync(); }
+                        if (devisCriterias.SortOrder.Equals("1")) { DevisList = await query.OrderBy(d => d.DateEmission).ToListAsync(); }
+                        else if (devisCriterias.SortOrder.Equals("-1")) { DevisList = await query.OrderByDescending(d => d.DateEmission).ToListAsync(); }
                         break;
                     default:
                         DevisList = await query.OrderByDescending(d => d.LastModificationTime != null ? d.LastModificationTime : d.CreationTime).ToListAsync();
