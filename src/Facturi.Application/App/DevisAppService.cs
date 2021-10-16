@@ -23,7 +23,7 @@ namespace Facturi.App
             _devisItemRepository = devisItemRepository ?? throw new ArgumentNullException(nameof(devisItemRepository));
         }
 
-        public async Task<bool> CreateDevis(CreateDevisInput input)
+        public async Task<long> CreateDevis(CreateDevisInput input)
         {
             try
             {
@@ -31,11 +31,11 @@ namespace Facturi.App
                 var devis = ObjectMapper.Map<Devis>(input);
                 var newDevisId = await _devisRepository.InsertAndGetIdAsync(devis);
 
-                return true;
+                return newDevisId;
             }
             catch (Exception)
             {
-                return false;
+                return 0;
             }
         }
 
@@ -72,17 +72,25 @@ namespace Facturi.App
             return result;
         }
 
-        public async Task DeleteDevis(long DevisId)
+        public async Task<bool> DeleteDevis(long DevisId)
         {
-            var devisItemsToDelete = _devisItemRepository.GetAll().Where(di => di.DevisId == DevisId).Select(di => di.Id).ToArray();
-            if (devisItemsToDelete != null && devisItemsToDelete.Length > 0)
+            try
             {
-                foreach (long devisItemId in devisItemsToDelete)
+                var devisItemsToDelete = _devisItemRepository.GetAll().Where(di => di.DevisId == DevisId).Select(di => di.Id).ToArray();
+                if (devisItemsToDelete != null && devisItemsToDelete.Length > 0)
                 {
-                    await _devisItemRepository.DeleteAsync(devisItemId);
+                    foreach (long devisItemId in devisItemsToDelete)
+                    {
+                        await _devisItemRepository.DeleteAsync(devisItemId);
+                    }
                 }
+                await _devisRepository.DeleteAsync(DevisId);
+                return true;
             }
-            await _devisRepository.DeleteAsync(DevisId);
+            catch
+            {
+                return false;
+            }
         }
 
         public async Task<int> GetLastReference()
