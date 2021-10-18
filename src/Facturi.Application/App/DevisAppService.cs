@@ -153,20 +153,8 @@ namespace Facturi.App
 
         public async Task<ListResultDto<DevisDto>> GetAllDevis(DevisCriteriasDto devisCriterias)
         {
-            bool isRef = false;
-            int minRef = 0;
-            int maxRef = 0;
+            CheckIfIsRefSearch(devisCriterias, out bool isRef, out int minRef, out int maxRef);
 
-            if (devisCriterias.GlobalFilter != null && devisCriterias.GlobalFilter.Trim().ToLower().StartsWith('d'))
-            {
-                string strRef = devisCriterias.GlobalFilter.Trim().Remove(0, 1);
-                if (Int32.TryParse(strRef, out int n))
-                {
-                    isRef = true;
-                    minRef = Int32.Parse(strRef + new String('0', 5 - strRef.Length));
-                    maxRef = Int32.Parse(strRef + new String('9', 5 - strRef.Length));
-                }
-            }
             var DevisList = new List<Devis>();
             var query = _devisRepository.GetAllIncluding(d => d.DevisItems, d => d.Client)
                 .Where(d => (d.CreatorUserId == AbpSession.UserId || d.LastModifierUserId == AbpSession.UserId))
@@ -206,6 +194,56 @@ namespace Facturi.App
             }
             var result = new ListResultDto<DevisDto>(ObjectMapper.Map<List<DevisDto>>(DevisList));
             return result;
+        }
+
+        public async Task<int> GetAllDevisTotalRecords(DevisCriteriasDto devisCriterias)
+        {
+            CheckIfIsRefSearch(devisCriterias, out bool isRef, out int minRef, out int maxRef);
+            var query = _devisRepository.GetAllIncluding(d => d.DevisItems, d => d.Client)
+                .Where(d => (d.CreatorUserId == AbpSession.UserId || d.LastModifierUserId == AbpSession.UserId))
+                .WhereIf(devisCriterias.GlobalFilter != null & !isRef,
+                    d => d.Client.Nom.Trim().Contains(devisCriterias.GlobalFilter.Trim())
+                    || d.Client.RaisonSociale.Trim().Contains(devisCriterias.GlobalFilter.Trim()))
+                .WhereIf(isRef, d => minRef <= d.Reference && d.Reference <= maxRef);
+
+
+            //.WhereIf(!devisCriterias.DevisCategory.Equals("0"), d => d.CategorieDevis.Equals(devisCriterias.DevisCategory));
+
+            return await query.CountAsync();
+        }
+
+        public async Task<float> GetAllDevisMontantTotal(DevisCriteriasDto devisCriterias)
+        {
+            CheckIfIsRefSearch(devisCriterias, out bool isRef, out int minRef, out int maxRef);
+            var query = _devisRepository.GetAllIncluding(d => d.DevisItems, d => d.Client)
+                .Where(d => (d.CreatorUserId == AbpSession.UserId || d.LastModifierUserId == AbpSession.UserId))
+                .WhereIf(devisCriterias.GlobalFilter != null & !isRef,
+                    d => d.Client.Nom.Trim().Contains(devisCriterias.GlobalFilter.Trim())
+                    || d.Client.RaisonSociale.Trim().Contains(devisCriterias.GlobalFilter.Trim()))
+                .WhereIf(isRef, d => minRef <= d.Reference && d.Reference <= maxRef);
+
+
+            //.WhereIf(!devisCriterias.DevisCategory.Equals("0"), d => d.CategorieDevis.Equals(devisCriterias.DevisCategory));
+
+            var result = await query.SelectMany(d => d.DevisItems).SumAsync(di => (float?)di.TotalTtc) ?? 0;
+            return result;
+        }
+
+        private static void CheckIfIsRefSearch(DevisCriteriasDto devisCriterias, out bool isRef, out int minRef, out int maxRef)
+        {
+            isRef = false;
+            minRef = 0;
+            maxRef = 0;
+            if (devisCriterias.GlobalFilter != null && devisCriterias.GlobalFilter.Trim().ToLower().StartsWith('d'))
+            {
+                string strRef = devisCriterias.GlobalFilter.Trim().Remove(0, 1);
+                if (Int32.TryParse(strRef, out int n))
+                {
+                    isRef = true;
+                    minRef = Int32.Parse(strRef + new String('0', 5 - strRef.Length));
+                    maxRef = Int32.Parse(strRef + new String('9', 5 - strRef.Length));
+                }
+            }
         }
     }
 }
