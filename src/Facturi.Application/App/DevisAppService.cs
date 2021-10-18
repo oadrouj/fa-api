@@ -126,6 +126,31 @@ namespace Facturi.App
             }
         }
 
+        public async Task<long> GetCountAllDevis(DevisCriteriasDto devisCriterias)
+        {
+            devisCriterias.First = 0;
+            devisCriterias.Rows = _devisRepository.Count();
+            return (await this.GetAllDevis(devisCriterias)).Items.Count;
+        }
+
+        public async Task<double> GetTotalAllDevis()
+        {
+            var montantTotal = 0.00;
+            foreach (var item in this._devisRepository.GetAllIncluding(d => d.DevisItems))
+            {
+                var montantDevis = 0.00;
+                foreach (var devisItem in item.DevisItems)
+                {
+                    var totalHt = devisItem.UnitPriceHT * devisItem.Quantity;
+                    devisItem.TotalTtc = totalHt + (totalHt * devisItem.Tva) / 100;
+                    montantDevis += devisItem.TotalTtc;
+                }
+                montantTotal += montantDevis - item.Remise;
+            }
+            
+            return montantTotal;
+        }
+
         public async Task<ListResultDto<DevisDto>> GetAllDevis(DevisCriteriasDto devisCriterias)
         {
             bool isRef = false;
