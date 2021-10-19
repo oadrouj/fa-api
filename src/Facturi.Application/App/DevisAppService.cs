@@ -126,7 +126,7 @@ namespace Facturi.App
             }
         }
 
-        public async Task<ListResultDto<DevisDto>> GetAllDevis(DevisCriteriasDto devisCriterias)
+        public async Task<ListResultDto<DevisDto>> GetAllDevis(CriteriasDto devisCriterias)
         {
             CheckIfIsRefSearch(devisCriterias, out bool isRef, out int minRef, out int maxRef);
 
@@ -171,7 +171,7 @@ namespace Facturi.App
             return result;
         }
 
-        public async Task<int> GetAllDevisTotalRecords(DevisCriteriasDto devisCriterias)
+        public async Task<int> GetAllDevisTotalRecords(CriteriasDto devisCriterias)
         {
             CheckIfIsRefSearch(devisCriterias, out bool isRef, out int minRef, out int maxRef);
             var query = _devisRepository.GetAllIncluding(d => d.DevisItems, d => d.Client)
@@ -187,7 +187,7 @@ namespace Facturi.App
             return await query.CountAsync();
         }
 
-        public async Task<float> GetAllDevisMontantTotal(DevisCriteriasDto devisCriterias)
+        public async Task<float> GetAllDevisMontantTotal(CriteriasDto devisCriterias)
         {
             CheckIfIsRefSearch(devisCriterias, out bool isRef, out int minRef, out int maxRef);
             var query = _devisRepository.GetAllIncluding(d => d.DevisItems, d => d.Client)
@@ -204,7 +204,7 @@ namespace Facturi.App
             return result;
         }
 
-        private static void CheckIfIsRefSearch(DevisCriteriasDto devisCriterias, out bool isRef, out int minRef, out int maxRef)
+        private static void CheckIfIsRefSearch(CriteriasDto devisCriterias, out bool isRef, out int minRef, out int maxRef)
         {
             isRef = false;
             minRef = 0;
