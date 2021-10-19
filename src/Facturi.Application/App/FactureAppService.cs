@@ -222,26 +222,5 @@ namespace Facturi.App
             }
         }
 
-        public async Task<bool> GenererPlanning(long id)
-        {
-            try
-            {
-                //byte[] file = _generateurRapportAppService.GetByteDataPlanning();
-                if (File.Exists(@"c:\PlanningNephroLog.pdf"))
-                {
-                    File.Delete(@"c:\PlanningNephroLog.pdf");
-                }
-                FileStream fs2 = new FileStream(@"c:\PlanningNephroLog.pdf", FileMode.OpenOrCreate);
-                fs2.Write(file, 0, file.Length);
-                fs2.Close();
-                fs2.Dispose();
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-            return true;
-        }
-
     }
 }
