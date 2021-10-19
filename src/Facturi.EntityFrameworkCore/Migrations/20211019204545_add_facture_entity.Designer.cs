@@ -4,14 +4,16 @@ using Facturi.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Facturi.Migrations
 {
     [DbContext(typeof(FacturiDbContext))]
-    partial class FacturiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211019204545_add_facture_entity")]
+    partial class add_facture_entity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
