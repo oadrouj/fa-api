@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Facturi.App.Dtos
 {
-    public class DevisCriteriasDto
+    public class CriteriasDto
     {
         public int First { get; set; }
         public int Rows { get; set; }

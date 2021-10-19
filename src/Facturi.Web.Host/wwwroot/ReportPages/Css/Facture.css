@@ -1,0 +1,88 @@
+html, body {  
+  width: 21cm;
+  height: 29.7cm; 
+  margin: 0px;
+  padding: 0px;
+}
+@font-face {
+    font-family: 'Frutiger';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Frutiger'), url('Frutiger.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'Frutiger';
+    font-style: normal;
+    font-weight: bold;
+    src: local('Frutiger Bold'), url('Frutiger_bold.woff') format('woff');
+}
+body {
+	font-family: Frutiger;
+}
+.headerFacture {
+	position: relative;
+	width: 100%;
+	min-height: 145px;
+}
+
+	.headerFacture div {
+		position: absolute;
+		top: 0px;
+		padding: 12.65px;
+		width: 50%;
+	}
+
+	.headerFacture .divImg {
+		left: 0px;
+	}
+		.headerFacture .divImg img {
+			width: 88.55px;
+		}
+
+	.headerFacture .divInfosFacture {
+		right: 0px;
+	}
+		.headerFacture .divInfosFacture p {
+			text-align: right;
+			margin: 2px;
+		    font-weight: bold;
+    		font-size: 43px;
+		}
+		.headerFacture .divInfosFacture .pDate {
+		    font-size: 29px;
+		    color: #c9c9c9;
+		}
+.cordonneesFacture {
+	margin-top: 20px;
+	position: relative;
+	width: 100%;
+	min-height: 235px;
+}
+
+	.cordonneesFacture div {
+		position: absolute;
+		top: 0px;
+		padding: 12.65px;
+	}
+
+	.cordonneesFacture .divPour {
+		left: 0px;
+		width: 50%;
+	}
+	.cordonneesFacture .divDe {
+		right: 0px;
+		width: 40%;
+	}
+
+		.cordonneesFacture div p {
+			margin: 2px;
+		    font-weight: bold;
+		    font-size: 20px;
+		}
+		.cordonneesFacture div .pPourDe {
+		    color: #c9c9c9;
+		}
+		.cordonneesFacture div .numTel {
+		    margin-top: 20px;
+		}

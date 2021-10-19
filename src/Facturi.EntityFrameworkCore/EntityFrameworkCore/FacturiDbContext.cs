@@ -15,6 +15,8 @@ namespace Facturi.EntityFrameworkCore
         public DbSet<Client> Clients { get; set; }
         public DbSet<Devis> Devis { get; set; }
         public DbSet<DevisItem> DevisItems { get; set; }
+        public DbSet<Facture> Facture { get; set; }
+        public DbSet<FactureItem> FactureItems { get; set; }
 
         public FacturiDbContext(DbContextOptions<FacturiDbContext> options)
             : base(options)

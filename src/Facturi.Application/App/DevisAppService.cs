@@ -126,32 +126,7 @@ namespace Facturi.App
             }
         }
 
-        public async Task<long> GetCountAllDevis(DevisCriteriasDto devisCriterias)
-        {
-            devisCriterias.First = 0;
-            devisCriterias.Rows = _devisRepository.Count();
-            return (await this.GetAllDevis(devisCriterias)).Items.Count;
-        }
-
-        public async Task<double> GetTotalAllDevis()
-        {
-            var montantTotal = 0.00;
-            foreach (var item in this._devisRepository.GetAllIncluding(d => d.DevisItems))
-            {
-                var montantDevis = 0.00;
-                foreach (var devisItem in item.DevisItems)
-                {
-                    var totalHt = devisItem.UnitPriceHT * devisItem.Quantity;
-                    devisItem.TotalTtc = totalHt + (totalHt * devisItem.Tva) / 100;
-                    montantDevis += devisItem.TotalTtc;
-                }
-                montantTotal += montantDevis - item.Remise;
-            }
-            
-            return montantTotal;
-        }
-
-        public async Task<ListResultDto<DevisDto>> GetAllDevis(DevisCriteriasDto devisCriterias)
+        public async Task<ListResultDto<DevisDto>> GetAllDevis(CriteriasDto devisCriterias)
         {
             CheckIfIsRefSearch(devisCriterias, out bool isRef, out int minRef, out int maxRef);
 
@@ -196,7 +171,7 @@ namespace Facturi.App
             return result;
         }
 
-        public async Task<int> GetAllDevisTotalRecords(DevisCriteriasDto devisCriterias)
+        public async Task<int> GetAllDevisTotalRecords(CriteriasDto devisCriterias)
         {
             CheckIfIsRefSearch(devisCriterias, out bool isRef, out int minRef, out int maxRef);
             var query = _devisRepository.GetAllIncluding(d => d.DevisItems, d => d.Client)
@@ -212,7 +187,7 @@ namespace Facturi.App
             return await query.CountAsync();
         }
 
-        public async Task<float> GetAllDevisMontantTotal(DevisCriteriasDto devisCriterias)
+        public async Task<float> GetAllDevisMontantTotal(CriteriasDto devisCriterias)
         {
             CheckIfIsRefSearch(devisCriterias, out bool isRef, out int minRef, out int maxRef);
             var query = _devisRepository.GetAllIncluding(d => d.DevisItems, d => d.Client)
@@ -229,7 +204,7 @@ namespace Facturi.App
             return result;
         }
 
-        private static void CheckIfIsRefSearch(DevisCriteriasDto devisCriterias, out bool isRef, out int minRef, out int maxRef)
+        private static void CheckIfIsRefSearch(CriteriasDto devisCriterias, out bool isRef, out int minRef, out int maxRef)
         {
             isRef = false;
             minRef = 0;
