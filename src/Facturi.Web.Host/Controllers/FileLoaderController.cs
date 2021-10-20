@@ -15,7 +15,7 @@ namespace Facturi.Web.Host.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetFacture()
+        public async Task<IActionResult> GetFacture(long id)
         {
             var file = await _factureAppService.GetByIdFactureReport(0);
             string fileDownloadName = "Facture_Template.pdf";
