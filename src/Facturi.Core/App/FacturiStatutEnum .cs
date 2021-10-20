@@ -2,9 +2,12 @@
 {
     public enum FactureStatutEnum
     {
-        Cree = 0,
-        Valide = 1,
-        Converti = 2,
-        rejete = 3
+        Cree,
+        Valide,
+        ReglePartiellemt,
+        Regle,
+        PaiementAttente,
+        PaiementRetard
     }
 }
+
