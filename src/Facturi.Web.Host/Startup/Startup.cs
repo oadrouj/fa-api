@@ -39,6 +39,8 @@ namespace Facturi.Web.Host.Startup
 
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton(typeof(DinkToPdf.Contracts.IConverter), new DinkToPdf.SynchronizedConverter(new DinkToPdf.PdfTools()));
+
             //MVC
             services.AddControllersWithViews(
                 options =>

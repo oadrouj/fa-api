@@ -17,11 +17,15 @@ namespace Facturi.App
     {
         private readonly IRepository<Facture, long> _factureRepository;
         private readonly IRepository<FactureItem, long> _factureItemRepository;
+        private readonly IReportGeneratorAppService _reportGeneratorAppService;
 
-        public FactureAppService(IRepository<Facture, long> FactureRepository, IRepository<FactureItem, long> factureItemRepository)
+
+        public FactureAppService(IRepository<Facture, long> FactureRepository, IRepository<FactureItem, long> factureItemRepository,
+            IReportGeneratorAppService reportGeneratorAppService)
         {
             _factureRepository = FactureRepository ?? throw new ArgumentNullException(nameof(FactureRepository));
             _factureItemRepository = factureItemRepository ?? throw new ArgumentNullException(nameof(factureItemRepository));
+            _reportGeneratorAppService = reportGeneratorAppService ?? throw new ArgumentNullException(nameof(reportGeneratorAppService));
         }
 
         public async Task<long> CreateFacture(CreateFactureInput input)
@@ -220,6 +224,11 @@ namespace Facturi.App
                     maxRef = Int32.Parse(strRef + new String('9', 5 - strRef.Length));
                 }
             }
+        }
+
+        public async Task<byte[]> GetByIdFactureReport(long id)
+        {
+            return await _reportGeneratorAppService.GetByteDataFacture();
         }
 
     }
