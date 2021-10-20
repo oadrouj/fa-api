@@ -210,7 +210,7 @@ namespace Facturi.App
             isRef = false;
             minRef = 0;
             maxRef = 0;
-            if (factureCriterias.GlobalFilter != null && factureCriterias.GlobalFilter.Trim().ToLower().StartsWith('d'))
+            if (factureCriterias.GlobalFilter != null && factureCriterias.GlobalFilter.Trim().ToLower().StartsWith('f'))
             {
                 string strRef = factureCriterias.GlobalFilter.Trim().Remove(0, 1);
                 if (Int32.TryParse(strRef, out int n))
