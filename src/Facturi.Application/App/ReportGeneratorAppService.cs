@@ -17,7 +17,7 @@ namespace Facturi.App
             _converter = converter ?? throw new ArgumentNullException(nameof(converter));
         }
 
-        public async Task<byte[]> GetByteDataFacture(Facture facture)
+        public byte[] GetByteDataFacture(Facture facture)
         {
             var globalSettings = new GlobalSettings
             {
@@ -29,7 +29,7 @@ namespace Facturi.App
             var objetSettings = new ObjectSettings
             {
                 PagesCount = true,
-                HtmlContent = this.GetHtmlContentFacture(facture),
+                HtmlContent = GetHtmlContentFacture(facture),
                 WebSettings = { DefaultEncoding = "utf-8", UserStyleSheet = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\ReportPages\Css", "Facture.css") }
             };
 
@@ -61,7 +61,11 @@ namespace Facturi.App
             sb.Append(@"'>
 	  </div>
 	  <div class='divInfosFacture'>
-	  	<p>Devis ");
+	  	<p>Devis F");
+			for(int i = 0; i < 5 - facture.Reference.ToString().Length; i++)
+			{
+				sb.Append('0');
+			}
             sb.Append(facture.Reference);
             sb.Append(@"</p>
 	  	<p class='pDate'>Date d’émission : ");
@@ -107,7 +111,6 @@ namespace Facturi.App
 	  			<th style='border-bottom: 2px solid #c9c9c9;border-top: 2px solid #c9c9c9;'><br>Quantité<br><br></th>
 	  			<th style='border-bottom: 2px solid #c9c9c9;border-top: 2px solid #c9c9c9;'><br>Unité<br><br></th>
 	  			<th class='right' style='border-bottom: 2px solid #c9c9c9;border-top: 2px solid #c9c9c9;'><br>PU HT<br><br></th>
-	  			<th class='right' style='border-bottom: 2px solid #c9c9c9;border-top: 2px solid #c9c9c9;'><br>Total HT<br><br></th>
 	  			<th style='border-bottom: 2px solid #c9c9c9;border-top: 2px solid #c9c9c9;'><br>TVA<br><br></th>
 	  			<th class='right' style='border-bottom: 2px solid #c9c9c9;border-top: 2px solid #c9c9c9;'><br>Total TTC<br><br></th>
 	  		</tr>
@@ -116,15 +119,12 @@ namespace Facturi.App
 
 			float totalMontantHT = 0;
 			float totalMontantTVA = 0;
-			float montantHT = 0;
-			float montantTVA = 0;
-			float montantTTC = 0;
-			foreach (var fi in facture.FactureItems)
+            foreach (var fi in facture.FactureItems)
 			{
-				montantHT = fi.UnitPriceHT * fi.Quantity;
-				montantTVA = montantHT * fi.Tva/100;
-				montantTTC = montantHT + montantTVA;
-				totalMontantHT += montantHT;
+                float montantHT = fi.UnitPriceHT * fi.Quantity;
+                float montantTVA = montantHT * fi.Tva / 100;
+                float montantTTC = montantHT + montantTVA;
+                totalMontantHT += montantHT;
 				totalMontantTVA += montantTVA;
 				sb.Append(@"<tr>
 	  					<td class='left'>");
@@ -141,9 +141,6 @@ namespace Facturi.App
 				sb.Append(@"</td>
 	  					<td class='right'>");
 				sb.Append(fi.UnitPriceHT);
-				sb.Append(@" MAD</td>
-	  					<td class='right'>");
-				sb.Append(montantHT);
 				sb.Append(@" MAD</td>
 	  					<td>");
 				sb.Append(fi.Tva);

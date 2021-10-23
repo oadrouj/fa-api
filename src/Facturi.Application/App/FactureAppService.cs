@@ -233,7 +233,7 @@ namespace Facturi.App
             var facture = await _factureRepository.GetAllIncluding(f => f.Client, f => f.FactureItems)
                 .Where(f => f.Id == id)
                 .ToListAsync();
-            return await _reportGeneratorAppService.GetByteDataFacture(facture.First());
+            return _reportGeneratorAppService.GetByteDataFacture(facture.First());
         }
 
         public async Task<bool> CreateOrUpdateFactureInfosPaiement(FactureInfosPaiementDto factureInfosPaiement)
