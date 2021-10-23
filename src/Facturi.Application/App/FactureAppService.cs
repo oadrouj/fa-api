@@ -16,16 +16,18 @@ namespace Facturi.App
     public class FactureAppService : ApplicationService, IFactureAppService
     {
         private readonly IRepository<Facture, long> _factureRepository;
+        private readonly IRepository<FactureInfosPaiement, long> _factureInfosPaiementRepository;
         private readonly IRepository<FactureItem, long> _factureItemRepository;
         private readonly IReportGeneratorAppService _reportGeneratorAppService;
 
 
         public FactureAppService(IRepository<Facture, long> FactureRepository, IRepository<FactureItem, long> factureItemRepository,
-            IReportGeneratorAppService reportGeneratorAppService)
+            IReportGeneratorAppService reportGeneratorAppService, IRepository<FactureInfosPaiement, long> factureInfosPaiementRepository)
         {
             _factureRepository = FactureRepository ?? throw new ArgumentNullException(nameof(FactureRepository));
             _factureItemRepository = factureItemRepository ?? throw new ArgumentNullException(nameof(factureItemRepository));
             _reportGeneratorAppService = reportGeneratorAppService ?? throw new ArgumentNullException(nameof(reportGeneratorAppService));
+            _factureInfosPaiementRepository = factureInfosPaiementRepository ?? throw new ArgumentNullException(nameof(factureInfosPaiementRepository));
         }
 
         public async Task<long> CreateFacture(CreateFactureInput input)
@@ -70,8 +72,8 @@ namespace Facturi.App
 
         public async Task<FactureDto> GetByIdFacture(long id)
         {
-            var facture = await _factureRepository.GetAllIncluding(d => d.FactureItems, d => d.Client)
-                .Where(d => (d.CreatorUserId == AbpSession.UserId || d.LastModifierUserId == AbpSession.UserId) && d.Id == id)
+            var facture = await _factureRepository.GetAllIncluding(f => f.FactureItems, f => f.Client)
+                .Where(f => (f.CreatorUserId == AbpSession.UserId || f.LastModifierUserId == AbpSession.UserId) && f.Id == id)
                 .ToListAsync();
             var result = ObjectMapper.Map<FactureDto>(facture.First());
             return result;
@@ -102,8 +104,8 @@ namespace Facturi.App
         {
             var facture = await _factureRepository
                 .GetAll()
-                .Where(d => (d.CreatorUserId == AbpSession.UserId || d.LastModifierUserId == AbpSession.UserId))
-                .OrderByDescending(d => d.Reference).ToListAsync();
+                .Where(f => (f.CreatorUserId == AbpSession.UserId || f.LastModifierUserId == AbpSession.UserId))
+                .OrderByDescending(f => f.Reference).ToListAsync();
             if (facture != null && facture.Any())
             {
                 return facture.First().Reference;
@@ -118,8 +120,8 @@ namespace Facturi.App
         {
             try
             {
-                var facture = (await _factureRepository.GetAllIncluding(d => d.FactureItems, d => d.Client)
-                                .Where(d => (d.CreatorUserId == AbpSession.UserId || d.LastModifierUserId == AbpSession.UserId) && d.Id == FactureId)
+                var facture = (await _factureRepository.GetAllIncluding(f => f.FactureItems, f => f.Client)
+                                .Where(f => (f.CreatorUserId == AbpSession.UserId || f.LastModifierUserId == AbpSession.UserId) && f.Id == FactureId)
                                 .ToListAsync()).First();
                 facture.Statut = statut;
                 await _factureRepository.UpdateAsync(facture);
@@ -136,41 +138,41 @@ namespace Facturi.App
             CheckIfIsRefSearch(factureCriterias, out bool isRef, out int minRef, out int maxRef);
 
             var FactureList = new List<Facture>();
-            var query = _factureRepository.GetAllIncluding(d => d.FactureItems, d => d.Client)
-                .Where(d => (d.CreatorUserId == AbpSession.UserId || d.LastModifierUserId == AbpSession.UserId))
+            var query = _factureRepository.GetAllIncluding(f => f.FactureItems, f => f.Client)
+                .Where(f => (f.CreatorUserId == AbpSession.UserId || f.LastModifierUserId == AbpSession.UserId))
                 .WhereIf(factureCriterias.GlobalFilter != null & !isRef,
-                    d => d.Client.Nom.Trim().Contains(factureCriterias.GlobalFilter.Trim())
-                    || d.Client.RaisonSociale.Trim().Contains(factureCriterias.GlobalFilter.Trim()))
-                .WhereIf(isRef, d => minRef <= d.Reference && d.Reference <= maxRef);
+                    f => f.Client.Nom.Trim().Contains(factureCriterias.GlobalFilter.Trim())
+                    || f.Client.RaisonSociale.Trim().Contains(factureCriterias.GlobalFilter.Trim()))
+                .WhereIf(isRef, f => minRef <= f.Reference && f.Reference <= maxRef);
 
 
-            //.WhereIf(!factureCriterias.FactureCategory.Equals("0"), d => d.CategorieFacture.Equals(factureCriterias.FactureCategory));
+            //.WhereIf(!factureCriterias.FactureCategory.Equals("0"), f => f.CategorieFacture.Equals(factureCriterias.FactureCategory));
 
             if (factureCriterias.SortField != null && factureCriterias.SortField.Length != 0)
             {
                 switch (factureCriterias.SortField)
                 {
                     case "reference":
-                        if (factureCriterias.SortOrder.Equals("1")) { FactureList = await query.OrderBy(d => d.Reference).Skip(factureCriterias.First).Take(factureCriterias.Rows).ToListAsync(); }
-                        else if (factureCriterias.SortOrder.Equals("-1")) { FactureList = await query.OrderByDescending(d => d.Reference).Skip(factureCriterias.First).Take(factureCriterias.Rows).ToListAsync(); }
+                        if (factureCriterias.SortOrder.Equals("1")) { FactureList = await query.OrderBy(f => f.Reference).Skip(factureCriterias.First).Take(factureCriterias.Rows).ToListAsync(); }
+                        else if (factureCriterias.SortOrder.Equals("-1")) { FactureList = await query.OrderByDescending(f => f.Reference).Skip(factureCriterias.First).Take(factureCriterias.Rows).ToListAsync(); }
                         break;
                     case "client":
-                        if (factureCriterias.SortOrder.Equals("1")) { FactureList = await query.OrderBy(d => d.Client.RaisonSociale + d.Client.Nom).Skip(factureCriterias.First).Take(factureCriterias.Rows).ToListAsync(); }
-                        else if (factureCriterias.SortOrder.Equals("-1")) { FactureList = await query.OrderByDescending(d => d.Client.Nom + d.Client.RaisonSociale).Skip(factureCriterias.First).Take(factureCriterias.Rows).ToListAsync(); }
+                        if (factureCriterias.SortOrder.Equals("1")) { FactureList = await query.OrderBy(f => f.Client.RaisonSociale + f.Client.Nom).Skip(factureCriterias.First).Take(factureCriterias.Rows).ToListAsync(); }
+                        else if (factureCriterias.SortOrder.Equals("-1")) { FactureList = await query.OrderByDescending(f => f.Client.Nom + f.Client.RaisonSociale).Skip(factureCriterias.First).Take(factureCriterias.Rows).ToListAsync(); }
                         break;
                     case "dateEmission":
-                        if (factureCriterias.SortOrder.Equals("1")) { FactureList = await query.OrderBy(d => d.DateEmission).Skip(factureCriterias.First).Take(factureCriterias.Rows).ToListAsync(); }
-                        else if (factureCriterias.SortOrder.Equals("-1")) { FactureList = await query.OrderByDescending(d => d.DateEmission).Skip(factureCriterias.First).Take(factureCriterias.Rows).ToListAsync(); }
+                        if (factureCriterias.SortOrder.Equals("1")) { FactureList = await query.OrderBy(f => f.DateEmission).Skip(factureCriterias.First).Take(factureCriterias.Rows).ToListAsync(); }
+                        else if (factureCriterias.SortOrder.Equals("-1")) { FactureList = await query.OrderByDescending(f => f.DateEmission).Skip(factureCriterias.First).Take(factureCriterias.Rows).ToListAsync(); }
                         break;
                     default:
-                        FactureList = await query.OrderByDescending(d => d.LastModificationTime != null ? d.LastModificationTime : d.CreationTime).Skip(factureCriterias.First).Take(factureCriterias.Rows).ToListAsync();
+                        FactureList = await query.OrderByDescending(f => f.LastModificationTime != null ? f.LastModificationTime : f.CreationTime).Skip(factureCriterias.First).Take(factureCriterias.Rows).ToListAsync();
                         break;
                 }
 
             }
             else
             {
-                FactureList = await query.OrderByDescending(d => d.LastModificationTime != null ? d.LastModificationTime : d.CreationTime).Skip(factureCriterias.First).Take(factureCriterias.Rows).ToListAsync();
+                FactureList = await query.OrderByDescending(f => f.LastModificationTime != null ? f.LastModificationTime : f.CreationTime).Skip(factureCriterias.First).Take(factureCriterias.Rows).ToListAsync();
             }
             var result = new ListResultDto<FactureDto>(ObjectMapper.Map<List<FactureDto>>(FactureList));
             return result;
@@ -179,15 +181,15 @@ namespace Facturi.App
         public async Task<int> GetAllFactureTotalRecords(CriteriasDto factureCriterias)
         {
             CheckIfIsRefSearch(factureCriterias, out bool isRef, out int minRef, out int maxRef);
-            var query = _factureRepository.GetAllIncluding(d => d.FactureItems, d => d.Client)
-                .Where(d => (d.CreatorUserId == AbpSession.UserId || d.LastModifierUserId == AbpSession.UserId))
+            var query = _factureRepository.GetAllIncluding(f => f.FactureItems, f => f.Client)
+                .Where(f => (f.CreatorUserId == AbpSession.UserId || f.LastModifierUserId == AbpSession.UserId))
                 .WhereIf(factureCriterias.GlobalFilter != null & !isRef,
-                    d => d.Client.Nom.Trim().Contains(factureCriterias.GlobalFilter.Trim())
-                    || d.Client.RaisonSociale.Trim().Contains(factureCriterias.GlobalFilter.Trim()))
-                .WhereIf(isRef, d => minRef <= d.Reference && d.Reference <= maxRef);
+                    f => f.Client.Nom.Trim().Contains(factureCriterias.GlobalFilter.Trim())
+                    || f.Client.RaisonSociale.Trim().Contains(factureCriterias.GlobalFilter.Trim()))
+                .WhereIf(isRef, f => minRef <= f.Reference && f.Reference <= maxRef);
 
 
-            //.WhereIf(!factureCriterias.FactureCategory.Equals("0"), d => d.CategorieFacture.Equals(factureCriterias.FactureCategory));
+            //.WhereIf(!factureCriterias.FactureCategory.Equals("0"), f => f.CategorieFacture.Equals(factureCriterias.FactureCategory));
 
             return await query.CountAsync();
         }
@@ -195,17 +197,17 @@ namespace Facturi.App
         public async Task<float> GetAllFactureMontantTotal(CriteriasDto factureCriterias)
         {
             CheckIfIsRefSearch(factureCriterias, out bool isRef, out int minRef, out int maxRef);
-            var query = _factureRepository.GetAllIncluding(d => d.FactureItems, d => d.Client)
-                .Where(d => (d.CreatorUserId == AbpSession.UserId || d.LastModifierUserId == AbpSession.UserId))
+            var query = _factureRepository.GetAllIncluding(f => f.FactureItems, f => f.Client)
+                .Where(f => (f.CreatorUserId == AbpSession.UserId || f.LastModifierUserId == AbpSession.UserId))
                 .WhereIf(factureCriterias.GlobalFilter != null & !isRef,
-                    d => d.Client.Nom.Trim().Contains(factureCriterias.GlobalFilter.Trim())
-                    || d.Client.RaisonSociale.Trim().Contains(factureCriterias.GlobalFilter.Trim()))
-                .WhereIf(isRef, d => minRef <= d.Reference && d.Reference <= maxRef);
+                    f => f.Client.Nom.Trim().Contains(factureCriterias.GlobalFilter.Trim())
+                    || f.Client.RaisonSociale.Trim().Contains(factureCriterias.GlobalFilter.Trim()))
+                .WhereIf(isRef, f => minRef <= f.Reference && f.Reference <= maxRef);
 
 
-            //.WhereIf(!factureCriterias.FactureCategory.Equals("0"), d => d.CategorieFacture.Equals(factureCriterias.FactureCategory));
+            //.WhereIf(!factureCriterias.FactureCategory.Equals("0"), f => f.CategorieFacture.Equals(factureCriterias.FactureCategory));
 
-            var result = await query.SelectMany(d => d.FactureItems).SumAsync(di => (float?)di.TotalTtc) ?? 0;
+            var result = await query.SelectMany(f => f.FactureItems).SumAsync(di => (float?)di.TotalTtc) ?? 0;
             return result;
         }
 
@@ -228,8 +230,32 @@ namespace Facturi.App
 
         public async Task<byte[]> GetByIdFactureReport(long id)
         {
-            return await _reportGeneratorAppService.GetByteDataFacture();
+            var facture = await _factureRepository.GetAllIncluding(f => f.Client, f => f.FactureItems)
+                .Where(f => f.Id == id)
+                .ToListAsync();
+            return await _reportGeneratorAppService.GetByteDataFacture(facture.First());
         }
 
+        public async Task<bool> CreateOrUpdateFactureInfosPaiement(FactureInfosPaiementDto factureInfosPaiement)
+        {
+            var fip = ObjectMapper.Map<FactureInfosPaiement>(factureInfosPaiement);
+            try
+            {
+                await _factureInfosPaiementRepository.InsertOrUpdateAsync(fip);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            return true;
+        } 
+
+        public async Task<FactureInfosPaiementDto> GetByFactureIdFactureInfosPaiement(long factureId)
+        {
+            var fip = await _factureInfosPaiementRepository.GetAll()
+                .Where(fip => fip.FactureId == factureId)
+                .FirstOrDefaultAsync();
+            return ObjectMapper.Map<FactureInfosPaiementDto>(fip != null ? new FactureInfosPaiementDto() : fip);
+        }
     }
 }

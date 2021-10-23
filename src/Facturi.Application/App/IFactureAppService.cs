@@ -16,6 +16,8 @@ namespace Facturi.App
         Task<ListResultDto<FactureDto>> GetAllFacture(CriteriasDto factureCriterias);
         Task<int> GetAllFactureTotalRecords(CriteriasDto factureCriterias);
         Task<float> GetAllFactureMontantTotal(CriteriasDto factureCriterias);
+        Task<bool> CreateOrUpdateFactureInfosPaiement(FactureInfosPaiementDto factureInfosPaiement);
+        Task<FactureInfosPaiementDto> GetByFactureIdFactureInfosPaiement(long factureId);
         Task<byte[]> GetByIdFactureReport(long id);
     }
 }

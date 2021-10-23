@@ -17,7 +17,7 @@ namespace Facturi.App
             _converter = converter ?? throw new ArgumentNullException(nameof(converter));
         }
 
-        public async Task<byte[]> GetByteDataFacture()
+        public async Task<byte[]> GetByteDataFacture(Facture facture)
         {
             var globalSettings = new GlobalSettings
             {
@@ -29,7 +29,7 @@ namespace Facturi.App
             var objetSettings = new ObjectSettings
             {
                 PagesCount = true,
-                HtmlContent = this.GetHtmlContentFacture(),
+                HtmlContent = this.GetHtmlContentFacture(facture),
                 WebSettings = { DefaultEncoding = "utf-8", UserStyleSheet = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\ReportPages\Css", "Facture.css") }
             };
 
@@ -43,37 +43,55 @@ namespace Facturi.App
             return file;
         }
 
-        private string GetHtmlContentFacture()
+        private string GetHtmlContentFacture(Facture facture)
         {
             var sb = new StringBuilder();
 
-			sb.Append(@"<!doctype html>
+            sb.Append(@"<!doctype html>
 <html lang='fr'>
 <head>
   <meta charset='utf-8'>
-  <title>Titre de la page</title>
+  <title>Report</title>
 </head>
 <body>
   <div class='headerFacture'>
 	  <div class='divImg'>
 	  	<img src='");
-			sb.Append(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\ReportPages", "logo.png"));
-			sb.Append(@"'>
+            sb.Append(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\ReportPages", "logo.png"));
+            sb.Append(@"'>
 	  </div>
 	  <div class='divInfosFacture'>
-	  	<p>Devis D00001</p>
-	  	<p class='pDate'>Date d’émission : 01/01/2021</p>
-	  	<p class='pDate'>Date d’échéance : 31/01/2021</p>
+	  	<p>Devis ");
+            sb.Append(facture.Reference);
+            sb.Append(@"</p>
+	  	<p class='pDate'>Date d’émission : ");
+            sb.Append(facture.DateEmission.ToString("dd/MM/yyyy"));
+            sb.Append(@"</p>
+	  	<p class='pDate'>Date d’échéance : ");
+            sb.Append(facture.DateEmission.AddDays(facture.EcheancePaiement).ToString("dd/MM/yyyy"));
+            sb.Append(@"</p>
 	  </div>
   </div>
   <div class='cordonneesFacture'>
 	  <div class='divPour'>
 	  	<p class='pPourDe'>Pour :</p>
-	  	<p>Omar ATTIOUI</p>
-	  	<p class='adresse'>12 Rue de Casablanca 12 Rue de Casablanca 12 Rue de Casablanca 12 Rue de Casablanca</p>
-	  	<p>Casablanca 2000</p>
-	  	<p>Maroc</p>
-	  	<p class='numTel'>0666666666</p>
+	  	<p>");
+            sb.Append(facture.Client.CategorieClient.Equals("PRTC") ? facture.Client.Nom : facture.Client.RaisonSociale);
+            sb.Append(@"</p>
+	  	<p class='adresse'>");
+            sb.Append(facture.Client.Adresse);
+            sb.Append(@"</p>
+	  	<p>");
+            sb.Append(facture.Client.Ville);
+            sb.Append(@" ");
+            sb.Append(facture.Client.CodePostal);
+            sb.Append(@"</p>
+	  	<p>");
+            sb.Append(facture.Client.Pays);
+            sb.Append(@"</p>
+	  	<p class='numTel'>");
+            sb.Append(facture.Client.TelPortable);
+            sb.Append(@"</p>
 	  </div>
 	  <div class='divDe'>
 	  	<p class='pPourDe'>De :</p>
@@ -94,67 +112,50 @@ namespace Facturi.App
 	  			<th class='right' style='border-bottom: 2px solid #c9c9c9;border-top: 2px solid #c9c9c9;'><br>Total TTC<br><br></th>
 	  		</tr>
 	  	</thead>
-	  	<tbody>
-	  		<tr>
-	  			<td class='left'>Consultation</td>
-	  			<td>01/01/2021</td>
-	  			<td>8</td>
-	  			<td>HEURE</td>
-	  			<td class='right'>100000,00 MAD</td>
-	  			<td class='right'>800000,00 MAD</td>
-	  			<td>20%</td>
-	  			<td class='right'>1000000,00 MAD</td>
-	  		</tr>
-	  		<tr>
-	  			<td class='left'>Tryfa mezyana Tryfa mezyana Tryfa mezyana</td>
-	  			<td>01/01/2021</td>
-	  			<td>4</td>
-	  			<td>PIECE</td>
-	  			<td class='right'>400,00 MAD</td>
-	  			<td class='right'>1600,00 MAD</td>
-	  			<td>20%</td>
-	  			<td class='right'>2000,00 MAD</td>
-	  		</tr>
-	  		<tr>
-	  			<td class='left'>Consultation</td>
-	  			<td>01/01/2021</td>
-	  			<td>8</td>
-	  			<td>HEURE</td>
-	  			<td class='right'>100000,00 MAD</td>
-	  			<td class='right'>800000,00 MAD</td>
-	  			<td>20%</td>
-	  			<td class='right'>1000000,00 MAD</td>
-	  		</tr>
-	  		<tr>
-	  			<td class='left'>Tryfa mezyana Tryfa mezyana Tryfa mezyana</td>
-	  			<td>01/01/2021</td>
-	  			<td>4</td>
-	  			<td>PIECE</td>
-	  			<td class='right'>400,00 MAD</td>
-	  			<td class='right'>1600,00 MAD</td>
-	  			<td>20%</td>
-	  			<td class='right'>2000,00 MAD</td>
-	  		</tr>
-	  		<tr>
-	  			<td class='left'>Consultation</td>
-	  			<td>01/01/2021</td>
-	  			<td>8</td>
-	  			<td>HEURE</td>
-	  			<td class='right'>100000,00 MAD</td>
-	  			<td class='right'>800000,00 MAD</td>
-	  			<td>20%</td>
-	  			<td class='right'>1000000,00 MAD</td>
-	  		</tr>
-	  		<tr>
-	  			<td class='left'>Tryfa mezyana Tryfa mezyana Tryfa mezyana</td>
-	  			<td>01/01/2021</td>
-	  			<td>4</td>
-	  			<td>PIECE</td>
-	  			<td class='right'>400,00 MAD</td>
-	  			<td class='right'>1600,00 MAD</td>
-	  			<td>20%</td>
-	  			<td class='right'>2000,00 MAD</td>
-	  		</tr>
+	  	<tbody>");
+
+			float totalMontantHT = 0;
+			float totalMontantTVA = 0;
+			float montantHT = 0;
+			float montantTVA = 0;
+			float montantTTC = 0;
+			foreach (var fi in facture.FactureItems)
+			{
+				montantHT = fi.UnitPriceHT * fi.Quantity;
+				montantTVA = montantHT * fi.Tva/100;
+				montantTTC = montantHT + montantTVA;
+				totalMontantHT += montantHT;
+				totalMontantTVA += montantTVA;
+				sb.Append(@"<tr>
+	  					<td class='left'>");
+				sb.Append(fi.Description);
+				sb.Append(@"</td>
+	  					<td>");
+				sb.Append(fi.Date);
+				sb.Append(@"</td>
+	  					<td>");
+				sb.Append(fi.Quantity);
+				sb.Append(@"</td>
+	  					<td>");
+				sb.Append(fi.Unit);
+				sb.Append(@"</td>
+	  					<td class='right'>");
+				sb.Append(fi.UnitPriceHT);
+				sb.Append(@" MAD</td>
+	  					<td class='right'>");
+				sb.Append(montantHT);
+				sb.Append(@" MAD</td>
+	  					<td>");
+				sb.Append(fi.Tva);
+				sb.Append(@"%</td>
+	  					<td class='right'>");
+				sb.Append(montantTTC);
+				sb.Append(@" MAD</td>
+	  				</tr>");
+			}
+            
+
+            sb.Append(@"
 	  	</tbody>
 	  </table>
   </div>
@@ -167,9 +168,15 @@ namespace Facturi.App
 					  	<p>TVA</p>
 				  	</div>
 				  	<div class='value'>
-					  	<p>800,00 MAD</p>
-					  	<p>200,00 MAD</p>
-					  	<p>120,00 MAD</p>
+					  	<p>");
+			sb.Append(totalMontantHT);
+			sb.Append(@" MAD</p>
+					  	<p>");
+			sb.Append(facture.Remise);
+			sb.Append(@" MAD</p>
+					  	<p>");
+			sb.Append(totalMontantTVA);
+			sb.Append(@" MAD</p>
 				  	</div>
 			  </div>
 			  <hr>
@@ -178,7 +185,9 @@ namespace Facturi.App
 					  	<p>MONTANT ESTIMé TTC</p>
 				  	</div>
 				  	<div class='value'>
-					  	<p>400,00 MAD</p>
+					  	<p>");
+			sb.Append(totalMontantHT + totalMontantTVA - facture.Remise);
+			sb.Append(@" MAD</p>
 				  	</div>
 			  </div>
 	  	</div>
