@@ -17,7 +17,7 @@ namespace Facturi.App
             _converter = converter ?? throw new ArgumentNullException(nameof(converter));
         }
 
-        public byte[] GetByteDataFacture(Facture facture)
+        public byte[] GetByteDataFacture(FactureDto factureDto)
         {
             var globalSettings = new GlobalSettings
             {
@@ -29,7 +29,7 @@ namespace Facturi.App
             var objetSettings = new ObjectSettings
             {
                 PagesCount = true,
-                HtmlContent = GetHtmlContentFacture(facture),
+                HtmlContent = GetHtmlContentFacture(factureDto),
                 WebSettings = { DefaultEncoding = "utf-8", UserStyleSheet = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\ReportPages\Css", "Facture.css") }
             };
 
@@ -43,8 +43,9 @@ namespace Facturi.App
             return file;
         }
 
-        private string GetHtmlContentFacture(Facture facture)
+        private string GetHtmlContentFacture(FactureDto factureDto)
         {
+			var facture = ObjectMapper.Map<Facture>(factureDto);
             var sb = new StringBuilder();
 
             sb.Append(@"<!doctype html>
@@ -131,7 +132,7 @@ namespace Facturi.App
 				sb.Append(fi.Description);
 				sb.Append(@"</td>
 	  					<td>");
-				sb.Append(fi.Date);
+				sb.Append(fi.Date.ToString("dd/MM/yyyy"));
 				sb.Append(@"</td>
 	  					<td>");
 				sb.Append(fi.Quantity);
