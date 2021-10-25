@@ -16,11 +16,13 @@ namespace Facturi.App
     {
         private readonly IRepository<Devis, long> _devisRepository;
         private readonly IRepository<DevisItem, long> _devisItemRepository;
+        private readonly IReportGeneratorAppService _reportGeneratorAppService;
 
-        public DevisAppService(IRepository<Devis, long> DevisRepository, IRepository<DevisItem, long> devisItemRepository)
+        public DevisAppService(IRepository<Devis, long> DevisRepository, IRepository<DevisItem, long> devisItemRepository, IReportGeneratorAppService reportGeneratorAppService)
         {
             _devisRepository = DevisRepository ?? throw new ArgumentNullException(nameof(DevisRepository));
             _devisItemRepository = devisItemRepository ?? throw new ArgumentNullException(nameof(devisItemRepository));
+            _reportGeneratorAppService = reportGeneratorAppService ?? throw new ArgumentNullException(nameof(reportGeneratorAppService));
         }
 
         public async Task<long> CreateDevis(CreateDevisInput input)
@@ -219,6 +221,14 @@ namespace Facturi.App
                     maxRef = Int32.Parse(strRef + new String('9', 5 - strRef.Length));
                 }
             }
+        }
+
+        public async Task<byte[]> GetByIdDevisReport(long id)
+        {
+            var facture = await _devisRepository.GetAllIncluding(f => f.Client, f => f.DevisItems)
+                .Where(f => f.Id == id)
+                .ToListAsync();
+            return _reportGeneratorAppService.GetByteDataDevis(ObjectMapper.Map<DevisDto>(facture.First()));
         }
     }
 }

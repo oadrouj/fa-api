@@ -14,6 +14,7 @@ namespace Facturi.App
         Task<int> GetLastReference();
         Task<bool> ChangeDevisStatut(long DevisId, DevisStatutEnum statut);
         Task<ListResultDto<DevisDto>> GetAllDevis(CriteriasDto listCriteria);
+        Task<byte[]> GetByIdDevisReport(long id);
         Task<int> GetAllDevisTotalRecords(CriteriasDto devisCriterias);
         Task<float> GetAllDevisMontantTotal(CriteriasDto devisCriterias);
     }
