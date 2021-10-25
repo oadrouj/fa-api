@@ -255,7 +255,7 @@ namespace Facturi.App
             var fip = await _factureInfosPaiementRepository.GetAll()
                 .Where(fip => fip.FactureId == factureId)
                 .FirstOrDefaultAsync();
-            return ObjectMapper.Map<FactureInfosPaiementDto>(fip != null ? new FactureInfosPaiementDto() : fip);
+            return ObjectMapper.Map<FactureInfosPaiementDto>(fip == null ? new FactureInfosPaiementDto() : fip);
         }
     }
 }
