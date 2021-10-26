@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Facturi.App
 {
@@ -19,15 +20,19 @@ namespace Facturi.App
         private readonly IRepository<FactureInfosPaiement, long> _factureInfosPaiementRepository;
         private readonly IRepository<FactureItem, long> _factureItemRepository;
         private readonly IReportGeneratorAppService _reportGeneratorAppService;
-
+        private readonly IRepository<Client, long> _clientRepository;
 
         public FactureAppService(IRepository<Facture, long> FactureRepository, IRepository<FactureItem, long> factureItemRepository,
-            IReportGeneratorAppService reportGeneratorAppService, IRepository<FactureInfosPaiement, long> factureInfosPaiementRepository)
+            IReportGeneratorAppService reportGeneratorAppService, IRepository<FactureInfosPaiement, long> factureInfosPaiementRepository,
+            IRepository<Client, long> clientRepository
+            )
         {
             _factureRepository = FactureRepository ?? throw new ArgumentNullException(nameof(FactureRepository));
             _factureItemRepository = factureItemRepository ?? throw new ArgumentNullException(nameof(factureItemRepository));
             _reportGeneratorAppService = reportGeneratorAppService ?? throw new ArgumentNullException(nameof(reportGeneratorAppService));
             _factureInfosPaiementRepository = factureInfosPaiementRepository ?? throw new ArgumentNullException(nameof(factureInfosPaiementRepository));
+            _clientRepository = clientRepository ?? throw new ArgumentNullException(nameof(clientRepository));
+
         }
 
         public async Task<long> CreateFacture(CreateFactureInput input)
@@ -233,8 +238,17 @@ namespace Facturi.App
             var facture = await _factureRepository.GetAllIncluding(f => f.Client, f => f.FactureItems)
                 .Where(f => f.Id == id)
                 .ToListAsync();
-            return _reportGeneratorAppService.GetByteDataFacture(ObjectMapper.Map<FactureDto>(facture.First()));
+            return _reportGeneratorAppService.GetByteDataFacture(ObjectMapper.Map<Facture>(facture.First()));
         }
+
+        public async Task<byte[]> GetByteDataFactureReport(CreateFactureInput input)
+        {
+            var facture = ObjectMapper.Map<Facture>(input);
+            facture.Client = (await _clientRepository.GetAll()
+                .Where(c => (c.CreatorUserId == AbpSession.UserId || c.LastModifierUserId == AbpSession.UserId) && c.Id == input.ClientId).ToListAsync()).First();
+            return _reportGeneratorAppService.GetByteDataFacture(facture);
+        }
+
 
         public async Task<bool> CreateOrUpdateFactureInfosPaiement(FactureInfosPaiementDto factureInfosPaiement)
         {
@@ -246,7 +260,7 @@ namespace Facturi.App
             catch (Exception)
             {
                 return false;
-            }
+            } 
             return true;
         } 
 
@@ -255,7 +269,7 @@ namespace Facturi.App
             var fip = await _factureInfosPaiementRepository.GetAll()
                 .Where(fip => fip.FactureId == factureId)
                 .FirstOrDefaultAsync();
-            return ObjectMapper.Map<FactureInfosPaiementDto>(fip != null ? new FactureInfosPaiementDto() : fip);
+            return ObjectMapper.Map<FactureInfosPaiementDto>(fip == null ? new FactureInfosPaiementDto() : fip);
         }
     }
 }
