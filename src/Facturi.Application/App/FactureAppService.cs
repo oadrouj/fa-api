@@ -271,5 +271,26 @@ namespace Facturi.App
                 .FirstOrDefaultAsync();
             return ObjectMapper.Map<FactureInfosPaiementDto>(fip == null ? new FactureInfosPaiementDto() : fip);
         }
+
+        public async Task<double> GetTotalAmountFacturePayement(long factureId)
+        {
+            var total = await _factureInfosPaiementRepository.GetAll()
+                .Where(item => item.FactureId == factureId)
+                .SumAsync(item => item.MontantPaye);
+
+            return total;
+        }
+
+        public async Task<bool> deleteByFactureIdFactureInfosPaiement(long factureId)
+        {
+            try{
+                await _factureInfosPaiementRepository
+                .DeleteAsync(item => item.FactureId == factureId);
+                return true;
+            }
+            catch(Exception ){
+                return false;
+            }
+        }
     }
 }

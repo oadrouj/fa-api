@@ -17,5 +17,6 @@ namespace Facturi.App
         Task<byte[]> GetByIdDevisReport(long id);
         Task<int> GetAllDevisTotalRecords(CriteriasDto devisCriterias);
         Task<float> GetAllDevisMontantTotal(CriteriasDto devisCriterias);
+        Task<byte[]> GetDevisReport(CreateDevisInput input);
     }
 }

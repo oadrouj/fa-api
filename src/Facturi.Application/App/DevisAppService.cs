@@ -239,7 +239,7 @@ namespace Facturi.App
             return _reportGeneratorAppService.GetByteDataDevis(ObjectMapper.Map<Devis>(facture.First()));
         }
 
-        public async Task<byte[]> GetByteDataDevisReport(CreateDevisInput input)
+        public async Task<byte[]> GetDevisReport(CreateDevisInput input)
         {
             var devis = ObjectMapper.Map<Devis>(input);
             devis.Client = (await _clientRepository.GetAll()

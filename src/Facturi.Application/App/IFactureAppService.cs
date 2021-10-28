@@ -19,5 +19,7 @@ namespace Facturi.App
         Task<bool> CreateOrUpdateFactureInfosPaiement(FactureInfosPaiementDto factureInfosPaiement);
         Task<FactureInfosPaiementDto> GetByFactureIdFactureInfosPaiement(long factureId);
         Task<byte[]> GetByIdFactureReport(long id);
+        Task<byte[]> GetByteDataFactureReport(CreateFactureInput input);
+        Task<bool> deleteByFactureIdFactureInfosPaiement(long factureId);
     }
 }

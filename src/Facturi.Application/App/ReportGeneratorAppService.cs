@@ -64,7 +64,7 @@ namespace Facturi.App
 			sb.Append(@"'>
 	  </div>
 	  <div class='divInfosFacture'>
-	  	<p>Devis F");
+	  	<p>Facture F");
 			for (int i = 0; i < 5 - facture.Reference.ToString().Length; i++)
 			{
 				sb.Append('0');
