@@ -7,7 +7,8 @@
         ReglePartiellemt,
         Regle,
         PaiementAttente,
-        PaiementRetard
+        PaiementRetard,
+        Undefined
     }
 }
 

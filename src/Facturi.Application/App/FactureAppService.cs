@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Facturi.App
 {
@@ -19,15 +20,19 @@ namespace Facturi.App
         private readonly IRepository<FactureInfosPaiement, long> _factureInfosPaiementRepository;
         private readonly IRepository<FactureItem, long> _factureItemRepository;
         private readonly IReportGeneratorAppService _reportGeneratorAppService;
-
+        private readonly IRepository<Client, long> _clientRepository;
 
         public FactureAppService(IRepository<Facture, long> FactureRepository, IRepository<FactureItem, long> factureItemRepository,
-            IReportGeneratorAppService reportGeneratorAppService, IRepository<FactureInfosPaiement, long> factureInfosPaiementRepository)
+            IReportGeneratorAppService reportGeneratorAppService, IRepository<FactureInfosPaiement, long> factureInfosPaiementRepository,
+            IRepository<Client, long> clientRepository
+            )
         {
             _factureRepository = FactureRepository ?? throw new ArgumentNullException(nameof(FactureRepository));
             _factureItemRepository = factureItemRepository ?? throw new ArgumentNullException(nameof(factureItemRepository));
             _reportGeneratorAppService = reportGeneratorAppService ?? throw new ArgumentNullException(nameof(reportGeneratorAppService));
             _factureInfosPaiementRepository = factureInfosPaiementRepository ?? throw new ArgumentNullException(nameof(factureInfosPaiementRepository));
+            _clientRepository = clientRepository ?? throw new ArgumentNullException(nameof(clientRepository));
+
         }
 
         public async Task<long> CreateFacture(CreateFactureInput input)
@@ -136,6 +141,8 @@ namespace Facturi.App
         public async Task<ListResultDto<FactureDto>> GetAllFacture(CriteriasDto factureCriterias)
         {
             CheckIfIsRefSearch(factureCriterias, out bool isRef, out int minRef, out int maxRef);
+            CheckIfIsFilterSearch(factureCriterias, out long client, out DateTime[] dateEmission, out int echeancePaiement,
+            out double montantTtc, out FactureStatutEnum statut);
 
             var FactureList = new List<Facture>();
             var query = _factureRepository.GetAllIncluding(f => f.FactureItems, f => f.Client)
@@ -143,9 +150,11 @@ namespace Facturi.App
                 .WhereIf(factureCriterias.GlobalFilter != null & !isRef,
                     f => f.Client.Nom.Trim().Contains(factureCriterias.GlobalFilter.Trim())
                     || f.Client.RaisonSociale.Trim().Contains(factureCriterias.GlobalFilter.Trim()))
-                .WhereIf(isRef, f => minRef <= f.Reference && f.Reference <= maxRef);
-
-
+                .WhereIf(isRef, f => minRef <= f.Reference && f.Reference <= maxRef)
+                .WhereIf(client != 0, f => f.Client.Id == client)
+                .WhereIf(dateEmission != null, f => f.DateEmission >= dateEmission[0] && f.DateEmission <= dateEmission[1])
+                // .WhereIf(echeance )
+                .WhereIf(statut != FactureStatutEnum.Undefined, f => f.Statut == statut);
             //.WhereIf(!factureCriterias.FactureCategory.Equals("0"), f => f.CategorieFacture.Equals(factureCriterias.FactureCategory));
 
             if (factureCriterias.SortField != null && factureCriterias.SortField.Length != 0)
@@ -228,13 +237,40 @@ namespace Facturi.App
             }
         }
 
+        private static void CheckIfIsFilterSearch(CriteriasDto factureCriterias, out long client, out DateTime[] dateEmission, out int echeancePaiement,
+            out double montantTtc, out FactureStatutEnum statut) 
+        {
+            client = 0;
+            dateEmission = null;
+            echeancePaiement = 0;
+            montantTtc = 0;
+            statut = FactureStatutEnum.Undefined;
+
+            if(factureCriterias.Filtres != null)
+            {
+                client = factureCriterias.Filtres.Client;
+                dateEmission = factureCriterias.Filtres.DateEmission;
+                echeancePaiement = factureCriterias.Filtres.EcheancePaiement;
+                montantTtc = factureCriterias.Filtres.MontantTtc;
+                statut = factureCriterias.Filtres.Statut;
+            }
+        }
         public async Task<byte[]> GetByIdFactureReport(long id)
         {
             var facture = await _factureRepository.GetAllIncluding(f => f.Client, f => f.FactureItems)
                 .Where(f => f.Id == id)
                 .ToListAsync();
-            return _reportGeneratorAppService.GetByteDataFacture(ObjectMapper.Map<FactureDto>(facture.First()));
+            return _reportGeneratorAppService.GetByteDataFacture(ObjectMapper.Map<Facture>(facture.First()));
         }
+
+        public async Task<byte[]> GetByteDataFactureReport(CreateFactureInput input)
+        {
+            var facture = ObjectMapper.Map<Facture>(input);
+            facture.Client = (await _clientRepository.GetAll()
+                .Where(c => (c.CreatorUserId == AbpSession.UserId || c.LastModifierUserId == AbpSession.UserId) && c.Id == input.ClientId).ToListAsync()).First();
+            return _reportGeneratorAppService.GetByteDataFacture(facture);
+        }
+
 
         public async Task<bool> CreateOrUpdateFactureInfosPaiement(FactureInfosPaiementDto factureInfosPaiement)
         {
@@ -246,7 +282,7 @@ namespace Facturi.App
             catch (Exception)
             {
                 return false;
-            }
+            } 
             return true;
         } 
 
@@ -256,6 +292,18 @@ namespace Facturi.App
                 .Where(fip => fip.FactureId == factureId)
                 .FirstOrDefaultAsync();
             return ObjectMapper.Map<FactureInfosPaiementDto>(fip == null ? new FactureInfosPaiementDto() : fip);
+        }
+
+        public async Task<bool> deleteByFactureIdFactureInfosPaiement(long factureId)
+        {
+            try{
+                await _factureInfosPaiementRepository
+                .DeleteAsync(item => item.FactureId == factureId);
+                return true;
+            }
+            catch(Exception ){
+                return false;
+            }
         }
     }
 }

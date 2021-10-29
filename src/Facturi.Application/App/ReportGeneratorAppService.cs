@@ -1,6 +1,8 @@
 ﻿using Abp.Application.Services;
+using Abp.Application.Services.Dto;
 using DinkToPdf;
 using DinkToPdf.Contracts;
+using Facturi.App.Dtos;
 using System;
 using System.IO;
 using System.Text;
@@ -17,7 +19,7 @@ namespace Facturi.App
             _converter = converter ?? throw new ArgumentNullException(nameof(converter));
 		}
 
-		public byte[] GetByteDataFacture(FactureDto factureDto)
+		public byte[] GetByteDataFacture(Facture factureDto)
 		{
 			var globalSettings = new GlobalSettings
 			{
@@ -43,7 +45,7 @@ namespace Facturi.App
 			return file;
 		}
 
-		private string GetHtmlContentFacture(FactureDto factureDto)
+		private string GetHtmlContentFacture(Facture factureDto)
 		{
 			var facture = ObjectMapper.Map<Facture>(factureDto);
 			var sb = new StringBuilder();
@@ -62,7 +64,7 @@ namespace Facturi.App
 			sb.Append(@"'>
 	  </div>
 	  <div class='divInfosFacture'>
-	  	<p>Devis F");
+	  	<p>Facture F");
 			for (int i = 0; i < 5 - facture.Reference.ToString().Length; i++)
 			{
 				sb.Append('0');
@@ -197,7 +199,7 @@ namespace Facturi.App
 		}
 
 
-		public byte[] GetByteDataDevis(DevisDto devisDto)
+		public byte[] GetByteDataDevis(Devis devisDto)
 		{
 			var globalSettings = new GlobalSettings
 			{
@@ -223,7 +225,7 @@ namespace Facturi.App
 			return file;
 		}
 
-		private string GetHtmlContentDevis(DevisDto devisDto)
+		private string GetHtmlContentDevis(Devis devisDto)
 		{
 			var devis = ObjectMapper.Map<Devis>(devisDto);
 			var sb = new StringBuilder();

@@ -17,12 +17,20 @@ namespace Facturi.App
         private readonly IRepository<Devis, long> _devisRepository;
         private readonly IRepository<DevisItem, long> _devisItemRepository;
         private readonly IReportGeneratorAppService _reportGeneratorAppService;
+        private readonly IRepository<Client, long> _clientRepository;
 
-        public DevisAppService(IRepository<Devis, long> DevisRepository, IRepository<DevisItem, long> devisItemRepository, IReportGeneratorAppService reportGeneratorAppService)
+        public DevisAppService(
+            IRepository<Devis, long> DevisRepository,
+            IRepository<DevisItem, long> devisItemRepository, 
+            IReportGeneratorAppService reportGeneratorAppService,
+            IRepository<Client, long> clientRepository
+        )
         {
             _devisRepository = DevisRepository ?? throw new ArgumentNullException(nameof(DevisRepository));
             _devisItemRepository = devisItemRepository ?? throw new ArgumentNullException(nameof(devisItemRepository));
             _reportGeneratorAppService = reportGeneratorAppService ?? throw new ArgumentNullException(nameof(reportGeneratorAppService));
+            _clientRepository = clientRepository ?? throw new ArgumentNullException(nameof(clientRepository));
+
         }
 
         public async Task<long> CreateDevis(CreateDevisInput input)
@@ -228,7 +236,16 @@ namespace Facturi.App
             var facture = await _devisRepository.GetAllIncluding(f => f.Client, f => f.DevisItems)
                 .Where(f => f.Id == id)
                 .ToListAsync();
-            return _reportGeneratorAppService.GetByteDataDevis(ObjectMapper.Map<DevisDto>(facture.First()));
+            return _reportGeneratorAppService.GetByteDataDevis(ObjectMapper.Map<Devis>(facture.First()));
         }
+
+        public async Task<byte[]> GetByteDataDevisReport(CreateDevisInput input)
+        {
+            var devis = ObjectMapper.Map<Devis>(input);
+            devis.Client = (await _clientRepository.GetAll()
+                .Where(c => (c.CreatorUserId == AbpSession.UserId || c.LastModifierUserId == AbpSession.UserId) && c.Id == input.ClientId).ToListAsync()).First();
+            return _reportGeneratorAppService.GetByteDataDevis(devis);
+        }
+
     }
 }
