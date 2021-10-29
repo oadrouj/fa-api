@@ -24,7 +24,7 @@ namespace Facturi.Web.Host.Startup
 {
     public class Startup
     {
-        private const string _defaultCorsPolicyName = "localhost";
+        private const string _defaultCorsPolicyName = "142.11.215.22";
 
         private const string _apiVersion = "v1";
 
