@@ -139,17 +139,22 @@ namespace Facturi.App
         public async Task<ListResultDto<DevisDto>> GetAllDevis(CriteriasDto devisCriterias)
         {
             CheckIfIsRefSearch(devisCriterias, out bool isRef, out int minRef, out int maxRef);
+            
+            CheckIfIsFilterSearch(devisCriterias, out long client, out DateTime[] dateEmission, out int echeancePaiement,
+            out float montantTtc, out DevisStatutEnum statut);
 
             var DevisList = new List<Devis>();
-            var query = _devisRepository.GetAllIncluding(d => d.DevisItems, d => d.Client)
-                .Where(d => (d.CreatorUserId == AbpSession.UserId || d.LastModifierUserId == AbpSession.UserId))
-                .WhereIf(devisCriterias.GlobalFilter != null & !isRef,
-                    d => d.Client.Nom.Trim().Contains(devisCriterias.GlobalFilter.Trim())
-                    || d.Client.RaisonSociale.Trim().Contains(devisCriterias.GlobalFilter.Trim()))
-                .WhereIf(isRef, d => minRef <= d.Reference && d.Reference <= maxRef);
-
-
-            //.WhereIf(!devisCriterias.DevisCategory.Equals("0"), d => d.CategorieDevis.Equals(devisCriterias.DevisCategory));
+            var query = _devisRepository.GetAllIncluding(f => f.DevisItems, f => f.Client)
+            .Where(f => (f.CreatorUserId == AbpSession.UserId || f.LastModifierUserId == AbpSession.UserId))
+            .WhereIf(devisCriterias.GlobalFilter != null & !isRef,
+                f => f.Client.Nom.Trim().Contains(devisCriterias.GlobalFilter.Trim())
+                || f.Client.RaisonSociale.Trim().Contains(devisCriterias.GlobalFilter.Trim()))
+            .WhereIf(isRef, f => minRef <= f.Reference && f.Reference <= maxRef)
+            .WhereIf(client != 0, f => f.ClientId == client)
+            .WhereIf(dateEmission != null, f => f.DateEmission >= dateEmission[0] && f.DateEmission <= dateEmission[1])
+            .WhereIf(echeancePaiement != 0, f => f.EcheancePaiement == echeancePaiement)
+            .WhereIf(montantTtc != -1, f => f.DevisItems.Sum(item => item.TotalTtc) == montantTtc)
+            .WhereIf(statut != DevisStatutEnum.Undefined, f => f.Statut == statut);
 
             if (devisCriterias.SortField != null && devisCriterias.SortField.Length != 0)
             {
@@ -184,31 +189,43 @@ namespace Facturi.App
         public async Task<int> GetAllDevisTotalRecords(CriteriasDto devisCriterias)
         {
             CheckIfIsRefSearch(devisCriterias, out bool isRef, out int minRef, out int maxRef);
-            var query = _devisRepository.GetAllIncluding(d => d.DevisItems, d => d.Client)
-                .Where(d => (d.CreatorUserId == AbpSession.UserId || d.LastModifierUserId == AbpSession.UserId))
-                .WhereIf(devisCriterias.GlobalFilter != null & !isRef,
-                    d => d.Client.Nom.Trim().Contains(devisCriterias.GlobalFilter.Trim())
-                    || d.Client.RaisonSociale.Trim().Contains(devisCriterias.GlobalFilter.Trim()))
-                .WhereIf(isRef, d => minRef <= d.Reference && d.Reference <= maxRef);
+            CheckIfIsFilterSearch(devisCriterias, out long client, out DateTime[] dateEmission, out int echeancePaiement,
+            out float montantTtc, out DevisStatutEnum statut);
 
-
-            //.WhereIf(!devisCriterias.DevisCategory.Equals("0"), d => d.CategorieDevis.Equals(devisCriterias.DevisCategory));
+            var DevisList = new List<Devis>();
+            var query = _devisRepository.GetAllIncluding(f => f.DevisItems, f => f.Client)
+            .Where(f => (f.CreatorUserId == AbpSession.UserId || f.LastModifierUserId == AbpSession.UserId))
+            .WhereIf(devisCriterias.GlobalFilter != null & !isRef,
+                f => f.Client.Nom.Trim().Contains(devisCriterias.GlobalFilter.Trim())
+                || f.Client.RaisonSociale.Trim().Contains(devisCriterias.GlobalFilter.Trim()))
+            .WhereIf(isRef, f => minRef <= f.Reference && f.Reference <= maxRef)
+            .WhereIf(client != 0, f => f.ClientId == client)
+            .WhereIf(dateEmission != null, f => f.DateEmission >= dateEmission[0] && f.DateEmission <= dateEmission[1])
+            .WhereIf(echeancePaiement != 0, f => f.EcheancePaiement == echeancePaiement)
+            .WhereIf(montantTtc != -1, f => f.DevisItems.Sum(item => item.TotalTtc) == montantTtc)
+            .WhereIf(statut != DevisStatutEnum.Undefined, f => f.Statut == statut);
 
             return await query.CountAsync();
         }
 
         public async Task<float> GetAllDevisMontantTotal(CriteriasDto devisCriterias)
         {
-            CheckIfIsRefSearch(devisCriterias, out bool isRef, out int minRef, out int maxRef);
-            var query = _devisRepository.GetAllIncluding(d => d.DevisItems, d => d.Client)
-                .Where(d => (d.CreatorUserId == AbpSession.UserId || d.LastModifierUserId == AbpSession.UserId))
-                .WhereIf(devisCriterias.GlobalFilter != null & !isRef,
-                    d => d.Client.Nom.Trim().Contains(devisCriterias.GlobalFilter.Trim())
-                    || d.Client.RaisonSociale.Trim().Contains(devisCriterias.GlobalFilter.Trim()))
-                .WhereIf(isRef, d => minRef <= d.Reference && d.Reference <= maxRef);
+          CheckIfIsRefSearch(devisCriterias, out bool isRef, out int minRef, out int maxRef);
+            CheckIfIsFilterSearch(devisCriterias, out long client, out DateTime[] dateEmission, out int echeancePaiement,
+            out float montantTtc, out DevisStatutEnum statut);
 
-
-            //.WhereIf(!devisCriterias.DevisCategory.Equals("0"), d => d.CategorieDevis.Equals(devisCriterias.DevisCategory));
+            var DevisList = new List<Devis>();
+            var query = _devisRepository.GetAllIncluding(f => f.DevisItems, f => f.Client)
+            .Where(f => (f.CreatorUserId == AbpSession.UserId || f.LastModifierUserId == AbpSession.UserId))
+            .WhereIf(devisCriterias.GlobalFilter != null & !isRef,
+                f => f.Client.Nom.Trim().Contains(devisCriterias.GlobalFilter.Trim())
+                || f.Client.RaisonSociale.Trim().Contains(devisCriterias.GlobalFilter.Trim()))
+            .WhereIf(isRef, f => minRef <= f.Reference && f.Reference <= maxRef)
+            .WhereIf(client != 0, f => f.ClientId == client)
+            .WhereIf(dateEmission != null, f => f.DateEmission >= dateEmission[0] && f.DateEmission <= dateEmission[1])
+            .WhereIf(echeancePaiement != 0, f => f.EcheancePaiement == echeancePaiement)
+            .WhereIf(montantTtc != -1, f => f.DevisItems.Sum(item => item.TotalTtc) == montantTtc)
+            .WhereIf(statut != DevisStatutEnum.Undefined, f => f.Statut == statut);
 
             var result = await query.SelectMany(d => d.DevisItems).SumAsync(di => (float?)di.TotalTtc) ?? 0;
             return result;
@@ -245,6 +262,24 @@ namespace Facturi.App
             devis.Client = (await _clientRepository.GetAll()
                 .Where(c => (c.CreatorUserId == AbpSession.UserId || c.LastModifierUserId == AbpSession.UserId) && c.Id == input.ClientId).ToListAsync()).First();
             return _reportGeneratorAppService.GetByteDataDevis(devis);
+        }
+        private static void CheckIfIsFilterSearch(CriteriasDto devisCriterias, out long client, out DateTime[] dateEmission, out int echeancePaiement,
+            out float montantTtc, out DevisStatutEnum statut) 
+        {
+            client = 0;
+            dateEmission = null;
+            echeancePaiement = 0;
+            montantTtc = -1;
+            statut = DevisStatutEnum.Undefined;
+
+            if(devisCriterias.Filtres != null)
+            {
+                client = devisCriterias.Filtres.Client;
+                dateEmission = devisCriterias.Filtres.DateEmission;
+                echeancePaiement = devisCriterias.Filtres.EcheancePaiement;
+                montantTtc = devisCriterias.Filtres.MontantTtc;
+                statut = (DevisStatutEnum)devisCriterias.Filtres.Statut;
+            }
         }
 
     }
