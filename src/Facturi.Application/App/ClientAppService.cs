@@ -30,8 +30,8 @@ namespace Facturi.App
                 input.Reference = maxRefClient.First().Reference + 1;
             }
             var client = ObjectMapper.Map<Client>(ObjectMapper.Map<CreateClientInput>(input));
-            var result = await _clientRepository.InsertAsync(client);
-            return ObjectMapper.Map<ClientDto>(result);
+            client.Id = await _clientRepository.InsertAndGetIdAsync(client);
+            return ObjectMapper.Map<ClientDto>(client);
         }
 
         public async Task<ClientDto> UpdateClient(ClientDto input)
