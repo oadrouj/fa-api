@@ -238,9 +238,200 @@ namespace Facturi.App
 <head>
   <meta charset='utf-8'>
   <title>Report</title>
-	<link href='");
-			sb.Append(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\ReportPages\Css", "Facture.css"));
-			sb.Append(@"' rel='stylesheet' type='text/css'>
+	<style type='text / css'>
+html, body {
+  margin: 0px;
+  padding: 0px;
+}
+@font-face {
+    font-family: 'Frutiger';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Frutiger'), url('Frutiger.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'Frutiger';
+    font-style: normal;
+    font-weight: bold;
+    src: local('Frutiger Bold'), url('Frutiger_bold.woff') format('woff');
+}
+body {
+	font-family: Frutiger;
+}
+.headerFacture {
+	position: relative;
+	width: 100%;
+	min-height: 145px;
+}
+
+	.headerFacture div {
+		position: absolute;
+		top: 0px;
+		padding: 12.65px;
+		width: 53%;
+	}
+
+	.headerFacture .divImg {
+		left: 0px;
+	}
+		.headerFacture .divImg img {
+			width: 88.55px;
+		}
+
+	.headerFacture .divInfosFacture {
+		right: 0px;
+	}
+		.headerFacture .divInfosFacture p {
+			text-align: right;
+			margin: 2px;
+		    font-weight: bold;
+    		font-size: 43px;
+		}
+		.headerFacture .divInfosFacture .pDate {
+		    font-size: 29px;
+		    color: #c9c9c9;
+		}
+.cordonneesFacture {
+	margin-top: 20px;
+	position: relative;
+	width: 100%;
+	min-height: 235px;
+}
+
+	.cordonneesFacture div {
+		position: absolute;
+		top: 0px;
+		padding: 12.65px;
+	}
+
+	.cordonneesFacture .divPour {
+		left: 0px;
+		width: 50%;
+	}
+	.cordonneesFacture .divDe {
+		right: 0px;
+		width: 40%;
+	}
+
+		.cordonneesFacture div p {
+			margin: 2px;
+		    font-weight: bold;
+		    font-size: 20px;
+		}
+		.cordonneesFacture div .pPourDe {
+		    color: #c9c9c9;
+		}
+		.cordonneesFacture div .numTel {
+		    margin-top: 20px;
+		}
+.elementsFacture {
+	width: 100%;
+}
+	.elementsFacture table{
+		width: 98%;
+		border-collapse: separate;
+    	border-spacing: 0 20px;
+    	margin: auto;
+	}
+		.elementsFacture table thead{
+			width: 100%;
+		}
+			.elementsFacture table thead tr{
+				width: 100%;
+			}
+				.elementsFacture table thead tr th{
+					text-align: center;
+					padding: 0px 0px 0px 0px; 
+					color: #0D6939;
+					border-bottom: 2px solid #c9c9c9;
+					border-top: 2px solid #c9c9c9;
+					font-weight: bold;
+					text-transform: uppercase;
+					position: relative;
+				}
+				.elementsFacture table thead tr th.left{
+					text-align: left;
+				}
+				.elementsFacture table thead tr th.right{
+					text-align: right;
+				}
+				.elementsFacture table thead tr th:before{
+					position: absolute;
+					top: 0;
+					left: 0;
+					width: 100%;
+					border-top: 2px solid #c9c9c9;
+				}
+				.elementsFacture table thead tr th:after{
+					position: absolute;
+					bottom: 0;
+					left: 0;
+					width: 100%;
+					border-top: 2px solid #c9c9c9;
+				}
+		.elementsFacture table tbody{
+			width: 100%;
+		}
+			.elementsFacture table tbody tr{
+				width: 100%;
+			}
+				.elementsFacture table tbody tr td{
+					max-width: 180px;
+					text-align: center;
+					font-weight: bold;
+					position: relative;
+				}
+				.elementsFacture table tbody tr td.left{
+					text-align: left;
+				}
+				.elementsFacture table tbody tr td.right{
+					text-align: right;
+				}
+				
+.totalFacture {
+	width: 100%;
+	position: relative;
+}
+
+	.totalFacture #divTotal {
+		position: absolute;
+		top: 0px;
+		right: 0px;
+		padding: 12.65px;
+		width: 65%;
+	}
+		.totalFacture #divTotal hr {
+			width: 60%;
+			height: 0px;
+			border-top: 2px solid #c9c9c9;
+			text-align:right;
+			margin-left: 40%;
+		}
+
+		.totalFacture #divTotal #divCalcul {
+			width: 100%;
+		}
+
+		.totalFacture #divTotal #divTTC {
+			width: 100%;
+		}
+			.totalFacture #divTotal div.label {
+				width: 60%;
+				float: left;
+			}
+			.totalFacture #divTotal div.value {
+				width: 40%;
+				float: left;
+			}
+				.totalFacture p {
+					text-align: right;
+					font-size: 20px;
+					font-weight: bold;
+					margin-top: 10px;
+					text-transform: uppercase;
+				}
+</ style >
 </head>
 <body>
   <div class='headerFacture'>
