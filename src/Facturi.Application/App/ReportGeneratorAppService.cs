@@ -49,12 +49,15 @@ namespace Facturi.App
 		{
 			var facture = ObjectMapper.Map<Facture>(factureDto);
 			var sb = new StringBuilder();
-
+			
 			sb.Append(@"<!doctype html>
 <html lang='fr'>
 <head>
   <meta charset='utf-8'>
   <title>Report</title>
+	<link href='");
+			sb.Append(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\ReportPages\Css", "Facture.css"));
+			sb.Append(@"' rel='stylesheet' type='text/css'>
 </head>
 <body>
   <div class='headerFacture'>
@@ -235,6 +238,9 @@ namespace Facturi.App
 <head>
   <meta charset='utf-8'>
   <title>Report</title>
+	<link href='");
+			sb.Append(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\ReportPages\Css", "Facture.css"));
+			sb.Append(@"' rel='stylesheet' type='text/css'>
 </head>
 <body>
   <div class='headerFacture'>
