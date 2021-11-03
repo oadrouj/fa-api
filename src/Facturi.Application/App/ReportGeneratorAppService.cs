@@ -59,22 +59,6 @@ html, body {
   margin: 0px;
   padding: 0px;
 }
-@font-face {
-    font-family: 'Frutiger';
-    font-style: normal;
-    font-weight: normal;
-    src: local('Frutiger'), url('Frutiger.woff') format('woff');
-}
-
-@font-face {
-    font-family: 'Frutiger';
-    font-style: normal;
-    font-weight: bold;
-    src: local('Frutiger Bold'), url('Frutiger_bold.woff') format('woff');
-}
-body {
-	font-family: Frutiger;
-}
 .headerFacture {
 	position: relative;
 	width: 100%;
