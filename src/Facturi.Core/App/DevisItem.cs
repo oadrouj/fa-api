@@ -14,7 +14,7 @@ namespace Facturi.App
 
         public string Unit { get; set; }
 
-        public int UnitPriceHT { get; set; }
+        public float UnitPriceHT { get; set; }
 
         public float Tva { get; set; }
 
