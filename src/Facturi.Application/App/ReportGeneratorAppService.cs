@@ -389,7 +389,7 @@ html, body {
 			{
 				PagesCount = true,
 				HtmlContent = GetHtmlContentDevis(devis),
-				WebSettings = { DefaultEncoding = "utf-8", UserStyleSheet = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\ReportPages\Css", "Facture.css") }
+				WebSettings = { DefaultEncoding = "utf-8" }
 			};
 
 			var pdf = new HtmlToPdfDocument
@@ -415,22 +415,6 @@ html, body {
 html, body {
   margin: 0px;
   padding: 0px;
-}
-@font-face {
-    font-family: 'Frutiger';
-    font-style: normal;
-    font-weight: normal;
-    src: local('Frutiger'), url('Frutiger.woff') format('woff');
-}
-
-@font-face {
-    font-family: 'Frutiger';
-    font-style: normal;
-    font-weight: bold;
-    src: local('Frutiger Bold'), url('Frutiger_bold.woff') format('woff');
-}
-body {
-	font-family: Frutiger;
 }
 .headerFacture {
 	position: relative;
