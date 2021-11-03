@@ -55,7 +55,7 @@ namespace Facturi.App
 <head>
   <meta charset='utf-8'>
   <title>Report</title>
-	<style type='text / css'>
+	<style type='text/css'>
 html, body {
   margin: 0px;
   padding: 0px;
@@ -248,7 +248,7 @@ body {
 					margin-top: 10px;
 					text-transform: uppercase;
 				}
-</ style >
+</style >
 </head>
 <body>
   <div class='headerFacture'>
@@ -429,7 +429,7 @@ body {
 <head>
   <meta charset='utf-8'>
   <title>Report</title>
-	<style type='text / css'>
+	<style type='text/css'>
 html, body {
   margin: 0px;
   padding: 0px;
@@ -622,7 +622,7 @@ body {
 					margin-top: 10px;
 					text-transform: uppercase;
 				}
-</ style >
+</style >
 </head>
 <body>
   <div class='headerFacture'>
