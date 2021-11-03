@@ -32,7 +32,7 @@ namespace Facturi.App
 			{
 				PagesCount = true,
 				HtmlContent = GetHtmlContentFacture(factureDto),
-				WebSettings = { DefaultEncoding = "utf-8", UserStyleSheet = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\ReportPages\Css", "Facture.css") }
+				WebSettings = { DefaultEncoding = "utf-8"}
 			};
 
 			var pdf = new HtmlToPdfDocument
@@ -265,10 +265,10 @@ body {
 			sb.Append(facture.Reference);
 			sb.Append(@"</p>
 	  	<p class='pDate'>Date d’émission : ");
-			sb.Append(facture.DateEmission.ToString("dd/MM/yyyy"));
+			sb.Append(facture.DateEmission.ToString());
 			sb.Append(@"</p>
 	  	<p class='pDate'>Date d’échéance : ");
-			sb.Append(facture.DateEmission.AddDays(facture.EcheancePaiement).ToString("dd/MM/yyyy"));
+			sb.Append(facture.DateEmission.AddDays(facture.EcheancePaiement).ToString());
 			sb.Append(@"</p>
 	  </div>
   </div>
@@ -327,7 +327,7 @@ body {
 				sb.Append(fi.Description);
 				sb.Append(@"</td>
 	  					<td>");
-				sb.Append(fi.Date.ToString("dd/MM/yyyy"));
+				sb.Append(fi.Date.ToString());
 				sb.Append(@"</td>
 	  					<td>");
 				sb.Append(fi.Quantity);
