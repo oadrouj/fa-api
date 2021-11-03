@@ -30,8 +30,8 @@ namespace Facturi.App
                 input.Reference = maxRefClient.First().Reference + 1;
             }
             var client = ObjectMapper.Map<Client>(ObjectMapper.Map<CreateClientInput>(input));
-            var result = await _clientRepository.InsertAsync(client);
-            return ObjectMapper.Map<ClientDto>(result);
+            client.Id = await _clientRepository.InsertAndGetIdAsync(client);
+            return ObjectMapper.Map<ClientDto>(client);
         }
 
         public async Task<ClientDto> UpdateClient(ClientDto input)
@@ -78,8 +78,8 @@ namespace Facturi.App
                 .WhereIf(listCriteria.ChampsRecherche != null & !isRef,
                     c => c.Nom.Trim().Contains(listCriteria.ChampsRecherche.Trim())
                     || c.RaisonSociale.Trim().Contains(listCriteria.ChampsRecherche.Trim()))
-                .WhereIf(isRef, c => minRef <= c.Reference && c.Reference <= maxRef)
-                .WhereIf(!listCriteria.ClientCategory.Equals("0"), c => c.CategorieClient.Equals(listCriteria.ClientCategory));
+                .WhereIf(isRef, c => minRef <= c.Reference && c.Reference <= maxRef);
+                // .WhereIf(!listCriteria.ClientCategory.Equals("0"), c => c.CategorieClient.Equals(listCriteria.ClientCategory));
 
             if (listCriteria.SortField != null && listCriteria.SortField.Length != 0)
             {
@@ -116,12 +116,12 @@ namespace Facturi.App
             await _clientRepository.DeleteAsync(clientId);
         }
 
-        public async Task<ListResultDto<ClientForAutoCompleteDto>> GetClientForAutoComplete(string motCle)
+       public async Task<ListResultDto<ClientForAutoCompleteDto>> GetClientForAutoComplete(string motCle)
         {
             var result = await _clientRepository.GetAll()
                 .Where(c => c.CreatorUserId == AbpSession.UserId || c.LastModifierUserId == AbpSession.UserId)
-                .Where(c => (c.Nom != null && c.Nom.Contains(motCle)) || (c.RaisonSociale != null && c.RaisonSociale.Contains(motCle)))
-                .Select(c => new ClientForAutoCompleteDto() { Id = c.Id, Nom = c.Nom ?? c.RaisonSociale })
+                .Where(c => (c.CategorieClient.Equals("PRTC") && c.Nom.Contains(motCle)) || (c.CategorieClient.Equals("PRFS") && c.RaisonSociale.Contains(motCle)))
+                .Select(c => new ClientForAutoCompleteDto() { Id = c.Id, Nom = c.CategorieClient.Equals("PRTC") ? c.Nom : c.RaisonSociale })
                 .ToListAsync();
 
             return new ListResultDto<ClientForAutoCompleteDto>(result);

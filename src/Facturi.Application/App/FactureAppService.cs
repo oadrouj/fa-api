@@ -139,20 +139,21 @@ namespace Facturi.App
         {
             CheckIfIsRefSearch(factureCriterias, out bool isRef, out int minRef, out int maxRef);
             CheckIfIsFilterSearch(factureCriterias, out long client, out DateTime[] dateEmission, out int echeancePaiement,
-            out double montantTtc, out FactureStatutEnum statut);
+            out float montantTtc, out FactureStatutEnum statut);
 
             var FactureList = new List<Facture>();
+           
             var query = _factureRepository.GetAllIncluding(f => f.FactureItems, f => f.Client)
                 .Where(f => (f.CreatorUserId == AbpSession.UserId || f.LastModifierUserId == AbpSession.UserId))
                 .WhereIf(factureCriterias.GlobalFilter != null & !isRef,
                     f => f.Client.Nom.Trim().Contains(factureCriterias.GlobalFilter.Trim())
                     || f.Client.RaisonSociale.Trim().Contains(factureCriterias.GlobalFilter.Trim()))
                 .WhereIf(isRef, f => minRef <= f.Reference && f.Reference <= maxRef)
-                .WhereIf(client != 0, f => f.Client.Id == client)
-                .WhereIf(dateEmission != null, f => f.DateEmission >= dateEmission[0] && f.DateEmission <= dateEmission[1])
-                // .WhereIf(echeance )
+                .WhereIf(client != 0, f => f.ClientId == client)
+                .WhereIf(dateEmission != null, f => f.DateEmission.Date >= dateEmission[0] && f.DateEmission.Date <= dateEmission[1])
+                .WhereIf(echeancePaiement != 0, f => f.EcheancePaiement == echeancePaiement)
+                .WhereIf(montantTtc != -1, f => f.FactureItems.Sum(item => item.TotalTtc) == montantTtc)
                 .WhereIf(statut != FactureStatutEnum.Undefined, f => f.Statut == statut);
-            //.WhereIf(!factureCriterias.FactureCategory.Equals("0"), f => f.CategorieFacture.Equals(factureCriterias.FactureCategory));
 
             if (factureCriterias.SortField != null && factureCriterias.SortField.Length != 0)
             {
@@ -187,15 +188,20 @@ namespace Facturi.App
         public async Task<int> GetAllFactureTotalRecords(CriteriasDto factureCriterias)
         {
             CheckIfIsRefSearch(factureCriterias, out bool isRef, out int minRef, out int maxRef);
+            CheckIfIsFilterSearch(factureCriterias, out long client, out DateTime[] dateEmission, out int echeancePaiement,
+            out float montantTtc, out FactureStatutEnum statut);
+
             var query = _factureRepository.GetAllIncluding(f => f.FactureItems, f => f.Client)
                 .Where(f => (f.CreatorUserId == AbpSession.UserId || f.LastModifierUserId == AbpSession.UserId))
                 .WhereIf(factureCriterias.GlobalFilter != null & !isRef,
                     f => f.Client.Nom.Trim().Contains(factureCriterias.GlobalFilter.Trim())
                     || f.Client.RaisonSociale.Trim().Contains(factureCriterias.GlobalFilter.Trim()))
-                .WhereIf(isRef, f => minRef <= f.Reference && f.Reference <= maxRef);
-
-
-            //.WhereIf(!factureCriterias.FactureCategory.Equals("0"), f => f.CategorieFacture.Equals(factureCriterias.FactureCategory));
+                .WhereIf(isRef, f => minRef <= f.Reference && f.Reference <= maxRef)
+                .WhereIf(client != 0, f => f.ClientId == client)
+                .WhereIf(dateEmission != null, f => f.DateEmission >= dateEmission[0] && f.DateEmission <= dateEmission[1])
+                 .WhereIf(echeancePaiement != 0, f => f.EcheancePaiement == echeancePaiement)
+                 .WhereIf(montantTtc != -1, f => f.FactureItems.Sum(item => item.TotalTtc) == montantTtc)
+                .WhereIf(statut != FactureStatutEnum.Undefined, f => f.Statut == statut);
 
             return await query.CountAsync();
         }
@@ -203,13 +209,20 @@ namespace Facturi.App
         public async Task<float> GetAllFactureMontantTotal(CriteriasDto factureCriterias)
         {
             CheckIfIsRefSearch(factureCriterias, out bool isRef, out int minRef, out int maxRef);
+            CheckIfIsFilterSearch(factureCriterias, out long client, out DateTime[] dateEmission, out int echeancePaiement,
+            out float montantTtc, out FactureStatutEnum statut);
+            
             var query = _factureRepository.GetAllIncluding(f => f.FactureItems, f => f.Client)
                 .Where(f => (f.CreatorUserId == AbpSession.UserId || f.LastModifierUserId == AbpSession.UserId))
                 .WhereIf(factureCriterias.GlobalFilter != null & !isRef,
                     f => f.Client.Nom.Trim().Contains(factureCriterias.GlobalFilter.Trim())
                     || f.Client.RaisonSociale.Trim().Contains(factureCriterias.GlobalFilter.Trim()))
-                .WhereIf(isRef, f => minRef <= f.Reference && f.Reference <= maxRef);
-
+                .WhereIf(isRef, f => minRef <= f.Reference && f.Reference <= maxRef)
+                .WhereIf(client != 0, f => f.ClientId == client)
+                .WhereIf(dateEmission != null, f => f.DateEmission >= dateEmission[0] && f.DateEmission <= dateEmission[1])
+                 .WhereIf(echeancePaiement != 0, f => f.EcheancePaiement == echeancePaiement)
+                 .WhereIf(montantTtc != -1, f => f.FactureItems.Sum(item => item.TotalTtc) == montantTtc)
+                .WhereIf(statut != FactureStatutEnum.Undefined, f => f.Statut == statut);
 
             //.WhereIf(!factureCriterias.FactureCategory.Equals("0"), f => f.CategorieFacture.Equals(factureCriterias.FactureCategory));
 
@@ -235,12 +248,12 @@ namespace Facturi.App
         }
 
         private static void CheckIfIsFilterSearch(CriteriasDto factureCriterias, out long client, out DateTime[] dateEmission, out int echeancePaiement,
-            out double montantTtc, out FactureStatutEnum statut) 
+            out float montantTtc, out FactureStatutEnum statut) 
         {
             client = 0;
             dateEmission = null;
             echeancePaiement = 0;
-            montantTtc = 0;
+            montantTtc = -1;
             statut = FactureStatutEnum.Undefined;
 
             if(factureCriterias.Filtres != null)
@@ -248,8 +261,8 @@ namespace Facturi.App
                 client = factureCriterias.Filtres.Client;
                 dateEmission = factureCriterias.Filtres.DateEmission;
                 echeancePaiement = factureCriterias.Filtres.EcheancePaiement;
-                montantTtc = factureCriterias.Filtres.MontantTtc;
-                statut = factureCriterias.Filtres.Statut;
+                montantTtc = factureCriterias.Filtres.MontantTtc  ;
+                statut = (FactureStatutEnum)factureCriterias.Filtres.Statut;
             }
         }
         public async Task<byte[]> GetByIdFactureReport(long id)
