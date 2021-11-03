@@ -253,7 +253,7 @@ namespace Facturi.App
             var facture = await _devisRepository.GetAllIncluding(f => f.Client, f => f.DevisItems)
                 .Where(f => f.Id == id)
                 .ToListAsync();
-            return _reportGeneratorAppService.GetByteDataDevis(facture.First());
+            return _reportGeneratorAppService.GetByteDataDevis(ObjectMapper.Map<DevisDto>(facture.First()));
         }
 
         public async Task<byte[]> GetByteDataDevisReport(CreateDevisInput input)
@@ -261,7 +261,7 @@ namespace Facturi.App
             var devis = ObjectMapper.Map<Devis>(input);
             devis.Client = (await _clientRepository.GetAll()
                 .Where(c => (c.CreatorUserId == AbpSession.UserId || c.LastModifierUserId == AbpSession.UserId) && c.Id == input.ClientId).ToListAsync()).First();
-            return _reportGeneratorAppService.GetByteDataDevis(devis);
+            return _reportGeneratorAppService.GetByteDataDevis(ObjectMapper.Map<DevisDto>(devis));
         }
         private static void CheckIfIsFilterSearch(CriteriasDto devisCriterias, out long client, out DateTime[] dateEmission, out int echeancePaiement,
             out float montantTtc, out DevisStatutEnum statut) 

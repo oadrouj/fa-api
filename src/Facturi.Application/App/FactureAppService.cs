@@ -270,7 +270,7 @@ namespace Facturi.App
             var facture = await _factureRepository.GetAllIncluding(f => f.Client, f => f.FactureItems)
                 .Where(f => f.Id == id)
                 .ToListAsync();
-            return _reportGeneratorAppService.GetByteDataFacture(facture.First());
+            return _reportGeneratorAppService.GetByteDataFacture(ObjectMapper.Map<FactureDto>(facture.First()));
         }
 
         public async Task<byte[]> GetByteDataFactureReport(CreateFactureInput input)
@@ -278,7 +278,7 @@ namespace Facturi.App
             var facture = ObjectMapper.Map<Facture>(input);
             facture.Client = (await _clientRepository.GetAll()
                 .Where(c => (c.CreatorUserId == AbpSession.UserId || c.LastModifierUserId == AbpSession.UserId) && c.Id == input.ClientId).ToListAsync()).First();
-            return _reportGeneratorAppService.GetByteDataFacture(facture);
+            return _reportGeneratorAppService.GetByteDataFacture(ObjectMapper.Map<FactureDto>(facture));
         }
 
 

@@ -5,7 +5,7 @@ namespace Facturi.App
 {
     public interface IReportGeneratorAppService : IApplicationService
     {
-        byte[] GetByteDataFacture(Facture factureDto);
-        byte[] GetByteDataDevis(Devis factureDto);
+        byte[] GetByteDataFacture(FactureDto facture);
+        byte[] GetByteDataDevis(DevisDto facture);
     }
 }
