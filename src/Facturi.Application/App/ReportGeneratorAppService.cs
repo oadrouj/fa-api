@@ -19,7 +19,7 @@ namespace Facturi.App
             _converter = converter ?? throw new ArgumentNullException(nameof(converter));
 		}
 
-		public byte[] GetByteDataFacture(Facture factureDto)
+		public byte[] GetByteDataFacture(Facture facture)
 		{
 			var globalSettings = new GlobalSettings
 			{
@@ -31,7 +31,7 @@ namespace Facturi.App
 			var objetSettings = new ObjectSettings
 			{
 				PagesCount = true,
-				HtmlContent = GetHtmlContentFacture(factureDto),
+				HtmlContent = GetHtmlContentFacture(facture),
 				WebSettings = { DefaultEncoding = "utf-8", UserStyleSheet = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\ReportPages\Css", "Facture.css") }
 			};
 
@@ -45,9 +45,8 @@ namespace Facturi.App
 			return file;
 		}
 
-		private string GetHtmlContentFacture(Facture factureDto)
+		private string GetHtmlContentFacture(Facture facture)
 		{
-			var facture = ObjectMapper.Map<Facture>(factureDto);
 			var sb = new StringBuilder();
 			
 			sb.Append(@"<!doctype html>
@@ -393,7 +392,7 @@ body {
 		}
 
 
-		public byte[] GetByteDataDevis(Devis devisDto)
+		public byte[] GetByteDataDevis(Devis devis)
 		{
 			var globalSettings = new GlobalSettings
 			{
@@ -405,7 +404,7 @@ body {
 			var objetSettings = new ObjectSettings
 			{
 				PagesCount = true,
-				HtmlContent = GetHtmlContentDevis(devisDto),
+				HtmlContent = GetHtmlContentDevis(devis),
 				WebSettings = { DefaultEncoding = "utf-8", UserStyleSheet = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\ReportPages\Css", "Facture.css") }
 			};
 
@@ -419,9 +418,8 @@ body {
 			return file;
 		}
 
-		private string GetHtmlContentDevis(Devis devisDto)
+		private string GetHtmlContentDevis(Devis devis)
 		{
-			var devis = ObjectMapper.Map<Devis>(devisDto);
 			var sb = new StringBuilder();
 
 			sb.Append(@"<!doctype html>

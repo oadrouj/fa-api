@@ -270,7 +270,7 @@ namespace Facturi.App
             var facture = await _factureRepository.GetAllIncluding(f => f.Client, f => f.FactureItems)
                 .Where(f => f.Id == id)
                 .ToListAsync();
-            return _reportGeneratorAppService.GetByteDataFacture(ObjectMapper.Map<Facture>(facture.First()));
+            return _reportGeneratorAppService.GetByteDataFacture(facture.First());
         }
 
         public async Task<byte[]> GetByteDataFactureReport(CreateFactureInput input)

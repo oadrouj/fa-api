@@ -253,7 +253,7 @@ namespace Facturi.App
             var facture = await _devisRepository.GetAllIncluding(f => f.Client, f => f.DevisItems)
                 .Where(f => f.Id == id)
                 .ToListAsync();
-            return _reportGeneratorAppService.GetByteDataDevis(ObjectMapper.Map<Devis>(facture.First()));
+            return _reportGeneratorAppService.GetByteDataDevis(facture.First());
         }
 
         public async Task<byte[]> GetByteDataDevisReport(CreateDevisInput input)
