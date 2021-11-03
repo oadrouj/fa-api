@@ -1,5 +1,6 @@
 ﻿using Abp.Application.Services.Dto;
 using Abp.AutoMapper;
+using Facturi.App.Dtos;
 using System;
 using System.Collections.Generic;
 
@@ -20,6 +21,6 @@ namespace Facturi.App
         public List<FactureItemDto> FactureItems { get; set; }
 
         public long ClientId { get; set; }
-        public Client Client { get; set; }
+        public ClientDto Client { get; set; }
     }
 }
