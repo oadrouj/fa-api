@@ -41,8 +41,8 @@ namespace Facturi.App
 				Objects = { objetSettings }
 			};
 
-			var file = _converter.Convert(pdf);
-			return file;
+			//var file = _converter.Convert(pdf);
+			return null;
 		}
 
 		private string GetHtmlContentFacture(FactureDto facture)
