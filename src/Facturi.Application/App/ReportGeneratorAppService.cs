@@ -41,8 +41,8 @@ namespace Facturi.App
 				Objects = { objetSettings }
 			};
 
-			//var file = _converter.Convert(pdf);
-			return null;
+			var file = _converter.Convert(pdf);
+			return file;
 		}
 
 		private string GetHtmlContentFacture(FactureDto facture)
@@ -265,10 +265,10 @@ body {
 			sb.Append(facture.Reference);
 			sb.Append(@"</p>
 	  	<p class='pDate'>Date d’émission : ");
-			sb.Append(facture.DateEmission.ToString());
+			sb.Append(facture.DateEmission.ToString("dd/MM/yyyy"));
 			sb.Append(@"</p>
 	  	<p class='pDate'>Date d’échéance : ");
-			sb.Append(facture.DateEmission.AddDays(facture.EcheancePaiement).ToString());
+			sb.Append(facture.DateEmission.AddDays(facture.EcheancePaiement).ToString("dd/MM/yyyy"));
 			sb.Append(@"</p>
 	  </div>
   </div>
@@ -327,7 +327,7 @@ body {
 				sb.Append(fi.Description);
 				sb.Append(@"</td>
 	  					<td>");
-				sb.Append(fi.Date.ToString());
+				sb.Append(fi.Date.ToString("dd/MM/yyyy"));
 				sb.Append(@"</td>
 	  					<td>");
 				sb.Append(fi.Quantity);
