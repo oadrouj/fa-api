@@ -227,7 +227,13 @@ namespace Facturi.App
             .WhereIf(montantTtc != -1, f => f.DevisItems.Sum(item => item.TotalTtc) == montantTtc)
             .WhereIf(statut != DevisStatutEnum.Undefined, f => f.Statut == statut);
 
-            var result = await query.SelectMany(d => d.DevisItems).SumAsync(di => (float?)di.TotalTtc) ?? 0;
+            var result = 0.0f;
+            foreach (var item in query)
+            {
+                result += (float)(item.DevisItems.Sum(di => (float?)di.TotalTtc) -
+                 item.DevisItems.Sum(di => (float?)di.UnitPriceHT * di.Quantity) * item.Remise /100);
+
+            }
             return result;
         }
 
@@ -281,6 +287,16 @@ namespace Facturi.App
                 statut = (DevisStatutEnum)devisCriterias.Filtres.Statut;
             }
         }
+         public async Task<bool> CheckIfReferenceIsExist(char referencePrefix, int reference) {
+            var query = await this._devisRepository.GetAll()
+                .FirstOrDefaultAsync(item => item.Reference == reference && item.ReferencePrefix == referencePrefix);
+            if(query != null)
+                return true;
+            else 
+                return false;
+        }
 
     }
+   
+
 }

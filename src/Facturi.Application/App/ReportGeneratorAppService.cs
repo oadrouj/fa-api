@@ -363,7 +363,7 @@ html, body {
 				  	</div>
 				  	<div class='value'>
 					  	<p>");
-			sb.Append(totalMontantHT + totalMontantTVA - facture.Remise);
+			sb.Append(totalMontantHT + totalMontantTVA - (facture.Remise * totalMontantHT /100));
 			sb.Append(@" MAD</p>
 				  	</div>
 			  </div>
@@ -720,7 +720,7 @@ html, body {
 				  	</div>
 				  	<div class='value'>
 					  	<p>");
-			sb.Append(totalMontantHT + totalMontantTVA - devis.Remise);
+			sb.Append(totalMontantHT + totalMontantTVA - (devis.Remise * totalMontantHT /100));
 			sb.Append(@" MAD</p>
 				  	</div>
 			  </div>

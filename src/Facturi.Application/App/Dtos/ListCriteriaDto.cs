@@ -3,11 +3,11 @@ namespace Facturi.App.Dtos
 {
     public class ListCriteriaDto
     {
-        public string ChampsRecherche { get; set; }
-        public string ClientCategory { get; set; }
-        public string ClientType { get; set; }
+        public int First { get; set; }
+        public int Rows { get; set; }
+        public string GlobalFilter { get; set; }
         public string SortField { get; set; }
-        public int SortOrder { get; set; }
+        public string SortOrder { get; set; }
         public ClientFilter ClientFilter { get; set; }
     }
 }
