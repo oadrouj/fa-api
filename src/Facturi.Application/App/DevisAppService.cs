@@ -227,11 +227,13 @@ namespace Facturi.App
             .WhereIf(montantTtc != -1, f => f.DevisItems.Sum(item => item.TotalTtc) == montantTtc)
             .WhereIf(statut != DevisStatutEnum.Undefined, f => f.Statut == statut);
 
-            var result = await query.SelectMany(d => d.DevisItems).SumAsync(di => (float?)di.TotalTtc) ?? 0;
-            // foreach (var item in collection)
-            // {
-                
-            // }
+            var result = 0.0f;
+            foreach (var item in query)
+            {
+                result += (float)(item.DevisItems.Sum(di => (float?)di.TotalTtc) -
+                 item.DevisItems.Sum(di => (float?)di.UnitPriceHT * di.Quantity) * item.Remise /100);
+
+            }
             return result;
         }
 

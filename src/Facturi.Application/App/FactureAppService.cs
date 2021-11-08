@@ -224,9 +224,13 @@ namespace Facturi.App
                  .WhereIf(montantTtc != -1, f => f.FactureItems.Sum(item => item.TotalTtc) == montantTtc)
                 .WhereIf(statut != FactureStatutEnum.Undefined, f => f.Statut == statut);
 
-            //.WhereIf(!factureCriterias.FactureCategory.Equals("0"), f => f.CategorieFacture.Equals(factureCriterias.FactureCategory));
+            var result = 0.0f;
+            foreach (var item in query)
+            {
+                result += (float)(item.FactureItems.Sum(di => (float?)di.TotalTtc) -
+                 item.FactureItems.Sum(di => (float?)di.UnitPriceHT * di.Quantity) * item.Remise /100);
 
-            var result = await query.SelectMany(f => f.FactureItems).SumAsync(di => (float?)di.TotalTtc) ?? 0;
+            }
             return result;
         }
 
