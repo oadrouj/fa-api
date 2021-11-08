@@ -18,5 +18,7 @@ namespace Facturi.App
         Task<int> GetAllDevisTotalRecords(CriteriasDto devisCriterias);
         Task<float> GetAllDevisMontantTotal(CriteriasDto devisCriterias);
         Task<byte[]> GetByteDataDevisReport(CreateDevisInput input);
+        Task<bool> CheckIfReferenceIsExist(char referencePrefix, int reference);
+
     }
 }

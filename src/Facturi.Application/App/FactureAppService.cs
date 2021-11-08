@@ -315,5 +315,15 @@ namespace Facturi.App
                 return false;
             }
         }
+
+         public async Task<bool> CheckIfReferenceIsExist(char referencePrefix, int reference) {
+            var query = await this._factureRepository.GetAll()
+                .FirstOrDefaultAsync(item => item.Reference == reference && item.ReferencePrefix == referencePrefix);
+            if(query != null)
+                return true;
+            else 
+                return false;
+        }
+
     }
 }

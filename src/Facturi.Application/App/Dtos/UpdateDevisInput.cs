@@ -9,6 +9,7 @@ namespace Facturi.App
     public class UpdateDevisInput : EntityDto<long>
     {
         public int Reference { get; set; }
+        public char? ReferencePrefix { get; set; }
         public DateTime DateEmission { get; set; } = new DateTime();
         public int EcheancePaiement { get; set; }
         public string MessageIntroduction { get; set; }

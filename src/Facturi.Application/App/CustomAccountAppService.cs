@@ -46,7 +46,7 @@ namespace Facturi.App
 
             message.Subject = "Facturi - Confirmation d'adresse email";
             BodyBuilder bodyBuilder = new();
-            bodyBuilder.TextBody = "http://142.11.215.22:4200/account/validateMail/" + userId;
+            bodyBuilder.TextBody = "http://localhost:4200/account/validateMail/" + userId;
             message.Body = bodyBuilder.ToMessageBody();
 
             SmtpClient client = new();

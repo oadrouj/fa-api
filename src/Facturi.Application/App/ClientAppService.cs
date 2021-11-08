@@ -15,10 +15,14 @@ namespace Facturi.App
     public class ClientAppService : ApplicationService, IClientAppService
     {
         private readonly IRepository<Client, long> _clientRepository;
-
-        public ClientAppService(IRepository<Client, long> clientRepository)
+        private readonly IRepository<Facture, long> _factureRepository;
+        public ClientAppService(
+            IRepository<Client, long> clientRepository,
+            IRepository<Facture, long> factureRepository 
+        )
         {
             _clientRepository = clientRepository ?? throw new ArgumentNullException(nameof(clientRepository));
+            _factureRepository = factureRepository ?? throw new ArgumentNullException(nameof(factureRepository));
         }
 
         public async Task<ClientDto> CreateClient(ClientDto input)
@@ -58,54 +62,48 @@ namespace Facturi.App
 
         public async Task<ListResultDto<ClientDto>> GetAllClients(ListCriteriaDto listCriteria)
         {
-            bool isRef = false;
-            int minRef = 0;
-            int maxRef = 0;
-
-            if (listCriteria.ChampsRecherche != null && listCriteria.ChampsRecherche.Trim().ToLower().StartsWith('c'))
-            {
-                string strRef = listCriteria.ChampsRecherche.Trim().Remove(0, 1);
-                if (Int32.TryParse(strRef, out int n))
-                {
-                    isRef = true;
-                    minRef = Int32.Parse(strRef + new String('0', 5 - strRef.Length));
-                    maxRef = Int32.Parse(strRef + new String('9', 5 - strRef.Length));
-                }
-            }
+           CheckIfIsRefSearch(listCriteria, out bool isRef, out int minRef, out int maxRef);
+           CheckIfIsFilterSearch(listCriteria, out string type, out string categorie);
             var clients = new List<Client>();
             var query = _clientRepository.GetAll()
                 .Where(c => (c.CreatorUserId == AbpSession.UserId || c.LastModifierUserId == AbpSession.UserId))
-                .WhereIf(listCriteria.ChampsRecherche != null & !isRef,
-                    c => c.Nom.Trim().Contains(listCriteria.ChampsRecherche.Trim())
-                    || c.RaisonSociale.Trim().Contains(listCriteria.ChampsRecherche.Trim()))
-                .WhereIf(isRef, c => minRef <= c.Reference && c.Reference <= maxRef);
-                // .WhereIf(!listCriteria.ClientCategory.Equals("0"), c => c.CategorieClient.Equals(listCriteria.ClientCategory));
+                .WhereIf(listCriteria.GlobalFilter != null & !isRef,
+                    c => c.Nom.Trim().Contains(listCriteria.GlobalFilter.Trim())
+                    || c.RaisonSociale.Trim().Contains(listCriteria.GlobalFilter.Trim()))
+                .WhereIf(isRef, c => minRef <= c.Reference && c.Reference <= maxRef)
+                .WhereIf(categorie != null, c => c.CategorieClient == categorie);
+
+            clients = query.ToList();
+            if(type != null){
+                clients =  this.checkClientsByType(query, type);
+                
+            }
 
             if (listCriteria.SortField != null && listCriteria.SortField.Length != 0)
             {
                 switch (listCriteria.SortField)
                 {
                     case "reference":
-                        if (listCriteria.SortOrder == 1) { clients = await query.OrderBy(c => c.Reference).ToListAsync(); }
-                        else { clients = await query.OrderByDescending(c => c.Reference).ToListAsync(); }
+                        if (listCriteria.SortOrder == "1") { clients = clients.OrderBy(c => c.Reference).ToList(); }
+                        else { clients = clients.OrderByDescending(c => c.Reference).ToList(); }
                         break;
                     case "creationTime":
-                        if (listCriteria.SortOrder == 1) { clients = await query.OrderBy(c => c.CreationTime).ToListAsync(); }
-                        else { clients = await query.OrderByDescending(c => c.CreationTime).ToListAsync(); }
+                        if (listCriteria.SortOrder == "1") { clients = clients.OrderBy(c => c.CreationTime).ToList(); }
+                        else { clients = clients.OrderByDescending(c => c.CreationTime).ToList(); }
                         break;
                     case "nom":
-                        if (listCriteria.SortOrder == 1) { clients = await query.OrderBy(c => c.RaisonSociale + c.Nom).ToListAsync(); }
-                        else { clients = await query.OrderByDescending(c => c.Nom + c.RaisonSociale).ToListAsync(); }
+                        if (listCriteria.SortOrder == "1") { clients = clients.OrderBy(c => c.RaisonSociale + c.Nom).ToList(); }
+                        else { clients = clients.OrderByDescending(c => c.Nom + c.RaisonSociale).ToList(); }
                         break;
                     default:
-                        clients = await query.OrderByDescending(c => c.LastModificationTime != null ? c.LastModificationTime : c.CreationTime).ToListAsync();
+                        clients = clients.OrderByDescending(c => c.LastModificationTime != null ? c.LastModificationTime : c.CreationTime).ToList();
                         break;
                 }
 
             }
             else
             {
-                clients = await query.OrderByDescending(c => c.LastModificationTime != null ? c.LastModificationTime : c.CreationTime).ToListAsync();
+                clients = clients.OrderByDescending(c => c.LastModificationTime != null ? c.LastModificationTime : c.CreationTime).ToList();
             }
             var result = new ListResultDto<ClientDto>(ObjectMapper.Map<List<ClientDto>>(clients));
             return result;
@@ -126,5 +124,61 @@ namespace Facturi.App
 
             return new ListResultDto<ClientForAutoCompleteDto>(result);
         }
-    }
+
+         private static void CheckIfIsRefSearch(ListCriteriaDto clientCriterias, out bool isRef, out int minRef, out int maxRef)
+        {
+            isRef = false;
+            minRef = 0;
+            maxRef = 0;
+            if (clientCriterias.GlobalFilter != null && clientCriterias.GlobalFilter.Trim().ToLower().StartsWith('c'))
+            {
+                string strRef = clientCriterias.GlobalFilter.Trim().Remove(0, 1);
+                if (Int32.TryParse(strRef, out int n))
+                {
+                    isRef = true;
+                    minRef = Int32.Parse(strRef + new String('0', 5 - strRef.Length));
+                    maxRef = Int32.Parse(strRef + new String('9', 5 - strRef.Length));
+                }
+            }
+        }
+
+        private static void CheckIfIsFilterSearch(ListCriteriaDto clientCriterias, out string type, out string categorie) 
+        {
+           type = null;
+           categorie = null;
+
+            if(clientCriterias.ClientFilter != null)
+            {
+                type = clientCriterias.ClientFilter.Type;
+                categorie = clientCriterias.ClientFilter.Category;
+            }
+        }
+        private List<Client> checkClientsByType(IQueryable<Client> list, string clientType){
+
+            List<Client> result = new();
+            switch (clientType)
+            {
+                case "client":
+                    foreach(var val in list)
+                    {
+
+                        if (this._factureRepository.FirstOrDefault(f => f.ClientId == val.Id) != null)
+                            result.Add(val);
+                    }
+                break;
+                   
+                case "prospect":
+                    foreach (var val in list)
+                    {
+                        if (this._factureRepository.FirstOrDefault(f => f.ClientId == val.Id) == null)
+                            result.Add(val);
+                    }
+                break;
+
+            }
+
+            return result; 
+        }
+    // }
+}
 }

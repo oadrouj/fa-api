@@ -21,5 +21,7 @@ namespace Facturi.App
         Task<byte[]> GetByIdFactureReport(long id);
         Task<byte[]> GetByteDataFactureReport(CreateFactureInput input);
         Task<bool> deleteByFactureIdFactureInfosPaiement(long factureId);
+        Task<bool> CheckIfReferenceIsExist(char referencePrefix, int reference);
+
     }
 }
