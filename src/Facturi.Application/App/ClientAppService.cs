@@ -105,7 +105,54 @@ namespace Facturi.App
             {
                 clients = clients.OrderByDescending(c => c.LastModificationTime != null ? c.LastModificationTime : c.CreationTime).ToList();
             }
-            var result = new ListResultDto<ClientDto>(ObjectMapper.Map<List<ClientDto>>(clients));
+
+            var list = ObjectMapper.Map<List<ClientDto>>(clients);
+
+            // var test =  result.Items.(async (client) => {
+            //     await this._factureRepository.GetAll().Where(f => f.ClientId == client.Id 
+            //         && f.Statut == FactureStatutEnum.Valide)
+            //     .ForEachAsync(item => { 
+            //           client.PendingInvoicesAmount =  (float)(item.FactureItems.Sum(di => (float?)di.TotalTtc) -
+            //      item.FactureItems.Sum(di => (float?)di.UnitPriceHT * di.Quantity) * item.Remise /100);
+
+            //     });
+            //  });
+            IQueryable<Facture> allValidesFactures;
+            float calculationResult = 0;
+
+             list.ForEach(async (client) => {
+                allValidesFactures = this._factureRepository.GetAllIncluding(f => f.Client, f => f.FactureItems).Where(f => f.ClientId == client.Id
+               && f.Statut == FactureStatutEnum.Valide);
+
+                allValidesFactures.ToList()
+               .ForEach((item) => {
+                 
+                 calculationResult = (float)(item.FactureItems.Sum(di => (float?)di.TotalTtc) -
+                 item.FactureItems.Sum(di => (float?)di.UnitPriceHT * di.Quantity) * item.Remise / 100);
+
+                   if (DateTimeOffset.Compare(DateTimeOffset.Now, item.DateEmission.AddDays(item.EcheancePaiement)) <= 0)
+                        client.PendingInvoicesAmount += calculationResult;
+                   else
+                       client.OverdueInvoicesAmount += calculationResult;
+               });
+
+              //var pendingFactures = this._factureRepository.GetAllIncluding(f => f.Client, f => f.FactureItems)
+              //  .Where(f => (DateTimeOffset.Compare(DateTimeOffset.Now, f.DateEmission.AddDays(f.EcheancePaiement)) > 0));
+
+              //var overdueFactures = this._factureRepository.GetAllIncluding(f => f.Client, f => f.FactureItems)
+              //  .Where(f => DateTimeOffset.Compare(DateTimeOffset.Now, f.DateEmission.AddDays(f.EcheancePaiement)) <= 0);
+
+
+               // await this._factureRepository.GetAllIncluding(f => f.Client, f => f.FactureItems).Where(f => f.ClientId == client.Id
+               //      && f.Statut == FactureStatutEnum.Valide
+               //      && DateTimeOffset.Compare(DateTimeOffset.Now, f.DateEmission.AddDays(f.EcheancePaiement)) <= 0)
+               //  .ForEachAsync((item) => {
+               //      client.PendingInvoicesAmount = (float)(item.FactureItems.Sum(di => (float?)di.TotalTtc) -
+               //item.FactureItems.Sum(di => (float?)di.UnitPriceHT * di.Quantity) * item.Remise / 100);
+
+                 //});
+             });
+            var result = new ListResultDto<ClientDto>(list);
             return result;
         }
 
