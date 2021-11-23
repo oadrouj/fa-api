@@ -136,22 +136,21 @@ namespace Facturi.App
                        client.OverdueInvoicesAmount += calculationResult;
                });
 
-            //   var pendingFactures = this._factureRepository.GetAllIncluding(f => f.Client, f => f.FactureItems)
-            //    .Where(f => (DateTimeOffset.Compare(DateTimeOffset.Now, f.DateEmission.AddDays(f.EcheancePaiement)) > 0));
+              //var pendingFactures = this._factureRepository.GetAllIncluding(f => f.Client, f => f.FactureItems)
+              //  .Where(f => (DateTimeOffset.Compare(DateTimeOffset.Now, f.DateEmission.AddDays(f.EcheancePaiement)) > 0));
 
-            //   var overdueFactures = this._factureRepository.GetAllIncluding(f => f.Client, f => f.FactureItems)
-            //    .Where(f => DateTimeOffset.Compare(DateTimeOffset.Now, f.DateEmission.AddDays(f.EcheancePaiement)) <= 0);
+              //var overdueFactures = this._factureRepository.GetAllIncluding(f => f.Client, f => f.FactureItems)
+              //  .Where(f => DateTimeOffset.Compare(DateTimeOffset.Now, f.DateEmission.AddDays(f.EcheancePaiement)) <= 0);
 
 
+               // await this._factureRepository.GetAllIncluding(f => f.Client, f => f.FactureItems).Where(f => f.ClientId == client.Id
+               //      && f.Statut == FactureStatutEnum.Valide
+               //      && DateTimeOffset.Compare(DateTimeOffset.Now, f.DateEmission.AddDays(f.EcheancePaiement)) <= 0)
+               //  .ForEachAsync((item) => {
+               //      client.PendingInvoicesAmount = (float)(item.FactureItems.Sum(di => (float?)di.TotalTtc) -
+               //item.FactureItems.Sum(di => (float?)di.UnitPriceHT * di.Quantity) * item.Remise / 100);
 
-               await this._factureRepository.GetAllIncluding(f => f.Client, f => f.FactureItems).Where(f => f.ClientId == client.Id
-                    && f.Statut == FactureStatutEnum.Valide
-                    && DateTimeOffset.Compare(DateTimeOffset.Now, f.DateEmission.AddDays(f.EcheancePaiement)) <= 0)
-                .ForEachAsync((item) => {
-                    client.PendingInvoicesAmount = (float)(item.FactureItems.Sum(di => (float?)di.TotalTtc) -
-               item.FactureItems.Sum(di => (float?)di.UnitPriceHT * di.Quantity) * item.Remise / 100);
-
-                 });
+                 //});
              });
             var result = new ListResultDto<ClientDto>(list);
             return result;
