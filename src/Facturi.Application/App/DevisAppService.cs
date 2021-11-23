@@ -268,7 +268,7 @@ namespace Facturi.App
             devis.Client = (await _clientRepository.GetAll()
                 .Where(c => (c.CreatorUserId == AbpSession.UserId || c.LastModifierUserId == AbpSession.UserId) && c.Id == input.ClientId).ToListAsync()).First();
             return _reportGeneratorAppService.GetByteDataDevis(ObjectMapper.Map<DevisDto>(devis));
-        }
+    }
         private static void CheckIfIsFilterSearch(CriteriasDto devisCriterias, out long client, out DateTime[] dateEmission, out int echeancePaiement,
             out float montantTtc, out DevisStatutEnum statut) 
         {

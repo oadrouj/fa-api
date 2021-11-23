@@ -23,5 +23,8 @@ namespace Facturi.App.Dtos
         public string DeviseFacturation { get; set; }
         public float RemisePermanente { get; set; }
         public int DelaiPaiement { get; set; }
+        public float PendingInvoicesAmount { get; set;}
+        public float OverdueInvoicesAmount { get; set;}
+
     }
 }
