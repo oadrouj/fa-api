@@ -322,7 +322,9 @@ namespace Facturi.App
 
          public async Task<bool> CheckIfReferenceIsExist(char referencePrefix, int reference) {
             var query = await this._factureRepository.GetAll()
-                .FirstOrDefaultAsync(item => item.Reference == reference && item.ReferencePrefix == referencePrefix);
+                .FirstOrDefaultAsync(item => 
+                    (item.CreatorUserId == AbpSession.UserId || item.LastModifierUserId == AbpSession.UserId) &&
+                    item.Reference == reference && item.ReferencePrefix == referencePrefix);
             if(query != null)
                 return true;
             else 
