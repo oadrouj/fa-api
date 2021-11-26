@@ -209,16 +209,20 @@ namespace Facturi.App
                     foreach(var val in list)
                     {
 
-                        if (this._factureRepository.FirstOrDefault(f => f.ClientId == val.Id) != null)
-                            result.Add(val);
+                        if (this._factureRepository.FirstOrDefault(f => 
+                            (f.CreatorUserId == AbpSession.UserId || f.LastModifierUserId == AbpSession.UserId) &&
+                            f.ClientId == val.Id) != null)
+                                result.Add(val);
                     }
                 break;
                    
                 case "prospect":
                     foreach (var val in list)
                     {
-                        if (this._factureRepository.FirstOrDefault(f => f.ClientId == val.Id) == null)
-                            result.Add(val);
+                        if (this._factureRepository.FirstOrDefault(f =>
+                            (f.CreatorUserId == AbpSession.UserId || f.LastModifierUserId == AbpSession.UserId) &&
+                            f.ClientId == val.Id) == null)
+                                result.Add(val);
                     }
                 break;
 
