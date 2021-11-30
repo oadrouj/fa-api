@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace Facturi.App
 {
     [AutoMap(typeof(Devis))]
-    public class UpdateDevisInput : EntityDto<long>
+    public class UpdateDevisInput : AuditedEntityDto<long>
     {
         public int Reference { get; set; }
         public char? ReferencePrefix { get; set; }

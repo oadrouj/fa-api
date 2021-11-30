@@ -6,7 +6,7 @@ namespace Facturi.App
 {
     public class DevisItem : Entity<long>
     {
-        public string Description { get; set; }
+        public string Designation { get; set; }
 
         public DateTime Date { get; set; } = new DateTime();
 

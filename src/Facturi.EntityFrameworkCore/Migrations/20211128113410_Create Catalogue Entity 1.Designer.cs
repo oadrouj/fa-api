@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Facturi.Migrations
 {
     [DbContext(typeof(FacturiDbContext))]
-    [Migration("20211107160503_add ReferencePrefix to devis and fature entities")]
-    partial class addReferencePrefixtodevisandfatureentities
+    [Migration("20211128113410_Create Catalogue Entity 1")]
+    partial class CreateCatalogueEntity1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -1872,6 +1872,60 @@ namespace Facturi.Migrations
                     b.HasIndex("TenantId", "NormalizedUserName");
 
                     b.ToTable("AbpUsers");
+                });
+
+            modelBuilder.Entity("Facturi.Core.App.Catalogue", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .UseIdentityColumn();
+
+                    b.Property<DateTime>("AddedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CatalogueType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("CreatorUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Designation")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<float>("HtPrice")
+                        .HasColumnType("real");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("LastModifierUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<float>("MinimalQuantity")
+                        .HasColumnType("real");
+
+                    b.Property<int>("Reference")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ReferencePrefix")
+                        .HasColumnType("nvarchar(1)");
+
+                    b.Property<int>("Tva")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Unity")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Catalogues");
                 });
 
             modelBuilder.Entity("Facturi.MultiTenancy.Tenant", b =>
