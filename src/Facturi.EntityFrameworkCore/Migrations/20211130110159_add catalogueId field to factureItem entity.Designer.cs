@@ -4,14 +4,16 @@ using Facturi.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Facturi.Migrations
 {
     [DbContext(typeof(FacturiDbContext))]
-    partial class FacturiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211130110159_add catalogueId field to factureItem entity")]
+    partial class addcatalogueIdfieldtofactureItementity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1464,7 +1466,7 @@ namespace Facturi.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Designation")
+                    b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<long>("DevisId")
@@ -1584,7 +1586,7 @@ namespace Facturi.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Designation")
+                    b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<long>("FactureId")

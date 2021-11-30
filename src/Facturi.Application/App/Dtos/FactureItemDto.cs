@@ -1,4 +1,5 @@
-﻿using Abp.AutoMapper;
+﻿using Abp.Application.Services.Dto;
+using Abp.AutoMapper;
 using System;
 
 namespace Facturi.App
@@ -6,10 +7,9 @@ namespace Facturi.App
     [AutoMap(typeof(FactureItem))]
     public class FactureItemDto
     {
-        public string Description { get; set; }
+        public string Designation { get; set; }
 
-        public DateTime Date { get; set; } = new DateTime();
-
+        public DateTime Date { get; set; } 
         public int Quantity { get; set; }
 
         public string Unit { get; set; }
@@ -19,5 +19,7 @@ namespace Facturi.App
         public float Tva { get; set; }
 
         public float TotalTtc { get; set; }
+        public long? CatalogueId { get; set; }
+
     }
 }

@@ -4,6 +4,7 @@ using Facturi.Authorization.Roles;
 using Facturi.Authorization.Users;
 using Facturi.MultiTenancy;
 using Facturi.App;
+using Facturi.Core.App;
 
 namespace Facturi.EntityFrameworkCore
 {
@@ -18,7 +19,7 @@ namespace Facturi.EntityFrameworkCore
         public DbSet<Facture> Facture { get; set; }
         public DbSet<FactureItem> FactureItems { get; set; }
         public DbSet<FactureInfosPaiement> FactureInfosPaiements { get; set; }
-
+        public DbSet<Catalogue> Catalogues {get; set; }
 
         public FacturiDbContext(DbContextOptions<FacturiDbContext> options)
             : base(options)

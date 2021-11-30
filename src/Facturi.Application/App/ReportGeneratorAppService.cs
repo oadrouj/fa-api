@@ -286,7 +286,7 @@ html, body {
 	  <table>
 	  	<thead>
 	  		<tr>
-	  			<th class='left' style='border-bottom: 2px solid #c9c9c9;border-top: 2px solid #c9c9c9;'><br>Description<br><br></th>
+	  			<th class='left' style='border-bottom: 2px solid #c9c9c9;border-top: 2px solid #c9c9c9;'><br>Designation<br><br></th>
 	  			<th style='border-bottom: 2px solid #c9c9c9;border-top: 2px solid #c9c9c9;'><br>Date<br><br></th>
 	  			<th style='border-bottom: 2px solid #c9c9c9;border-top: 2px solid #c9c9c9;'><br>Quantité<br><br></th>
 	  			<th style='border-bottom: 2px solid #c9c9c9;border-top: 2px solid #c9c9c9;'><br>Unité<br><br></th>
@@ -308,7 +308,7 @@ html, body {
 				totalMontantTVA += montantTVA;
 				sb.Append(@"<tr>
 	  					<td class='left'>");
-				sb.Append(fi.Description);
+				sb.Append(fi.Designation);
 				sb.Append(@"</td>
 	  					<td>");
 				sb.Append(fi.Date.ToString("dd/MM/yyyy"));
@@ -643,7 +643,7 @@ html, body {
 	  <table>
 	  	<thead>
 	  		<tr>
-	  			<th class='left' style='border-bottom: 2px solid #c9c9c9;border-top: 2px solid #c9c9c9;'><br>Description<br><br></th>
+	  			<th class='left' style='border-bottom: 2px solid #c9c9c9;border-top: 2px solid #c9c9c9;'><br>Designation<br><br></th>
 	  			<th style='border-bottom: 2px solid #c9c9c9;border-top: 2px solid #c9c9c9;'><br>Date<br><br></th>
 	  			<th style='border-bottom: 2px solid #c9c9c9;border-top: 2px solid #c9c9c9;'><br>Quantité<br><br></th>
 	  			<th style='border-bottom: 2px solid #c9c9c9;border-top: 2px solid #c9c9c9;'><br>Unité<br><br></th>
@@ -665,7 +665,7 @@ html, body {
 				totalMontantTVA += montantTVA;
 				sb.Append(@"<tr>
 	  					<td class='left'>");
-				sb.Append(fi.Description);
+				sb.Append(fi.Designation);
 				sb.Append(@"</td>
 	  					<td>");
 				sb.Append(fi.Date.ToString("dd/MM/yyyy"));

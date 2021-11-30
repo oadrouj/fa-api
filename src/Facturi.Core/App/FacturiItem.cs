@@ -6,7 +6,7 @@ namespace Facturi.App
 {
     public class FactureItem : Entity<long>
     {
-        public string Description { get; set; }
+        public string Designation { get; set; }
 
         public DateTime Date { get; set; } = new DateTime();
 
@@ -23,5 +23,7 @@ namespace Facturi.App
         [ForeignKey("FactureId")]
         public long FactureId { get; set;}
         public Facture Facture { get; set; }
+        public long CatalogueId { get; set; }
+
     }
 }
