@@ -19,5 +19,6 @@ namespace Facturi.App
         public float Tva { get; set; }
 
         public float TotalTtc { get; set; }
+        public long? CatalogueId { get; set; }
     }
 }
