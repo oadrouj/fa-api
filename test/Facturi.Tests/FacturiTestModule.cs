@@ -38,7 +38,7 @@ namespace Facturi.Tests
             Configuration.BackgroundJobs.IsJobExecutionEnabled = false;
 
             // Use database for language management
-            Configuration.Modules.Zero().LanguageManagement.EnableDbLocalization();
+            // Configuration.Modules.Zero().LanguageManagement.EnableDbLocalization();
 
             RegisterFakeService<AbpZeroDbMigrator<FacturiDbContext>>();
 
