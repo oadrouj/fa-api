@@ -9,7 +9,7 @@ namespace Facturi.Application.App.Dtos.CatalogueDtos
     public class CatalogueDto: AuditedEntityDto<long>
     {
         public int Reference { get; set; }
-        public char? ReferencePrefix { get; set; }
+        
         public string CatalogueType { get; set; }
         public DateTime AddedDate { get; set; } = DateTime.Now;
         public string Designation { get; set; }

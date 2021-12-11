@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Facturi.App
@@ -104,18 +105,14 @@ namespace Facturi.App
 
         public async Task<int> GetLastReference()
         {
-            var facture = await _factureRepository
-                .GetAll()
-                .Where(f => (f.CreatorUserId == AbpSession.UserId || f.LastModifierUserId == AbpSession.UserId))
-                .OrderByDescending(f => f.Reference).ToListAsync();
-            if (facture != null && facture.Any())
-            {
-                return facture.First().Reference;
-            }
+            var facture =  (await _factureRepository.GetAllListAsync())
+                .Where(d => (d.CreatorUserId == AbpSession.UserId || d.LastModifierUserId == AbpSession.UserId)
+                    && (Regex.IsMatch(d.Reference, @"^F[0-9]{5}"))).OrderByDescending(d => d.Reference).ToList();
+
+            if (facture != null && facture.Any() && Int32.TryParse(facture.First().Reference.Substring(1), out int reference))
+                return reference;
             else
-            {
                 return 0;
-            }
         }
 
         public async Task<bool> ChangeFactureStatut(long FactureId, FactureStatutEnum statut)
@@ -148,7 +145,8 @@ namespace Facturi.App
                 .WhereIf(factureCriterias.GlobalFilter != null & !isRef,
                     f => f.Client.Nom.Trim().Contains(factureCriterias.GlobalFilter.Trim())
                     || f.Client.RaisonSociale.Trim().Contains(factureCriterias.GlobalFilter.Trim()))
-                .WhereIf(isRef, f => minRef <= f.Reference && f.Reference <= maxRef)
+                //.WhereIf(isRef, f => minRef <= f.Reference && f.Reference <= maxRef)
+
                 .WhereIf(client != 0, f => f.ClientId == client)
                 .WhereIf(dateEmission != null, f => f.DateEmission.Date >= dateEmission[0] && f.DateEmission.Date <= dateEmission[1])
                 .WhereIf(echeancePaiement != 0, f => f.EcheancePaiement == echeancePaiement)
@@ -172,15 +170,16 @@ namespace Facturi.App
                         else if (factureCriterias.SortOrder.Equals("-1")) { FactureList = await query.OrderByDescending(f => f.DateEmission).Skip(factureCriterias.First).Take(factureCriterias.Rows).ToListAsync(); }
                         break;
                     default:
-                        FactureList = await query.OrderByDescending(f => f.LastModificationTime != null ? f.LastModificationTime : f.CreationTime).Skip(factureCriterias.First).Take(factureCriterias.Rows).ToListAsync();
+                        FactureList = await query.OrderBy(d => d.EcheancePaiement).Skip(factureCriterias.First).Take(factureCriterias.Rows).ToListAsync();
                         break;
                 }
 
             }
             else
             {
-                FactureList = await query.OrderByDescending(f => f.LastModificationTime != null ? f.LastModificationTime : f.CreationTime).Skip(factureCriterias.First).Take(factureCriterias.Rows).ToListAsync();
+                FactureList = await query.OrderBy(d => d.EcheancePaiement).Skip(factureCriterias.First).Take(factureCriterias.Rows).ToListAsync();
             }
+
             var result = new ListResultDto<FactureDto>(ObjectMapper.Map<List<FactureDto>>(FactureList));
             return result;
         }
@@ -196,7 +195,8 @@ namespace Facturi.App
                 .WhereIf(factureCriterias.GlobalFilter != null & !isRef,
                     f => f.Client.Nom.Trim().Contains(factureCriterias.GlobalFilter.Trim())
                     || f.Client.RaisonSociale.Trim().Contains(factureCriterias.GlobalFilter.Trim()))
-                .WhereIf(isRef, f => minRef <= f.Reference && f.Reference <= maxRef)
+                //.WhereIf(isRef, f => minRef <= f.Reference && f.Reference <= maxRef)
+
                 .WhereIf(client != 0, f => f.ClientId == client)
                 .WhereIf(dateEmission != null, f => f.DateEmission >= dateEmission[0] && f.DateEmission <= dateEmission[1])
                  .WhereIf(echeancePaiement != 0, f => f.EcheancePaiement == echeancePaiement)
@@ -217,7 +217,8 @@ namespace Facturi.App
                 .WhereIf(factureCriterias.GlobalFilter != null & !isRef,
                     f => f.Client.Nom.Trim().Contains(factureCriterias.GlobalFilter.Trim())
                     || f.Client.RaisonSociale.Trim().Contains(factureCriterias.GlobalFilter.Trim()))
-                .WhereIf(isRef, f => minRef <= f.Reference && f.Reference <= maxRef)
+                //.WhereIf(isRef, f => minRef <= f.Reference && f.Reference <= maxRef)
+
                 .WhereIf(client != 0, f => f.ClientId == client)
                 .WhereIf(dateEmission != null, f => f.DateEmission >= dateEmission[0] && f.DateEmission <= dateEmission[1])
                  .WhereIf(echeancePaiement != 0, f => f.EcheancePaiement == echeancePaiement)
@@ -320,11 +321,11 @@ namespace Facturi.App
             }
         }
 
-         public async Task<bool> CheckIfReferenceIsExist(char referencePrefix, int reference) {
+         public async Task<bool> CheckIfReferenceIsExist(string reference) {
             var query = await this._factureRepository.GetAll()
                 .FirstOrDefaultAsync(item => 
                     (item.CreatorUserId == AbpSession.UserId || item.LastModifierUserId == AbpSession.UserId) &&
-                    item.Reference == reference && item.ReferencePrefix == referencePrefix);
+                    item.Reference == reference);
             if(query != null)
                 return true;
             else 

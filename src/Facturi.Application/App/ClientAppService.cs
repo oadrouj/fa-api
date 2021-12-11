@@ -1,5 +1,6 @@
 ﻿using Abp.Application.Services;
 using Abp.Application.Services.Dto;
+using Abp.Domain.Entities;
 using Abp.Domain.Repositories;
 using Abp.Linq.Extensions;
 using Facturi.App.Dtos;
@@ -15,13 +16,16 @@ namespace Facturi.App
     public class ClientAppService : ApplicationService, IClientAppService
     {
         private readonly IRepository<Client, long> _clientRepository;
+        private readonly IRepository<Facture, long> _devisRepository;
         private readonly IRepository<Facture, long> _factureRepository;
         public ClientAppService(
             IRepository<Client, long> clientRepository,
-            IRepository<Facture, long> factureRepository 
+             IRepository<Facture, long> devisRepository,
+            IRepository<Facture, long> factureRepository
         )
         {
             _clientRepository = clientRepository ?? throw new ArgumentNullException(nameof(clientRepository));
+            _devisRepository = devisRepository ?? throw new ArgumentNullException(nameof(devisRepository));
             _factureRepository = factureRepository ?? throw new ArgumentNullException(nameof(factureRepository));
         }
 
@@ -67,9 +71,9 @@ namespace Facturi.App
             var clients = new List<Client>();
             var query = _clientRepository.GetAll()
                 .Where(c => (c.CreatorUserId == AbpSession.UserId || c.LastModifierUserId == AbpSession.UserId))
-                .WhereIf(listCriteria.GlobalFilter != null & !isRef,
-                    c => c.Nom.Trim().Contains(listCriteria.GlobalFilter.Trim())
-                    || c.RaisonSociale.Trim().Contains(listCriteria.GlobalFilter.Trim()))
+                .WhereIf(listCriteria.GlobalFilter != null ,
+                    c => c.Nom.Trim().StartsWith(listCriteria.GlobalFilter.Trim())
+                    || c.RaisonSociale.Trim().StartsWith(listCriteria.GlobalFilter.Trim()))
                 .WhereIf(isRef, c => minRef <= c.Reference && c.Reference <= maxRef)
                 .WhereIf(categorie != null, c => c.CategorieClient == categorie);
 
@@ -96,37 +100,34 @@ namespace Facturi.App
                         else { clients = clients.OrderByDescending(c => c.Nom + c.RaisonSociale).ToList(); }
                         break;
                     default:
-                        clients = clients.OrderByDescending(c => c.LastModificationTime != null ? c.LastModificationTime : c.CreationTime).ToList();
+                        clients = clients.OrderByDescending(c => c.CreationTime ).ToList();
                         break;
                 }
 
             }
             else
             {
-                clients = clients.OrderByDescending(c => c.LastModificationTime != null ? c.LastModificationTime : c.CreationTime).ToList();
+                clients = clients.OrderByDescending(c => c.CreationTime).ToList();
             }
 
             var list = ObjectMapper.Map<List<ClientDto>>(clients);
-
-            // var test =  result.Items.(async (client) => {
-            //     await this._factureRepository.GetAll().Where(f => f.ClientId == client.Id 
-            //         && f.Statut == FactureStatutEnum.Valide)
-            //     .ForEachAsync(item => { 
-            //           client.PendingInvoicesAmount =  (float)(item.FactureItems.Sum(di => (float?)di.TotalTtc) -
-            //      item.FactureItems.Sum(di => (float?)di.UnitPriceHT * di.Quantity) * item.Remise /100);
-
-            //     });
-            //  });
+           
+           
             IQueryable<Facture> allValidesFactures;
             float calculationResult = 0;
 
-             list.ForEach(async (client) => {
+             list.ForEach( (client) => {
+
+                if (this._factureRepository.FirstOrDefault(f => (f.CreatorUserId == AbpSession.UserId ||
+                    f.LastModifierUserId == AbpSession.UserId) && f.ClientId == client.Id) != null)
+                        client.ClientType = "Client";
+
+                else client.ClientType = "Prospect";
+                
                 allValidesFactures = this._factureRepository.GetAllIncluding(f => f.Client, f => f.FactureItems).Where(f => f.ClientId == client.Id
                && f.Statut == FactureStatutEnum.Valide);
-
-                allValidesFactures.ToList()
-               .ForEach((item) => {
-                 
+                allValidesFactures.ToList()           
+               .ForEach((item) => {  
                  calculationResult = (float)(item.FactureItems.Sum(di => (float?)di.TotalTtc) -
                  item.FactureItems.Sum(di => (float?)di.UnitPriceHT * di.Quantity) * item.Remise / 100);
 
@@ -189,6 +190,20 @@ namespace Facturi.App
             }
         }
 
+        public async Task<ClientDefaultsDto> GetClientDefaults(ClientDefaultsInputDto clientDefaultsInputDto)
+        { 
+           var client = await this.GetByIdClient(clientDefaultsInputDto.ClientId);
+           
+           ClientDefaultsDto clientDefaultsDto = new()
+           { 
+               PaymentPeriod = client.DelaiPaiement,
+               PermanentDiscount = client.RemisePermanente,
+               Currency = client.DeviseFacturation
+           };
+
+           return clientDefaultsDto;
+
+        }
         private static void CheckIfIsFilterSearch(ListCriteriaDto clientCriterias, out string type, out string categorie) 
         {
            type = null;

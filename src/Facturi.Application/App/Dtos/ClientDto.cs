@@ -25,6 +25,7 @@ namespace Facturi.App.Dtos
         public int DelaiPaiement { get; set; }
         public float PendingInvoicesAmount { get; set; }
         public float OverdueInvoicesAmount { get; set; }
+        public string ClientType { get; set; }
         
     }
 }

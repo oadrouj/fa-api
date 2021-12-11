@@ -4,14 +4,16 @@ using Facturi.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Facturi.Migrations
 {
     [DbContext(typeof(FacturiDbContext))]
-    partial class FacturiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211208214954_remove ReferencePrefix field and update the type of reference field on Devis, Facture, Catalogue")]
+    partial class removeReferencePrefixfieldandupdatethetypeofreferencefieldonDevisFactureCatalogue
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1417,9 +1419,6 @@ namespace Facturi.Migrations
                     b.Property<long?>("CreatorUserId")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("Currency")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("DateEmission")
                         .HasColumnType("datetime2");
 
@@ -1510,9 +1509,6 @@ namespace Facturi.Migrations
 
                     b.Property<long?>("CreatorUserId")
                         .HasColumnType("bigint");
-
-                    b.Property<string>("Currency")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("DateEmission")
                         .HasColumnType("datetime2");

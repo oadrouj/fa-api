@@ -20,6 +20,7 @@ namespace Facturi.EntityFrameworkCore
         public DbSet<FactureItem> FactureItems { get; set; }
         public DbSet<FactureInfosPaiement> FactureInfosPaiements { get; set; }
         public DbSet<Catalogue> Catalogues {get; set; }
+        public DbSet<Country> Countries {get; set; }
 
         public FacturiDbContext(DbContextOptions<FacturiDbContext> options)
             : base(options)
