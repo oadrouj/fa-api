@@ -8,11 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Facturi.App
 {
-    public class DevisAppService : ApplicationService, IDevisAppService
+    public class DevisAppService : ApplicationService
     {
         private readonly IRepository<Devis, long> _devisRepository;
         private readonly IRepository<DevisItem, long> _devisItemRepository;
@@ -105,18 +106,14 @@ namespace Facturi.App
 
         public async Task<int> GetLastReference()
         {
-            var devis = await _devisRepository
-                .GetAll()
-                .Where(d => (d.CreatorUserId == AbpSession.UserId || d.LastModifierUserId == AbpSession.UserId))
-                .OrderByDescending(d => d.Reference).ToListAsync();
-            if (devis != null && devis.Any())
-            {
-                return devis.First().Reference;
-            }
+             var devis =  (await _devisRepository.GetAllListAsync())
+                .Where(d => (d.CreatorUserId == AbpSession.UserId || d.LastModifierUserId == AbpSession.UserId)
+                    && (Regex.IsMatch(d.Reference, @"^D[0-9]{5}"))).OrderByDescending(d => d.Reference).ToList();
+
+            if (devis != null && devis.Any() && Int32.TryParse(devis.First().Reference.Substring(1), out int reference))
+                return reference;
             else
-            {
                 return 0;
-            }
         }
 
         public async Task<bool> ChangeDevisStatut(long DevisId, DevisStatutEnum statut)
@@ -149,7 +146,7 @@ namespace Facturi.App
             .WhereIf(devisCriterias.GlobalFilter != null & !isRef,
                 f => f.Client.Nom.Trim().Contains(devisCriterias.GlobalFilter.Trim())
                 || f.Client.RaisonSociale.Trim().Contains(devisCriterias.GlobalFilter.Trim()))
-            .WhereIf(isRef, f => minRef <= f.Reference && f.Reference <= maxRef)
+            // .WhereIf(isRef, f => minRef <= f.Reference && f.Reference <= maxRef)
             .WhereIf(client != 0, f => f.ClientId == client)
             .WhereIf(dateEmission != null, f => f.DateEmission >= dateEmission[0] && f.DateEmission <= dateEmission[1])
             .WhereIf(echeancePaiement != 0, f => f.EcheancePaiement == echeancePaiement)
@@ -173,15 +170,22 @@ namespace Facturi.App
                         else if (devisCriterias.SortOrder.Equals("-1")) { DevisList = await query.OrderByDescending(d => d.DateEmission).Skip(devisCriterias.First).Take(devisCriterias.Rows).ToListAsync(); }
                         break;
                     default:
-                        DevisList = await query.OrderByDescending(d => d.LastModificationTime != null ? d.LastModificationTime : d.CreationTime).Skip(devisCriterias.First).Take(devisCriterias.Rows).ToListAsync();
+                        DevisList = await query.OrderBy(d => d.EcheancePaiement).Skip(devisCriterias.First).Take(devisCriterias.Rows).ToListAsync();
                         break;
                 }
 
             }
             else
             {
-                DevisList = await query.OrderByDescending(d => d.LastModificationTime != null ? d.LastModificationTime : d.CreationTime).Skip(devisCriterias.First).Take(devisCriterias.Rows).ToListAsync();
+                DevisList = await query.OrderBy(d => d.EcheancePaiement).Skip(devisCriterias.First).Take(devisCriterias.Rows).ToListAsync();
             }
+            // var list = DevisList.Select((x) => { 
+            //     var devisDto = ObjectMapper.Map<DevisDto>(x);
+            //     var client = _clientRepository.FirstOrDefault(c => (c.CreatorUserId == AbpSession.UserId ||
+            //      c.LastModifierUserId == AbpSession.UserId) && c.Id == x.ClientId);
+            //     devisDto.Currency = client.DeviseFacturation;
+            //     return devisDto;
+            // }).ToList();
             var result = new ListResultDto<DevisDto>(ObjectMapper.Map<List<DevisDto>>(DevisList));
             return result;
         }
@@ -198,7 +202,7 @@ namespace Facturi.App
             .WhereIf(devisCriterias.GlobalFilter != null & !isRef,
                 f => f.Client.Nom.Trim().Contains(devisCriterias.GlobalFilter.Trim())
                 || f.Client.RaisonSociale.Trim().Contains(devisCriterias.GlobalFilter.Trim()))
-            .WhereIf(isRef, f => minRef <= f.Reference && f.Reference <= maxRef)
+            // .WhereIf(isRef, f => minRef <= f.Reference && f.Reference <= maxRef)
             .WhereIf(client != 0, f => f.ClientId == client)
             .WhereIf(dateEmission != null, f => f.DateEmission >= dateEmission[0] && f.DateEmission <= dateEmission[1])
             .WhereIf(echeancePaiement != 0, f => f.EcheancePaiement == echeancePaiement)
@@ -220,7 +224,7 @@ namespace Facturi.App
             .WhereIf(devisCriterias.GlobalFilter != null & !isRef,
                 f => f.Client.Nom.Trim().Contains(devisCriterias.GlobalFilter.Trim())
                 || f.Client.RaisonSociale.Trim().Contains(devisCriterias.GlobalFilter.Trim()))
-            .WhereIf(isRef, f => minRef <= f.Reference && f.Reference <= maxRef)
+            // .WhereIf(isRef, f => minRef <= f.Reference && f.Reference <= maxRef)
             .WhereIf(client != 0, f => f.ClientId == client)
             .WhereIf(dateEmission != null, f => f.DateEmission >= dateEmission[0] && f.DateEmission <= dateEmission[1])
             .WhereIf(echeancePaiement != 0, f => f.EcheancePaiement == echeancePaiement)
@@ -287,11 +291,11 @@ namespace Facturi.App
                 statut = (DevisStatutEnum)devisCriterias.Filtres.Statut;
             }
         }
-         public async Task<bool> CheckIfReferenceIsExist(char referencePrefix, int reference) {
+         public async Task<bool> CheckIfReferenceIsExist(string reference) {
             var query = await this._devisRepository.GetAll()
                 .FirstOrDefaultAsync(item => 
                     (item.CreatorUserId == AbpSession.UserId || item.LastModifierUserId == AbpSession.UserId) &&
-                    item.Reference == reference && item.ReferencePrefix == referencePrefix);
+                    item.Reference == reference);
             if(query != null)
                 return true;
             else 

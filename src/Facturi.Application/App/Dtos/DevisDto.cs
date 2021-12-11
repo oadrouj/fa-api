@@ -9,8 +9,8 @@ namespace Facturi.App
     [AutoMap(typeof(Devis))]
     public class DevisDto : AuditedEntityDto<long>
     {
-        public int Reference { get; set; }
-        public char? ReferencePrefix { get; set; }
+        public string Reference { get; set; }
+        
         public DateTime DateEmission { get; set; } = new DateTime();
         public int EcheancePaiement { get; set; }
         public string MessageIntroduction { get; set; }
@@ -23,5 +23,6 @@ namespace Facturi.App
 
         public long ClientId { get; set; }
         public ClientDto Client { get; set; }
+        public string Currency { get; set; }
     }
 }

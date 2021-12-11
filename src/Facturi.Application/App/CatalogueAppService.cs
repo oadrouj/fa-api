@@ -149,21 +149,22 @@ namespace Facturi.Application.App
                     //     else if (catalogueCriterias.SortOrder.Equals("-1")) { CatalogueList = await query.OrderByDescending(d => d.DateEmission).Skip(catalogueCriterias.First).Take(catalogueCriterias.Rows).ToListAsync(); }
                     //     break;
                     default:
-                        CatalogueList = await query.OrderByDescending(d => d.LastModificationTime != null ? d.LastModificationTime : d.CreationTime).Skip(catalogueCriterias.First).Take(catalogueCriterias.Rows).ToListAsync();
+                        CatalogueList = await query.OrderByDescending(d => d.AddedDate).Skip(catalogueCriterias.First).Take(catalogueCriterias.Rows).ToListAsync();
                         break;
                 }
 
             }
             else
             {
-                CatalogueList = await query.OrderByDescending(d => d.LastModificationTime != null ? d.LastModificationTime : d.CreationTime).Skip(catalogueCriterias.First).Take(catalogueCriterias.Rows).ToListAsync();
+                CatalogueList = await query.OrderByDescending(d => d.AddedDate).Skip(catalogueCriterias.First).Take(catalogueCriterias.Rows).ToListAsync();
             }
 
             var list = ObjectMapper.Map<List<CatalogueDto>>(CatalogueList);
 
             foreach (var item in list)
             {
-                var factureItems = (_factureRepository.GetAllIncluding(v => v.FactureItems))
+                var factureItems = _factureRepository.GetAllIncluding(v => v.FactureItems)
+                    .Where(x => x.Statut == FactureStatutEnum.Valide)
                     .SelectMany(v => v.FactureItems).Where(v => v.CatalogueId == item.Id);
 
                 item.TotalSalesTTC = factureItems.Sum(v => v.TotalTtc);

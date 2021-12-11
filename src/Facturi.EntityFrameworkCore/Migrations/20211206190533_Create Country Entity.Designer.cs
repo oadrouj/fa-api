@@ -4,14 +4,16 @@ using Facturi.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Facturi.Migrations
 {
     [DbContext(typeof(FacturiDbContext))]
-    partial class FacturiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211206190533_Create Country Entity")]
+    partial class CreateCountryEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1417,9 +1419,6 @@ namespace Facturi.Migrations
                     b.Property<long?>("CreatorUserId")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("Currency")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("DateEmission")
                         .HasColumnType("datetime2");
 
@@ -1438,8 +1437,11 @@ namespace Facturi.Migrations
                     b.Property<string>("PiedDePage")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Reference")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Reference")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ReferencePrefix")
+                        .HasColumnType("nvarchar(1)");
 
                     b.Property<float>("Remise")
                         .HasColumnType("real");
@@ -1511,9 +1513,6 @@ namespace Facturi.Migrations
                     b.Property<long?>("CreatorUserId")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("Currency")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("DateEmission")
                         .HasColumnType("datetime2");
 
@@ -1532,8 +1531,11 @@ namespace Facturi.Migrations
                     b.Property<string>("PiedDePage")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Reference")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Reference")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ReferencePrefix")
+                        .HasColumnType("nvarchar(1)");
 
                     b.Property<float>("Remise")
                         .HasColumnType("real");
@@ -1917,6 +1919,9 @@ namespace Facturi.Migrations
 
                     b.Property<int>("Reference")
                         .HasColumnType("int");
+
+                    b.Property<string>("ReferencePrefix")
+                        .HasColumnType("nvarchar(1)");
 
                     b.Property<int>("Tva")
                         .HasColumnType("int");

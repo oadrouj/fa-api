@@ -9,7 +9,7 @@ namespace Facturi.Core.App
     {
         
         public int Reference { get; set; }
-        public char? ReferencePrefix { get; set; }
+        
         public string CatalogueType { get; set; }
         public DateTime AddedDate { get; set; }
         public string Designation { get; set; }
