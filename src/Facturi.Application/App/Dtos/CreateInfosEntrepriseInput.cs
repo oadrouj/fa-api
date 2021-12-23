@@ -12,6 +12,7 @@ namespace Facturi.App.Dtos
         public string RaisonSociale { get; set; }
 
         public string SecteurActivite { get; set; }
+        public string StatutJuridique { get; set; }
 
         public string Adresse { get; set; }
 

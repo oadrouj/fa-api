@@ -23,7 +23,7 @@ namespace Facturi.Application.App
         }
         public async Task<ListResultDto<CountryDto>> GetAllCountries()
         {
-            var query =  _countryRepository.GetAll();
+            var query =  _countryRepository.GetAll().OrderBy(x => x.PaysName);
             
             // if(listCriteria.First != 0 && listCriteria.Rows != 0)
             //     query = Queryable.Skip(query, listCriteria.First).Take(listCriteria.Rows);

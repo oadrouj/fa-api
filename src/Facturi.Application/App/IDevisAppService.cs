@@ -1,6 +1,7 @@
 ﻿using Abp.Application.Services;
 using Abp.Application.Services.Dto;
 using Facturi.App.Dtos;
+using Facturi.App.Dtos.EstimationDtos;
 using System.Threading.Tasks;
 
 namespace Facturi.App
@@ -12,6 +13,7 @@ namespace Facturi.App
         Task<bool> DeleteDevis(long DevisId);
         Task<DevisDto> GetByIdDevis(long id);
         Task<int> GetLastReference();
+        Task<EstimationInitiationDto> GetLastReferenceWithIntroMessageAndFooter();
         Task<bool> ChangeDevisStatut(long DevisId, DevisStatutEnum statut);
         Task<ListResultDto<DevisDto>> GetAllDevis(CriteriasDto listCriteria);
         Task<byte[]> GetByIdDevisReport(long id);
