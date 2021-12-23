@@ -19,6 +19,7 @@ using Abp.Json;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Serialization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Facturi.Web.Host.Startup
 {
@@ -111,6 +112,9 @@ namespace Facturi.Web.Host.Startup
                     In = ParameterLocation.Header,
                     Type = SecuritySchemeType.ApiKey
                 });
+
+                options.MapType<FileContentResult>(() => new OpenApiSchema { Type = "file" });
+
             });
 
             // Configure Abp and Dependency Injection

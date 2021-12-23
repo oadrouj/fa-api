@@ -3,6 +3,7 @@ using Abp.Application.Services.Dto;
 using Abp.Domain.Repositories;
 using Abp.Linq.Extensions;
 using Facturi.App.Dtos;
+using Facturi.App.Dtos.InvoiceDtos;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -14,15 +15,22 @@ namespace Facturi.App
 {
     public class FactureAppService : ApplicationService, IFactureAppService
     {
+
         private readonly IRepository<Facture, long> _factureRepository;
         private readonly IRepository<FactureInfosPaiement, long> _factureInfosPaiementRepository;
         private readonly IRepository<FactureItem, long> _factureItemRepository;
         private readonly IReportGeneratorAppService _reportGeneratorAppService;
         private readonly IRepository<Client, long> _clientRepository;
+        private readonly IInfosEntrepriseAppService _infosEntrepriseAppService;
 
-        public FactureAppService(IRepository<Facture, long> FactureRepository, IRepository<FactureItem, long> factureItemRepository,
-            IReportGeneratorAppService reportGeneratorAppService, IRepository<FactureInfosPaiement, long> factureInfosPaiementRepository,
-            IRepository<Client, long> clientRepository
+
+        public FactureAppService(
+            IRepository<Facture, long> FactureRepository, 
+            IRepository<FactureItem, long> factureItemRepository,
+            IReportGeneratorAppService reportGeneratorAppService, 
+            IRepository<FactureInfosPaiement, long> factureInfosPaiementRepository,
+            IRepository<Client, long> clientRepository,
+            IInfosEntrepriseAppService infosEntrepriseAppService
             )
         {
             _factureRepository = FactureRepository ?? throw new ArgumentNullException(nameof(FactureRepository));
@@ -30,7 +38,7 @@ namespace Facturi.App
             _reportGeneratorAppService = reportGeneratorAppService ?? throw new ArgumentNullException(nameof(reportGeneratorAppService));
             _factureInfosPaiementRepository = factureInfosPaiementRepository ?? throw new ArgumentNullException(nameof(factureInfosPaiementRepository));
             _clientRepository = clientRepository ?? throw new ArgumentNullException(nameof(clientRepository));
-
+            _infosEntrepriseAppService = infosEntrepriseAppService ?? throw new ArgumentNullException(nameof(infosEntrepriseAppService));
         }
 
         public async Task<long> CreateFacture(CreateFactureInput input)
@@ -115,6 +123,27 @@ namespace Facturi.App
                 return 0;
         }
 
+        public async Task<InvoiceInitiationDto> GetLastReferenceWithIntroMessageAndFooter()
+        {
+            var facture = (await _factureRepository.GetAllListAsync())
+               .Where(d => (d.CreatorUserId == AbpSession.UserId || d.LastModifierUserId == AbpSession.UserId)
+                   && (Regex.IsMatch(d.Reference, @"^F[0-9]{5}"))).OrderByDescending(d => d.Reference).ToList();
+
+            var defaultAnnotations = await _infosEntrepriseAppService.GetDefaultAnnotations();
+
+            var estimateInitiation = new InvoiceInitiationDto()
+            {
+                InvoiceIntroMessage = defaultAnnotations.InvoiceIntroMessage,
+                InvoiceFooter = defaultAnnotations.InvoiceFooter
+            };
+
+            if (facture != null && facture.Any() && Int32.TryParse(facture.First().Reference.Substring(1), out int reference))
+                estimateInitiation.LastReference = reference;
+            else
+                estimateInitiation.LastReference = 0;
+
+            return estimateInitiation;
+        }
         public async Task<bool> ChangeFactureStatut(long FactureId, FactureStatutEnum statut)
         {
             try

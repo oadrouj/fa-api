@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Facturi.App.Dtos.EstimationDtos;
 
 namespace Facturi.App
 {
@@ -19,18 +20,22 @@ namespace Facturi.App
         private readonly IRepository<DevisItem, long> _devisItemRepository;
         private readonly IReportGeneratorAppService _reportGeneratorAppService;
         private readonly IRepository<Client, long> _clientRepository;
+        private readonly IInfosEntrepriseAppService _infosEntrepriseAppService;
 
         public DevisAppService(
             IRepository<Devis, long> DevisRepository,
             IRepository<DevisItem, long> devisItemRepository, 
             IReportGeneratorAppService reportGeneratorAppService,
-            IRepository<Client, long> clientRepository
+            IRepository<Client, long> clientRepository,
+            IInfosEntrepriseAppService infosEntrepriseAppService
         )
         {
             _devisRepository = DevisRepository ?? throw new ArgumentNullException(nameof(DevisRepository));
             _devisItemRepository = devisItemRepository ?? throw new ArgumentNullException(nameof(devisItemRepository));
             _reportGeneratorAppService = reportGeneratorAppService ?? throw new ArgumentNullException(nameof(reportGeneratorAppService));
             _clientRepository = clientRepository ?? throw new ArgumentNullException(nameof(clientRepository));
+            _infosEntrepriseAppService = infosEntrepriseAppService ?? throw new ArgumentNullException(nameof(infosEntrepriseAppService));
+
 
         }
 
@@ -114,6 +119,27 @@ namespace Facturi.App
                 return reference;
             else
                 return 0;
+        }
+        public async Task<EstimationInitiationDto> GetLastReferenceWithIntroMessageAndFooter()
+        {
+            var devis = (await _devisRepository.GetAllListAsync())
+               .Where(d => (d.CreatorUserId == AbpSession.UserId || d.LastModifierUserId == AbpSession.UserId)
+                   && (Regex.IsMatch(d.Reference, @"^D[0-9]{5}"))).OrderByDescending(d => d.Reference).ToList();
+
+            var defaultAnnotations = await _infosEntrepriseAppService.GetDefaultAnnotations();
+
+            var estimateInitiation = new EstimationInitiationDto()
+            {
+                EstimateIntroMessage = defaultAnnotations.EstimateIntroMessage,
+                EstimateFooter = defaultAnnotations.EstimateFooter
+            };
+
+            if (devis != null && devis.Any() && Int32.TryParse(devis.First().Reference.Substring(1), out int reference))
+                estimateInitiation.LastReference = reference;
+            else
+                estimateInitiation.LastReference = 0;
+
+            return estimateInitiation;
         }
 
         public async Task<bool> ChangeDevisStatut(long DevisId, DevisStatutEnum statut)

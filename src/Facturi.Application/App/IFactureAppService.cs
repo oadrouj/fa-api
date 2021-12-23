@@ -1,6 +1,7 @@
 ﻿using Abp.Application.Services;
 using Abp.Application.Services.Dto;
 using Facturi.App.Dtos;
+using Facturi.App.Dtos.InvoiceDtos;
 using System.Threading.Tasks;
 
 namespace Facturi.App
@@ -12,6 +13,7 @@ namespace Facturi.App
         Task<bool> DeleteFacture(long factureId);
         Task<FactureDto> GetByIdFacture(long id);
         Task<int> GetLastReference();
+        Task<InvoiceInitiationDto> GetLastReferenceWithIntroMessageAndFooter();
         Task<bool> ChangeFactureStatut(long FactureId, FactureStatutEnum statut);
         Task<ListResultDto<FactureDto>> GetAllFacture(CriteriasDto factureCriterias);
         Task<int> GetAllFactureTotalRecords(CriteriasDto factureCriterias);

@@ -10,7 +10,7 @@ namespace Facturi.App
         public string RaisonSociale { get; set; }
 
         public string SecteurActivite { get; set; }
-
+        public string StatutJuridique { get; set; }
         public string Adresse { get; set; }
 
         public string CodePostal { get; set; }
@@ -32,5 +32,10 @@ namespace Facturi.App
         [ForeignKey("UserId")]
         public long UserId { get; set; }
         public User User { get; set; }
+        public bool? HasLogo { get; set; } = false;
+        public string EstimateIntroMessage { get; set; }
+        public string EstimateFooter { get; set; }
+        public string InvoiceIntroMessage { get; set; }
+        public string InvoiceFooter { get; set; }
     }
 }

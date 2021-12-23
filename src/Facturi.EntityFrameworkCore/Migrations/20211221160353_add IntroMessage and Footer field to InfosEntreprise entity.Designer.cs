@@ -4,14 +4,16 @@ using Facturi.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Facturi.Migrations
 {
     [DbContext(typeof(FacturiDbContext))]
-    partial class FacturiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211221160353_add IntroMessage and Footer field to InfosEntreprise entity")]
+    partial class addIntroMessageandFooterfieldtoInfosEntrepriseentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1637,10 +1639,7 @@ namespace Facturi.Migrations
                     b.Property<long?>("CreatorUserId")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("EstimateFooter")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("EstimateIntroMessage")
+                    b.Property<string>("Footer")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool?>("HasLogo")
@@ -1652,10 +1651,7 @@ namespace Facturi.Migrations
                     b.Property<string>("IF")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("InvoiceFooter")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("InvoiceIntroMessage")
+                    b.Property<string>("IntroMessage")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("LastModificationTime")
@@ -1671,9 +1667,6 @@ namespace Facturi.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SecteurActivite")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("StatutJuridique")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TP")
