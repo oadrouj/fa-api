@@ -24,6 +24,7 @@ namespace Facturi.App
         public long ClientId { get; set; }
         public ClientDto Client { get; set; }
         public string Currency { get; set; }
+        public float MontantTtc { get; set; }
 
     }
 }
