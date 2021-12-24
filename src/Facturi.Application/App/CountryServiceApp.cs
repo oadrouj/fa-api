@@ -34,5 +34,29 @@ namespace Facturi.Application.App
             var result = new ListResultDto<CountryDto>(list);
             return result;
         }
+        public async Task<List<Country>> GetAllDBCountries()
+        {
+            var query = await _countryRepository.GetAllListAsync();
+            return query;
+        }
+        public async Task<bool> InsertManyCountries(List<Country> countries)
+        {
+            try
+            {
+                foreach (var item in countries)
+                {
+                    await _countryRepository.InsertAsync(item);
+                }
+
+                return true;
+            }
+            catch (Exception)
+            {
+
+                return false;
+            }
+        
+        }
+
     }
 }

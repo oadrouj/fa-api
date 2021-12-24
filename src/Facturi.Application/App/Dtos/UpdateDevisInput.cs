@@ -20,5 +20,6 @@ namespace Facturi.App
         public List<DevisItemDto> DevisItems { get; set; }
 
         public long ClientId { get; set; }
+        public float MontantTtc { get; set; }
     }
 }
