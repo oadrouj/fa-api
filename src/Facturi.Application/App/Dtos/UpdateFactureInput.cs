@@ -21,5 +21,6 @@ namespace Facturi.App
         public List<FactureItemDto> FactureItems { get; set; }
 
         public long ClientId { get; set; }
+        public float MontantTtc { get; set; }
     }
 }
