@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Facturi.Application.App.Dtos.CatalogueDtos;
 using Facturi.Core.App;
 using Facturi.App;
+using Facturi.App.Dtos.GenericDtos;
 
 namespace Facturi.Application.App
 {
@@ -28,7 +29,7 @@ namespace Facturi.Application.App
             this._factureRepository = factureRepository ?? throw new ArgumentNullException(nameof(factureRepository));
         
         }
-        public async Task<CreateCatalogueResult> CreateCatalogue(CreateCatalogueInput input)
+        public async Task<CatalogueDto> CreateCatalogue(CreateCatalogueInput input)
         {
             try {
             int Reference = 1;
@@ -42,11 +43,7 @@ namespace Facturi.Application.App
             catalogue.Reference = Reference;
             catalogue.AddedDate = DateTime.Now;
             long id = await _catalogueRepository.InsertAndGetIdAsync(catalogue);
-            return new CreateCatalogueResult{
-                Id = id, 
-                Reference = Reference, 
-                AddedDate = catalogue.AddedDate
-                };
+                return ObjectMapper.Map<CatalogueDto>(catalogue);
             }
               catch (Exception)
             {
@@ -102,7 +99,7 @@ namespace Facturi.Application.App
 
             return new ListResultDto<CatalogueForAutoCompleteDto>(result);
         }
-        public async Task<ListResultDto<CatalogueDto>> GetAllCatalogues(CatalogueCriteriaDto catalogueCriterias)
+        public async Task<ListResultWithTotalEntityItemsDto<CatalogueDto>> GetAllCatalogues(CatalogueCriteriaDto catalogueCriterias)
         {
             CheckIfIsRefSearch(catalogueCriterias, out bool isRef, out int minRef, out int maxRef);
             
@@ -171,7 +168,8 @@ namespace Facturi.Application.App
                 item.TotalUnitsSold = factureItems.Sum(v => v.Quantity);
             }
 
-            return new ListResultDto<CatalogueDto>(list);
+            var totalItems = await query.LongCountAsync();
+            return new ListResultWithTotalEntityItemsDto<CatalogueDto>(list, totalItems);
         }
 
         private static void CheckIfIsRefSearch(CatalogueCriteriaDto catalogueCriterias, out bool isRef, out int minRef, out int maxRef)
