@@ -4,6 +4,7 @@ using Abp.Domain.Entities;
 using Abp.Domain.Repositories;
 using Abp.Linq.Extensions;
 using Facturi.App.Dtos;
+using Facturi.App.Dtos.GenericDtos;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -64,24 +65,23 @@ namespace Facturi.App
             return result;
         }
 
-        public async Task<ListResultDto<ClientDto>> GetAllClients(ListCriteriaDto listCriteria)
+        public async Task<ListResultWithTotalEntityItemsDto<ClientDto>> GetAllClients(ListCriteriaDto listCriteria)
         {
            CheckIfIsRefSearch(listCriteria, out bool isRef, out int minRef, out int maxRef);
            CheckIfIsFilterSearch(listCriteria, out string type, out string categorie);
             var clients = new List<Client>();
             var query = _clientRepository.GetAll()
                 .Where(c => (c.CreatorUserId == AbpSession.UserId || c.LastModifierUserId == AbpSession.UserId))
-                .WhereIf(listCriteria.GlobalFilter != null ,
+                .WhereIf(listCriteria.GlobalFilter != null,
                     c => c.Nom.Trim().StartsWith(listCriteria.GlobalFilter.Trim())
                     || c.RaisonSociale.Trim().StartsWith(listCriteria.GlobalFilter.Trim()))
                 .WhereIf(isRef, c => minRef <= c.Reference && c.Reference <= maxRef)
                 .WhereIf(categorie != null, c => c.CategorieClient == categorie);
-
-            clients = query.ToList();
-            if(type != null){
-                clients =  this.checkClientsByType(query, type);
                 
-            }
+            clients = query.ToList();
+
+            if(type != null)
+                clients =  this.checkClientsByType(query, type);
 
             if (listCriteria.SortField != null && listCriteria.SortField.Length != 0)
             {
@@ -110,7 +110,7 @@ namespace Facturi.App
                 clients = clients.OrderByDescending(c => c.CreationTime).ToList();
             }
 
-            var list = ObjectMapper.Map<List<ClientDto>>(clients);
+            var list = ObjectMapper.Map<List<ClientDto>>(clients.Skip(listCriteria.First).Take(listCriteria.Rows));
            
            
             IQueryable<Facture> allValidesFactures;
@@ -137,23 +137,9 @@ namespace Facturi.App
                        client.OverdueInvoicesAmount += calculationResult;
                });
 
-              //var pendingFactures = this._factureRepository.GetAllIncluding(f => f.Client, f => f.FactureItems)
-              //  .Where(f => (DateTimeOffset.Compare(DateTimeOffset.Now, f.DateEmission.AddDays(f.EcheancePaiement)) > 0));
-
-              //var overdueFactures = this._factureRepository.GetAllIncluding(f => f.Client, f => f.FactureItems)
-              //  .Where(f => DateTimeOffset.Compare(DateTimeOffset.Now, f.DateEmission.AddDays(f.EcheancePaiement)) <= 0);
-
-
-               // await this._factureRepository.GetAllIncluding(f => f.Client, f => f.FactureItems).Where(f => f.ClientId == client.Id
-               //      && f.Statut == FactureStatutEnum.Valide
-               //      && DateTimeOffset.Compare(DateTimeOffset.Now, f.DateEmission.AddDays(f.EcheancePaiement)) <= 0)
-               //  .ForEachAsync((item) => {
-               //      client.PendingInvoicesAmount = (float)(item.FactureItems.Sum(di => (float?)di.TotalTtc) -
-               //item.FactureItems.Sum(di => (float?)di.UnitPriceHT * di.Quantity) * item.Remise / 100);
-
-                 //});
              });
-            var result = new ListResultDto<ClientDto>(list);
+            var totalRecords = await query.LongCountAsync();
+            var result = new ListResultWithTotalEntityItemsDto<ClientDto>(list, totalRecords);
             return result;
         }
 
