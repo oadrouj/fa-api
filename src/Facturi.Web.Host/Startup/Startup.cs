@@ -25,7 +25,7 @@ namespace Facturi.Web.Host.Startup
 {
     public class Startup
     {
-        private const string _defaultCorsPolicyName = "142.11.215.22";
+        // private const string _defaultCorsPolicyName = "142.11.215.22";
 
         private const string _apiVersion = "v1";
 
@@ -66,7 +66,7 @@ namespace Facturi.Web.Host.Startup
             // Configure CORS for angular2 UI
             services.AddCors(
                 options => options.AddPolicy(
-                    _defaultCorsPolicyName,
+                    _appConfiguration["App:ServerRootAddress"].Replace("http://", ""),
                     builder => builder
                         .WithOrigins(
                             // App:CorsOrigins in appsettings.json can contain more than one address separated by comma.
@@ -133,7 +133,7 @@ namespace Facturi.Web.Host.Startup
         {
             app.UseAbp(options => { options.UseAbpRequestLocalization = false; }); // Initializes ABP framework.
 
-            app.UseCors(_defaultCorsPolicyName); // Enable CORS!
+            app.UseCors(_appConfiguration["App:ServerRootAddress"].Replace("http://", "")); // Enable CORS!
 
             app.UseStaticFiles();
 

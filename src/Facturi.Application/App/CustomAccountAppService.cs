@@ -13,6 +13,8 @@ using MimeKit;
 using Facturi.App.Dtos;
 using Microsoft.AspNetCore.Identity;
 using Facturi.Users.Dto;
+using System.Configuration;
+using Microsoft.Extensions.Configuration;
 
 namespace Facturi.App
 {
@@ -21,12 +23,24 @@ namespace Facturi.App
         private readonly IRepository<User, long> _userRepository;
         private readonly UserManager _userManager;
         private readonly IPasswordHasher<User> _passwordHasher;
+        private readonly IConfigurationRoot _appConfiguration;
+        private readonly IConfiguration _config;
 
-        public CustomAccountAppService(IRepository<User, long> userRepository, UserManager userManager, IPasswordHasher<User> passwordHasher, SignInManager<User> signInManager)
+
+
+
+        public CustomAccountAppService(
+            IRepository<User, long> userRepository, 
+            UserManager userManager, 
+            IPasswordHasher<User> passwordHasher, 
+            SignInManager<User> signInManager,
+            IConfiguration config
+        )
         {
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             _userManager = userManager;
             _passwordHasher = passwordHasher;
+            _config = config;
         }
 
         public async Task<bool> IsEmailAddresUnique(string emailAddres)
@@ -46,7 +60,9 @@ namespace Facturi.App
 
             message.Subject = "Facturi - Confirmation d'adresse email";
             BodyBuilder bodyBuilder = new();
-            bodyBuilder.TextBody = "http://142.11.215.22/account/validateMail/" + userId;
+            var url = _config["App:ClientRootAddress"];
+            
+            bodyBuilder.TextBody = $"{url}/account/validateMail/" + userId;
             message.Body = bodyBuilder.ToMessageBody();
 
             SmtpClient client = new();
@@ -82,7 +98,8 @@ namespace Facturi.App
 
             message.Subject = "Facturi - Réinitialisation du mot de passe";
             BodyBuilder bodyBuilder = new();
-            bodyBuilder.TextBody = "http://142.11.215.22/account/home/" + user.Id;
+            var url = _config["App:ClientRootAddress"];
+            bodyBuilder.TextBody = $"{url}/account/home/" + user.Id;
             message.Body = bodyBuilder.ToMessageBody();
 
             SmtpClient client = new();
