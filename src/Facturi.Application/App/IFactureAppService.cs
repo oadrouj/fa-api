@@ -1,6 +1,7 @@
 ﻿using Abp.Application.Services;
 using Abp.Application.Services.Dto;
 using Facturi.App.Dtos;
+using Facturi.App.Dtos.GenericDtos;
 using Facturi.App.Dtos.InvoiceDtos;
 using System.Threading.Tasks;
 
@@ -19,7 +20,8 @@ namespace Facturi.App
         Task<int> GetAllFactureTotalRecords(CriteriasDto factureCriterias);
         Task<float> GetAllFactureMontantTotal(CriteriasDto factureCriterias);
         Task<bool> CreateOrUpdateFactureInfosPaiement(FactureInfosPaiementDto factureInfosPaiement);
-        Task<FactureInfosPaiementDto> GetByFactureIdFactureInfosPaiement(long factureId);
+        Task<ListResultWithTotalEntityItemsDto<FactureInfosPaiementDto>> GetByFactureIdFactureInfosPaiement(FactureInfosPaiementCriteriaDto factureInfosPaiementCriteriaDto);
+        Task<float> GetRestOfAmount(long factureId);
         Task<byte[]> GetByIdFactureReport(long id);
         Task<byte[]> GetByteDataFactureReport(CreateFactureInput input);
         Task<bool> deleteByFactureIdFactureInfosPaiement(long factureId);
