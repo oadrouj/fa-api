@@ -3,6 +3,7 @@ using Abp.Application.Services.Dto;
 using Abp.Domain.Repositories;
 using Abp.Linq.Extensions;
 using Facturi.App.Dtos;
+using Facturi.App.Dtos.GenericDtos;
 using Facturi.App.Dtos.InvoiceDtos;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -330,12 +331,24 @@ namespace Facturi.App
             return true;
         } 
 
-        public async Task<FactureInfosPaiementDto> GetByFactureIdFactureInfosPaiement(long factureId)
+        public async Task<ListResultWithTotalEntityItemsDto<FactureInfosPaiementDto>> GetByFactureIdFactureInfosPaiement(FactureInfosPaiementCriteriaDto factureInfosPaiementCriteriaDto)
+        {
+            var query = _factureInfosPaiementRepository.GetAll()
+                .Where(fip => fip.FactureId == factureInfosPaiementCriteriaDto.FactureId);
+
+            var chunk = query.Skip(factureInfosPaiementCriteriaDto.First).Take(factureInfosPaiementCriteriaDto.Rows);
+
+            var list = ObjectMapper.Map<List<FactureInfosPaiementDto>>(await chunk.ToListAsync());
+            return new ListResultWithTotalEntityItemsDto<FactureInfosPaiementDto>(list, await query.LongCountAsync());
+        }
+
+        public async Task<float> GetRestOfAmount(long factureId)
         {
             var fip = await _factureInfosPaiementRepository.GetAll()
                 .Where(fip => fip.FactureId == factureId)
-                .FirstOrDefaultAsync();
-            return ObjectMapper.Map<FactureInfosPaiementDto>(fip == null ? new FactureInfosPaiementDto() : fip);
+                .SumAsync(x => x.MontantPaye);
+
+            return fip;
         }
 
         public async Task<bool> deleteByFactureIdFactureInfosPaiement(long factureId)
