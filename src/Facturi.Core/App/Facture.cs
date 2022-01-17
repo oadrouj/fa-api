@@ -20,6 +20,8 @@ namespace Facturi.App
         [ForeignKey("ClientId")]
         public long ClientId { get; set; }
         public Client Client { get; set; }
+        public float MontantTtc { get; set; }
+
 
     }
 }

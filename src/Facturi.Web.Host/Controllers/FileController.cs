@@ -61,14 +61,14 @@ namespace Facturi.Web.Host.Controllers
         [Route("download")]
         [SwaggerResponse(200, typeof(FileContentResult))]
         [ProducesResponseType(typeof(FileContentResult), 200)]
-        public async Task<ActionResult> Download()
+        public async Task<FileContentResult> Download()
         {
             var uploads = Path.Combine(_hostingEnvironment.WebRootPath, "uploads");
 
             var file = this.findFile(uploads);
             if (file == null)
             {
-                return NotFound();
+                return null;
             }
 
             var filePath = Path.Combine(uploads, file);

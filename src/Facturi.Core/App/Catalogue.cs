@@ -1,4 +1,5 @@
 using Abp.Domain.Entities.Auditing;
+using Facturi.App;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -9,7 +10,6 @@ namespace Facturi.Core.App
     {
         
         public int Reference { get; set; }
-        
         public string CatalogueType { get; set; }
         public DateTime AddedDate { get; set; }
         public string Designation { get; set; }
@@ -18,6 +18,9 @@ namespace Facturi.Core.App
         public string Unity { get; set; }
         public int Tva { get; set; }
         public float MinimalQuantity { get; set; }
+        public ICollection<DevisItem> DevisItems { get; set; }
+        public FactureItem FactureItem { get; set; }
+
 
     }
 }

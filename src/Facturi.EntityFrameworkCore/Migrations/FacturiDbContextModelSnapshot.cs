@@ -1435,6 +1435,9 @@ namespace Facturi.Migrations
                     b.Property<string>("MessageIntroduction")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<float>("MontantTtc")
+                        .HasColumnType("real");
+
                     b.Property<string>("PiedDePage")
                         .HasColumnType("nvarchar(max)");
 
@@ -1490,6 +1493,8 @@ namespace Facturi.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CatalogueId");
+
                     b.HasIndex("DevisId");
 
                     b.ToTable("DevisItems");
@@ -1529,6 +1534,9 @@ namespace Facturi.Migrations
                     b.Property<string>("MessageIntroduction")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<float>("MontantTtc")
+                        .HasColumnType("real");
+
                     b.Property<string>("PiedDePage")
                         .HasColumnType("nvarchar(max)");
 
@@ -1555,10 +1563,22 @@ namespace Facturi.Migrations
                         .HasColumnType("bigint")
                         .UseIdentityColumn();
 
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("CreatorUserId")
+                        .HasColumnType("bigint");
+
                     b.Property<DateTime>("DatePaiement")
                         .HasColumnType("datetime2");
 
                     b.Property<long>("FactureId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("LastModifierUserId")
                         .HasColumnType("bigint");
 
                     b.Property<int>("ModePaiement")
@@ -1609,6 +1629,9 @@ namespace Facturi.Migrations
                         .HasColumnType("real");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CatalogueId")
+                        .IsUnique();
 
                     b.HasIndex("FactureId");
 
@@ -1663,6 +1686,9 @@ namespace Facturi.Migrations
 
                     b.Property<long?>("LastModifierUserId")
                         .HasColumnType("bigint");
+
+                    b.Property<float>("MonthTargetAmount")
+                        .HasColumnType("real");
 
                     b.Property<string>("Pays")
                         .HasColumnType("nvarchar(max)");
@@ -2229,11 +2255,19 @@ namespace Facturi.Migrations
 
             modelBuilder.Entity("Facturi.App.DevisItem", b =>
                 {
+                    b.HasOne("Facturi.Core.App.Catalogue", "Catalogue")
+                        .WithMany("DevisItems")
+                        .HasForeignKey("CatalogueId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Facturi.App.Devis", "Devis")
                         .WithMany("DevisItems")
                         .HasForeignKey("DevisId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Catalogue");
 
                     b.Navigation("Devis");
                 });
@@ -2262,6 +2296,12 @@ namespace Facturi.Migrations
 
             modelBuilder.Entity("Facturi.App.FactureItem", b =>
                 {
+                    b.HasOne("Facturi.Core.App.Catalogue", null)
+                        .WithOne("FactureItem")
+                        .HasForeignKey("Facturi.App.FactureItem", "CatalogueId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Facturi.App.Facture", "Facture")
                         .WithMany("FactureItems")
                         .HasForeignKey("FactureId")
@@ -2430,6 +2470,13 @@ namespace Facturi.Migrations
                     b.Navigation("Settings");
 
                     b.Navigation("Tokens");
+                });
+
+            modelBuilder.Entity("Facturi.Core.App.Catalogue", b =>
+                {
+                    b.Navigation("DevisItems");
+
+                    b.Navigation("FactureItem");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,4 +1,5 @@
 ﻿using Abp.Domain.Entities;
+using Facturi.Core.App;
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -23,7 +24,11 @@ namespace Facturi.App
         [ForeignKey("FactureId")]
         public long FactureId { get; set;}
         public Facture Facture { get; set; }
+
+        //[ForeignKey("CatalogueId")]
         public long CatalogueId { get; set; }
+        //public Catalogue Catalogue { get; set; }
+
 
     }
 }

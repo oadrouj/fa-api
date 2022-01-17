@@ -37,5 +37,6 @@ namespace Facturi.App
         public string EstimateFooter { get; set; }
         public string InvoiceIntroMessage { get; set; }
         public string InvoiceFooter { get; set; }
+        public float MonthTargetAmount { get; set; } = 0;
     }
 }

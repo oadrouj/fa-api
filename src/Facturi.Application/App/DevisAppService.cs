@@ -205,13 +205,7 @@ namespace Facturi.App
             {
                 DevisList = await query.OrderBy(d => d.EcheancePaiement).Skip(devisCriterias.First).Take(devisCriterias.Rows).ToListAsync();
             }
-            // var list = DevisList.Select((x) => { 
-            //     var devisDto = ObjectMapper.Map<DevisDto>(x);
-            //     var client = _clientRepository.FirstOrDefault(c => (c.CreatorUserId == AbpSession.UserId ||
-            //      c.LastModifierUserId == AbpSession.UserId) && c.Id == x.ClientId);
-            //     devisDto.Currency = client.DeviseFacturation;
-            //     return devisDto;
-            // }).ToList();
+          
             var result = new ListResultDto<DevisDto>(ObjectMapper.Map<List<DevisDto>>(DevisList));
             return result;
         }
