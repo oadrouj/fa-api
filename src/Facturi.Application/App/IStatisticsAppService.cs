@@ -16,5 +16,8 @@ namespace Facturi.App
         Task<MonthTargetInfosDto> GetMonthTargetInfos();
         Task<PeriodicTrackingDto> GetPeriodicTrackingInfos(PeriodicTrackingInputDto periodicTrackingInputDto);
         Task<TotalStatisticsDto> GetTotalStatistics();
+        Task<AnnualInvoicesTrackingDto> GetAnnualInvoicesTracking(AnnualInvoicesTrackingInputDto annualInvoicesTrackingInput);
+        Task<AnnualEstimatesTrackingDto> GetAnnualEstimatesTracking(AnnualEstimatesTrackingInputDto annualEstimatesTrackingInput);
+        Task<MonthEvolutionDto> GetMonthEvolution();
     }
 }

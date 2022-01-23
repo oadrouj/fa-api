@@ -6,6 +6,8 @@
         Cree,
         Valide,
         Converti,
-        rejete
+        Rejete,
+        Expire
+
     }
 }

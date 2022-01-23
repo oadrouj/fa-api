@@ -177,7 +177,12 @@ namespace Facturi.App
             .WhereIf(dateEmission != null, f => f.DateEmission >= dateEmission[0] && f.DateEmission <= dateEmission[1])
             .WhereIf(echeancePaiement != 0, f => f.EcheancePaiement == echeancePaiement)
             .WhereIf(montantTtc != -1, f => f.DevisItems.Sum(item => item.TotalTtc) == montantTtc)
-            .WhereIf(statut != DevisStatutEnum.Undefined, f => f.Statut == statut);
+            .WhereIf(statut != DevisStatutEnum.Undefined && statut != DevisStatutEnum.Expire, f => f.Statut == statut)
+            .WhereIf(statut == DevisStatutEnum.Valide, e => e.Statut == DevisStatutEnum.Valide &&
+                DateTime.Compare(e.DateEmission.AddDays(e.EcheancePaiement), DateTime.Now) > 0)
+            .WhereIf(statut == DevisStatutEnum.Expire, e => e.Statut == DevisStatutEnum.Valide &&
+                DateTime.Compare(e.DateEmission.AddDays(e.EcheancePaiement), DateTime.Now) < 0);
+
 
             if (devisCriterias.SortField != null && devisCriterias.SortField.Length != 0)
             {
@@ -227,7 +232,11 @@ namespace Facturi.App
             .WhereIf(dateEmission != null, f => f.DateEmission >= dateEmission[0] && f.DateEmission <= dateEmission[1])
             .WhereIf(echeancePaiement != 0, f => f.EcheancePaiement == echeancePaiement)
             .WhereIf(montantTtc != -1, f => f.DevisItems.Sum(item => item.TotalTtc) == montantTtc)
-            .WhereIf(statut != DevisStatutEnum.Undefined, f => f.Statut == statut);
+            .WhereIf(statut != DevisStatutEnum.Undefined && statut != DevisStatutEnum.Expire, f => f.Statut == statut)
+            .WhereIf(statut == DevisStatutEnum.Valide, e => e.Statut == DevisStatutEnum.Valide &&
+                DateTime.Compare(e.DateEmission.AddDays(e.EcheancePaiement), DateTime.Now) > 0)
+            .WhereIf(statut == DevisStatutEnum.Expire, e => e.Statut == DevisStatutEnum.Valide &&
+                DateTime.Compare(e.DateEmission.AddDays(e.EcheancePaiement), DateTime.Now) < 0);
 
             return await query.CountAsync();
         }
@@ -249,7 +258,11 @@ namespace Facturi.App
             .WhereIf(dateEmission != null, f => f.DateEmission >= dateEmission[0] && f.DateEmission <= dateEmission[1])
             .WhereIf(echeancePaiement != 0, f => f.EcheancePaiement == echeancePaiement)
             .WhereIf(montantTtc != -1, f => f.DevisItems.Sum(item => item.TotalTtc) == montantTtc)
-            .WhereIf(statut != DevisStatutEnum.Undefined, f => f.Statut == statut);
+            .WhereIf(statut != DevisStatutEnum.Undefined && statut != DevisStatutEnum.Expire, f => f.Statut == statut)
+            .WhereIf(statut == DevisStatutEnum.Valide, e => e.Statut == DevisStatutEnum.Valide &&
+                DateTime.Compare(e.DateEmission.AddDays(e.EcheancePaiement), DateTime.Now) > 0)
+            .WhereIf(statut == DevisStatutEnum.Expire, e => e.Statut == DevisStatutEnum.Valide &&
+                DateTime.Compare(e.DateEmission.AddDays(e.EcheancePaiement), DateTime.Now) < 0);
 
             var result = 0.0f;
             foreach (var item in query)
