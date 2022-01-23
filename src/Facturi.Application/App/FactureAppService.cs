@@ -181,7 +181,12 @@ namespace Facturi.App
                 .WhereIf(dateEmission != null, f => f.DateEmission.Date >= dateEmission[0] && f.DateEmission.Date <= dateEmission[1])
                 .WhereIf(echeancePaiement != 0, f => f.EcheancePaiement == echeancePaiement)
                 .WhereIf(montantTtc != -1, f => f.FactureItems.Sum(item => item.TotalTtc) == montantTtc)
-                .WhereIf(statut != FactureStatutEnum.Undefined, f => f.Statut == statut);
+                .WhereIf(statut != FactureStatutEnum.Undefined && statut != FactureStatutEnum.PaiementAttente
+                    && statut != FactureStatutEnum.PaiementRetard, f => f.Statut == statut)
+                .WhereIf(statut == FactureStatutEnum.PaiementAttente, e => e.Statut == FactureStatutEnum.Valide &&
+                    DateTime.Compare(e.DateEmission.AddDays(e.EcheancePaiement), DateTime.Now) > 0)
+                .WhereIf(statut == FactureStatutEnum.PaiementRetard, e => e.Statut == FactureStatutEnum.Valide &&
+                    DateTime.Compare(e.DateEmission.AddDays(e.EcheancePaiement), DateTime.Now) < 0);
 
             if (factureCriterias.SortField != null && factureCriterias.SortField.Length != 0)
             {
@@ -231,7 +236,12 @@ namespace Facturi.App
                 .WhereIf(dateEmission != null, f => f.DateEmission >= dateEmission[0] && f.DateEmission <= dateEmission[1])
                  .WhereIf(echeancePaiement != 0, f => f.EcheancePaiement == echeancePaiement)
                  .WhereIf(montantTtc != -1, f => f.FactureItems.Sum(item => item.TotalTtc) == montantTtc)
-                .WhereIf(statut != FactureStatutEnum.Undefined, f => f.Statut == statut);
+                  .WhereIf(statut != FactureStatutEnum.Undefined && statut != FactureStatutEnum.PaiementAttente
+                    && statut != FactureStatutEnum.PaiementRetard, f => f.Statut == statut)
+                .WhereIf(statut == FactureStatutEnum.PaiementAttente, e => e.Statut == FactureStatutEnum.Valide &&
+                    DateTime.Compare(e.DateEmission.AddDays(e.EcheancePaiement), DateTime.Now) > 0)
+                .WhereIf(statut == FactureStatutEnum.PaiementRetard, e => e.Statut == FactureStatutEnum.Valide &&
+                    DateTime.Compare(e.DateEmission.AddDays(e.EcheancePaiement), DateTime.Now) < 0);
 
             return await query.CountAsync();
         }
@@ -251,9 +261,14 @@ namespace Facturi.App
 
                 .WhereIf(client != 0, f => f.ClientId == client)
                 .WhereIf(dateEmission != null, f => f.DateEmission >= dateEmission[0] && f.DateEmission <= dateEmission[1])
-                 .WhereIf(echeancePaiement != 0, f => f.EcheancePaiement == echeancePaiement)
-                 .WhereIf(montantTtc != -1, f => f.FactureItems.Sum(item => item.TotalTtc) == montantTtc)
-                .WhereIf(statut != FactureStatutEnum.Undefined, f => f.Statut == statut);
+                .WhereIf(echeancePaiement != 0, f => f.EcheancePaiement == echeancePaiement)
+                .WhereIf(montantTtc != -1, f => f.FactureItems.Sum(item => item.TotalTtc) == montantTtc)
+                .WhereIf(statut != FactureStatutEnum.Undefined && statut != FactureStatutEnum.PaiementAttente
+                    && statut != FactureStatutEnum.PaiementRetard, f => f.Statut == statut)
+                .WhereIf(statut == FactureStatutEnum.PaiementAttente, e => e.Statut == FactureStatutEnum.Valide &&
+                    DateTime.Compare(e.DateEmission.AddDays(e.EcheancePaiement), DateTime.Now) > 0)
+                .WhereIf(statut == FactureStatutEnum.PaiementRetard, e => e.Statut == FactureStatutEnum.Valide &&
+                    DateTime.Compare(e.DateEmission.AddDays(e.EcheancePaiement), DateTime.Now) < 0);
 
             var result = 0.0f;
             foreach (var item in query)
