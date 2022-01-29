@@ -162,7 +162,7 @@ namespace Facturi.Application.App
             {
                 var factureItems = _factureRepository.GetAllIncluding(v => v.FactureItems)
                     .Where(x => x.Statut == FactureStatutEnum.Valide)
-                    .SelectMany(v => v.FactureItems).Where(v => v.CatalogueId == item.Id);
+                    .SelectMany(v => v.FactureItems).Where(v => v.Id == item.Id);
 
                 item.TotalSalesTTC = factureItems.Sum(v => v.TotalTtc);
                 item.TotalUnitsSold = factureItems.Sum(v => v.Quantity);

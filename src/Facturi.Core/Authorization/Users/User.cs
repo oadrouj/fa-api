@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using Abp.Authorization.Users;
 using Abp.Extensions;
+using Facturi.App.Subscriptions;
 
 namespace Facturi.Authorization.Users
 {
     public class User : AbpUser<User>
     {
         public const string DefaultPassword = "123qwe";
-
         public static string CreateRandomPassword()
         {
             return Guid.NewGuid().ToString("N").Truncate(16);
@@ -30,5 +30,7 @@ namespace Facturi.Authorization.Users
 
             return user;
         }
+        public Subscription Subscription { get; set; }
+
     }
 }

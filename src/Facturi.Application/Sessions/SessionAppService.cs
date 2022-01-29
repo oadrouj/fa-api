@@ -20,6 +20,12 @@ namespace Facturi.Sessions
                 }
             };
 
+           
+            if(AbpSession.UserId.HasValue && !(await UserManager.FindByIdAsync(AbpSession.UserId.ToString())).IsActive)
+            {
+                return null;
+            }
+
             if (AbpSession.TenantId.HasValue)
             {
                 output.Tenant = ObjectMapper.Map<TenantLoginInfoDto>(await GetCurrentTenantAsync());

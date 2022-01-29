@@ -17,6 +17,15 @@ using Facturi.Authorization;
 using Facturi.Authorization.Users;
 using Facturi.Models.TokenAuth;
 using Facturi.MultiTenancy;
+using Facturi.Identity;
+using Abp.Application.Services.Dto;
+using AutoMapper;
+using Facturi.Authorization.Roles;
+using Microsoft.EntityFrameworkCore;
+using Abp.Domain.Repositories;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.Extensions.Configuration;
 
 namespace Facturi.Controllers
 {
@@ -30,6 +39,12 @@ namespace Facturi.Controllers
         private readonly IExternalAuthConfiguration _externalAuthConfiguration;
         private readonly IExternalAuthManager _externalAuthManager;
         private readonly UserRegistrationManager _userRegistrationManager;
+        private readonly UserManager _userManager;
+        private readonly SignInManager _signInManager;
+        private readonly TenantAppService _tenantAppService;
+        private readonly AbpLogInManager<Tenant, Role, User> _abpLogInManager;
+        private readonly IRepository<UserToken, long> _userTokenRepo;
+        private readonly IConfiguration _config;
 
         public TokenAuthController(
             LogInManager logInManager,
@@ -38,7 +53,12 @@ namespace Facturi.Controllers
             TokenAuthConfiguration configuration,
             IExternalAuthConfiguration externalAuthConfiguration,
             IExternalAuthManager externalAuthManager,
-            UserRegistrationManager userRegistrationManager)
+            UserRegistrationManager userRegistrationManager,
+            UserManager userManager,
+            SignInManager signInManager,
+            TenantAppService tenantAppService,
+            IConfiguration config
+        )
         {
             _logInManager = logInManager;
             _tenantCache = tenantCache;
@@ -47,6 +67,10 @@ namespace Facturi.Controllers
             _externalAuthConfiguration = externalAuthConfiguration;
             _externalAuthManager = externalAuthManager;
             _userRegistrationManager = userRegistrationManager;
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _tenantAppService = tenantAppService;
+            _config = config;
         }
 
         [HttpPost]
@@ -59,7 +83,7 @@ namespace Facturi.Controllers
             );
 
             var accessToken = CreateAccessToken(CreateJwtClaims(loginResult.Identity));
-
+            
             return new AuthenticateResultModel
             {
                 AccessToken = accessToken,
@@ -67,6 +91,54 @@ namespace Facturi.Controllers
                 ExpireInSeconds = (int)_configuration.Expiration.TotalSeconds,
                 UserId = loginResult.User.Id
             };
+
+            
+        }
+
+        [HttpPost]
+        public async Task<GetAccessTokenModel> getAccessToken([FromBody] AuthenticateModel model)
+        {
+            var user = await _userManager.Users.SingleAsync((e) => e.EmailAddress == model.UserNameOrEmailAddress);
+            
+            if(user != null && await _userManager.CheckPasswordAsync(user, model.Password) == true)
+            {
+                var claimsPrincipal = await _signInManager.CreateUserPrincipalAsync(user);
+                var accessToken = CreateAccessToken(CreateJwtClaims(claimsPrincipal.Identities.FirstOrDefault()));
+
+                return new GetAccessTokenModel() {
+                    AccessToken = accessToken,
+                    ExpireInSeconds = (int)_configuration.Expiration.TotalSeconds
+                };
+            }
+            else
+                throw new Exception("Cannot get access token check your credentials");
+
+        }
+
+        [HttpPost]
+        public async Task<AuthenticateResultModel> activateAccount(ActivateAccountInputModel activateAccountInput)
+        {
+            var user = await _userManager.Users.SingleAsync((e) => e.Id == activateAccountInput.UserId);
+            var tokenIsValid = this.ValidateToken(activateAccountInput.Token);
+
+            if (user != null && tokenIsValid && !user.IsActive)
+            {
+                user.IsActive = true;
+                await _userManager.UpdateAsync(user);
+
+                var claimsPrincipal = await _signInManager.CreateUserPrincipalAsync(user);
+                var accessToken = CreateAccessToken(CreateJwtClaims(claimsPrincipal.Identities.FirstOrDefault()));
+
+                return new AuthenticateResultModel
+                {
+                    AccessToken = accessToken,
+                    EncryptedAccessToken = GetEncryptedAccessToken(accessToken),
+                    ExpireInSeconds = (int)_configuration.Expiration.TotalSeconds,
+                    UserId = user.Id
+                };
+            }
+            else
+                throw new Exception("token cannot be generated");
         }
 
         [HttpGet]
@@ -141,7 +213,8 @@ namespace Facturi.Controllers
                 externalUser.EmailAddress,
                 externalUser.EmailAddress,
                 Authorization.Users.User.CreateRandomPassword(),
-                true
+                true,
+                false
             );
 
             user.Logins = new List<UserLogin>
@@ -228,6 +301,34 @@ namespace Facturi.Controllers
         private string GetEncryptedAccessToken(string accessToken)
         {
             return SimpleStringCipher.Instance.Encrypt(accessToken, AppConsts.DefaultPassPhrase);
+        }
+
+        private bool ValidateToken(string token)
+        {
+
+            var validationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_config["Authentication:JwtBearer:SecurityKey"])),
+                ValidIssuer = _config["Authentication:JwtBearer:Issuer"],
+                ValidAudience = _config["Authentication:JwtBearer:Audience"],
+                ClockSkew = TimeSpan.Zero
+            };
+
+            var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
+            try
+            {
+                jwtSecurityTokenHandler.ValidateToken(token, validationParameters,
+                    out SecurityToken validatedToken);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
     }
 }

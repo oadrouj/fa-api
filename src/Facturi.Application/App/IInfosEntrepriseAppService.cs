@@ -11,14 +11,12 @@ namespace Facturi.App
 {
     public interface IInfosEntrepriseAppService : IApplicationService
     {
-        Task CreateInfosEntreprise(CreateInfosEntrepriseInput input);
+        Task<bool> CreateInfosEntreprise(CreateInfosEntrepriseInput input);
         Task<InfosEntrepriseDto> GetByIdInfosEntreprise(long id);
         Task<GeneralInfosDto> GetGeneralInfos();
         Task<bool> UpdateGeneralInfos(GeneralInfosDto generalInfosDto);
         Task<ContactInfosDto> GetContactInfos();
         Task<bool> UpdateContactInfos(ContactInfosDto contactInfosDto);
-        Task<AdministrativeInfosDto> GetAdministrativeInfos();
-        Task<bool> UpdateAdministrativeInfos(AdministrativeInfosDto administrativeInfosDto);
         Task<DefaultAnnotationsDto> GetDefaultAnnotations();
         Task<bool> UpdateDefaultAnnotations(DefaultAnnotationsDto defaultAnnotationsDto);
 

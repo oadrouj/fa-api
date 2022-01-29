@@ -21,10 +21,20 @@ namespace Facturi.App
             _infosEntrepriseRepository = infosEntrepriseRepository ?? throw new ArgumentNullException(nameof(infosEntrepriseRepository));
         }
 
-        public async Task CreateInfosEntreprise(CreateInfosEntrepriseInput input)
+        public async Task<bool> CreateInfosEntreprise(CreateInfosEntrepriseInput input)
         {
-            var infosEntreprise = ObjectMapper.Map<InfosEntreprise>(input);
-            await _infosEntrepriseRepository.InsertAsync(infosEntreprise);
+            try
+            {
+                var infosEntreprise = ObjectMapper.Map<InfosEntreprise>(input);
+                infosEntreprise.UserId = AbpSession.UserId.GetValueOrDefault();
+                await _infosEntrepriseRepository.InsertAsync(infosEntreprise);
+                return true;
+            }
+            catch(Exception)
+            {
+                return false;
+            }
+           
         }
 
         public async Task<InfosEntrepriseDto> GetByIdInfosEntreprise(long id)
@@ -46,7 +56,6 @@ namespace Facturi.App
                 return null;
             }
           
-
         }
         public async Task<ListResultDto<InfosEntrepriseDto>> GetAllInfosEntreprise()
         {
@@ -103,36 +112,6 @@ namespace Facturi.App
             catch (Exception e)
             {
 
-                return false;
-            }
-        }
-
-        public async Task<AdministrativeInfosDto> GetAdministrativeInfos()
-        {
-            try
-            {
-                var infosEnteprise = await _infosEntrepriseRepository.FirstOrDefaultAsync(x => x.UserId == AbpSession.UserId);
-                return ObjectMapper.Map<AdministrativeInfosDto>(infosEnteprise);
-            }
-            catch (Exception e)
-            {
-                return null;
-            }
-        }
-
-        public async Task<bool> UpdateAdministrativeInfos(AdministrativeInfosDto administrativeInfosDto)
-        {
-            try
-            {
-                var entity = await _infosEntrepriseRepository.FirstOrDefaultAsync(x => x.Id == administrativeInfosDto.Id);
-                entity.ICE = administrativeInfosDto.ICE;
-                entity.IF = administrativeInfosDto.IF;
-                entity.TP = administrativeInfosDto.TP;
-                entity.StatutJuridique = administrativeInfosDto.StatutJuridique;
-                return true;
-            }
-            catch (Exception e)
-            {
                 return false;
             }
         }

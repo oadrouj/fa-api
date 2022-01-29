@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Abp.Configuration;
 using Abp.Zero.Configuration;
@@ -37,22 +38,32 @@ namespace Facturi.Authorization.Accounts
 
         public async Task<RegisterOutput> Register(RegisterInput input)
         {
-            var user = await _userRegistrationManager.RegisterAsync(
-                input.Name,
-                input.Surname,
-                input.EmailAddress,
-                input.UserName,
-                input.Password,
-                false // Assumed email address is always confirmed. Change this if you want to implement email confirmation.
-            );
-
-            var isEmailConfirmationRequiredForLogin = await SettingManager.GetSettingValueAsync<bool>(AbpZeroSettingNames.UserManagement.IsEmailConfirmationRequiredForLogin);
-
-            return new RegisterOutput
+            try
             {
-                CanLogin = user.IsActive && (user.IsEmailConfirmed || !isEmailConfirmationRequiredForLogin),
-                UserId = user.Id
-            };
+                var user = await _userRegistrationManager.RegisterAsync(
+              input.Name,
+              input.Surname,
+              input.EmailAddress,
+              input.UserName,
+              input.Password,
+              false, // Assumed email address is always confirmed. Change this if you want to implement email confirmation.
+              false
+             );
+
+                var isEmailConfirmationRequiredForLogin = await SettingManager.GetSettingValueAsync<bool>(AbpZeroSettingNames.UserManagement.IsEmailConfirmationRequiredForLogin);
+
+                return new RegisterOutput
+                {
+                    CanLogin = user.IsActive && (user.IsEmailConfirmed || !isEmailConfirmationRequiredForLogin),
+                    UserId = user.Id
+                };
+            }
+            catch(Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+
+          
         }
     }
 }

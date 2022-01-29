@@ -8,12 +8,14 @@ namespace Facturi.App
     {
         Task<bool> IsEmailAddresUnique(string emailAddres);
 
-        void SendConfirmationEmail(string emailAddress, string prenom, long userId);
+        long SendConfirmationEmail(string emailAddress, string prenom, long userId);
 
         void SendResetPasswordMail(string emailAddress);
 
         Task ResetPassword(long userId, string password);
 
         UserDto GetUserByEmailAddress(string emailAddress);
+
+        Task<bool> checkOrUpdateConfirmationEmailIsSent(long userId);
     }
 }

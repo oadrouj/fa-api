@@ -18,9 +18,6 @@ namespace Facturi.Core.App
         public string Unity { get; set; }
         public int Tva { get; set; }
         public float MinimalQuantity { get; set; }
-        public ICollection<DevisItem> DevisItems { get; set; }
-        public FactureItem FactureItem { get; set; }
-
 
     }
 }
