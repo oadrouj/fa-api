@@ -25,8 +25,5 @@ namespace Facturi.App
         public long DevisId {get; set;}
         public Devis Devis { get; set; }
 
-        [ForeignKey("CatalogueId")]
-        public long CatalogueId { get; set; }
-        public Catalogue Catalogue { get; set; }
     }
 }

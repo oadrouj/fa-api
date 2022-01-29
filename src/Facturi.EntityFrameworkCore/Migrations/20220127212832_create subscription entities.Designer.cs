@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Facturi.Migrations
 {
     [DbContext(typeof(FacturiDbContext))]
-    [Migration("20220114134619_make CatalogueId property a foreign key for InvoiceItem and EstimateItem entities - fix foreign key conflicts 3")]
-    partial class makeCatalogueIdpropertyaforeignkeyforInvoiceItemandEstimateItementitiesfixforeignkeyconflicts3
+    [Migration("20220127212832_create subscription entities")]
+    partial class createsubscriptionentities
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -1466,9 +1466,6 @@ namespace Facturi.Migrations
                         .HasColumnType("bigint")
                         .UseIdentityColumn();
 
-                    b.Property<long>("CatalogueId")
-                        .HasColumnType("bigint");
-
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
@@ -1494,8 +1491,6 @@ namespace Facturi.Migrations
                         .HasColumnType("real");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CatalogueId");
 
                     b.HasIndex("DevisId");
 
@@ -1603,9 +1598,6 @@ namespace Facturi.Migrations
                         .HasColumnType("bigint")
                         .UseIdentityColumn();
 
-                    b.Property<long?>("CatalogueId")
-                        .HasColumnType("bigint");
-
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
@@ -1631,8 +1623,6 @@ namespace Facturi.Migrations
                         .HasColumnType("real");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CatalogueId");
 
                     b.HasIndex("FactureId");
 
@@ -1720,6 +1710,112 @@ namespace Facturi.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("AppInfosEntreprise");
+                });
+
+            modelBuilder.Entity("Facturi.App.Subscriptions.Subscription", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .UseIdentityColumn();
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("CreatorUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsCancelled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("LastModifierUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("NumberOfMonths")
+                        .HasColumnType("int");
+
+                    b.Property<long>("SubscriptionPackageId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SubscriptionPackageId");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("Subscription");
+                });
+
+            modelBuilder.Entity("Facturi.App.Subscriptions.SubscriptionFeature", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .UseIdentityColumn();
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("CreatorUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("LastModifierUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("SubscriptionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Value")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SubscriptionId");
+
+                    b.ToTable("SubscriptionFeature");
+                });
+
+            modelBuilder.Entity("Facturi.App.Subscriptions.SubscriptionPackage", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .UseIdentityColumn();
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("CreatorUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("LastModifierUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<float>("Price")
+                        .HasColumnType("real");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SubscriptionPackage");
                 });
 
             modelBuilder.Entity("Facturi.Authorization.Roles.Role", b =>
@@ -2256,19 +2352,11 @@ namespace Facturi.Migrations
 
             modelBuilder.Entity("Facturi.App.DevisItem", b =>
                 {
-                    b.HasOne("Facturi.Core.App.Catalogue", "Catalogue")
-                        .WithMany("DevisItems")
-                        .HasForeignKey("CatalogueId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Facturi.App.Devis", "Devis")
                         .WithMany("DevisItems")
                         .HasForeignKey("DevisId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Catalogue");
 
                     b.Navigation("Devis");
                 });
@@ -2297,10 +2385,6 @@ namespace Facturi.Migrations
 
             modelBuilder.Entity("Facturi.App.FactureItem", b =>
                 {
-                    b.HasOne("Facturi.Core.App.Catalogue", null)
-                        .WithMany("FactureItems")
-                        .HasForeignKey("CatalogueId");
-
                     b.HasOne("Facturi.App.Facture", "Facture")
                         .WithMany("FactureItems")
                         .HasForeignKey("FactureId")
@@ -2319,6 +2403,36 @@ namespace Facturi.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Facturi.App.Subscriptions.Subscription", b =>
+                {
+                    b.HasOne("Facturi.App.Subscriptions.SubscriptionPackage", "SubscriptionPackage")
+                        .WithMany("Subscriptions")
+                        .HasForeignKey("SubscriptionPackageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Facturi.Authorization.Users.User", "User")
+                        .WithOne("Subscription")
+                        .HasForeignKey("Facturi.App.Subscriptions.Subscription", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SubscriptionPackage");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Facturi.App.Subscriptions.SubscriptionFeature", b =>
+                {
+                    b.HasOne("Facturi.App.Subscriptions.Subscription", "Subscription")
+                        .WithMany("SubscriptionFeatures")
+                        .HasForeignKey("SubscriptionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Subscription");
                 });
 
             modelBuilder.Entity("Facturi.Authorization.Roles.Role", b =>
@@ -2449,6 +2563,16 @@ namespace Facturi.Migrations
                     b.Navigation("FactureItems");
                 });
 
+            modelBuilder.Entity("Facturi.App.Subscriptions.Subscription", b =>
+                {
+                    b.Navigation("SubscriptionFeatures");
+                });
+
+            modelBuilder.Entity("Facturi.App.Subscriptions.SubscriptionPackage", b =>
+                {
+                    b.Navigation("Subscriptions");
+                });
+
             modelBuilder.Entity("Facturi.Authorization.Roles.Role", b =>
                 {
                     b.Navigation("Claims");
@@ -2468,14 +2592,9 @@ namespace Facturi.Migrations
 
                     b.Navigation("Settings");
 
+                    b.Navigation("Subscription");
+
                     b.Navigation("Tokens");
-                });
-
-            modelBuilder.Entity("Facturi.Core.App.Catalogue", b =>
-                {
-                    b.Navigation("DevisItems");
-
-                    b.Navigation("FactureItems");
                 });
 #pragma warning restore 612, 618
         }

@@ -48,7 +48,7 @@ namespace Facturi.App
             return !(await _userRepository.GetAll().Where(u => u.EmailAddress.ToLower().Trim().Equals(emailAddres.ToLower().Trim())).ToListAsync()).Any();
         }
 
-        public void SendConfirmationEmail(string emailAddress, string prenom, long userId)
+        public long SendConfirmationEmail(string emailAddress, string prenom, long userId)
         {
             MimeMessage message = new();
 
@@ -72,6 +72,20 @@ namespace Facturi.App
             client.Send(message);
             client.Disconnect(true);
             client.Dispose();
+
+            return userId;
+        }
+
+        public async Task<bool> checkOrUpdateConfirmationEmailIsSent(long userId)
+        {
+            var user = await _userRepository.FirstOrDefaultAsync(e => e.Id == userId);
+            if (user.IsEmailConfirmed == true)
+                return false;
+
+            user.IsEmailConfirmed = true;
+            await _userRepository.UpdateAsync(user);
+            return true;
+
         }
 
         public async Task ResetPassword(long userId, string password)
