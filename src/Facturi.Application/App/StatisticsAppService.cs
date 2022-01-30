@@ -289,7 +289,7 @@ namespace Facturi.App
                 {
                     TotalInvoicesAmount = await allInvoices.SumAsync(e => e.TotalTtc - ((e.Quantity * e.UnitPriceHT) * e.Facture.Remise / 100)),
                     CashedInvoicesAmount = await allInvoices
-                        .Where(e => e.Facture.Statut == FactureStatutEnum.ReglePartiellemt || e.Facture.Statut == FactureStatutEnum.Regle)
+                        .Where(e => e.Facture.Statut == FactureStatutEnum.Regle)
                         .SumAsync(e => e.TotalTtc - ((e.Quantity * e.UnitPriceHT) * e.Facture.Remise / 100)),
                     PendingInvoicesAmount = await allInvoices
                         .Where(e => e.Facture.Statut == FactureStatutEnum.Valide
@@ -324,7 +324,7 @@ namespace Facturi.App
                  .AsEnumerable();
 
                 var bestsellerInvoiceItems = invoiceItemsEnumerable
-                 .Where(e => (e.Facture.Statut == FactureStatutEnum.Regle || e.Facture.Statut == FactureStatutEnum.ReglePartiellemt && e.Designation != null))
+                 .Where(e => (e.Facture.Statut == FactureStatutEnum.Regle && e.Designation != null))
                  .GroupBy(e => new {e.Id, e.Designation})
                  .Select(e => new { Designation = e.Key.Designation, Total =  e.Sum(x => x.TotalTtc)})
                  .OrderByDescending(e => e.Total)
@@ -454,7 +454,7 @@ namespace Facturi.App
                .Where(e => (e.CreatorUserId == AbpSession.UserId || e.LastModifierUserId == AbpSession.UserId)
                 && e.CreationTime.Year == DateTime.Now.Year);
             
-            if (catalogs.Count() > 0)
+            if (catalogs .Count() > 0)
             {
                 totalCatalogsEvolved = await catalogs.Where(e => e.CreationTime.Month == DateTime.Now.Month).CountAsync()
                   - await catalogs.Where(e => e.CreationTime.Month == previousMonth).CountAsync();
