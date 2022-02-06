@@ -1,12 +1,21 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Abp.Auditing;
+using Abp.Domain.Repositories;
+using Facturi.App;
 using Facturi.Sessions.Dto;
 
 namespace Facturi.Sessions
 {
     public class SessionAppService : FacturiAppServiceBase, ISessionAppService
     {
+        private readonly IRepository<InfosEntreprise, long> _infosEntrepriseRepo;
+        public SessionAppService(
+            IRepository<InfosEntreprise, long> infosEntrepriseRepo
+        )
+        {
+            _infosEntrepriseRepo = infosEntrepriseRepo;
+        }
         [DisableAuditing]
         public async Task<GetCurrentLoginInformationsOutput> GetCurrentLoginInformations()
         {
@@ -17,7 +26,7 @@ namespace Facturi.Sessions
                     Version = AppVersionHelper.Version,
                     ReleaseDate = AppVersionHelper.ReleaseDate,
                     Features = new Dictionary<string, bool>()
-                }
+                },
             };
 
            
@@ -36,6 +45,12 @@ namespace Facturi.Sessions
                 output.User = ObjectMapper.Map<UserLoginInfoDto>(await GetCurrentUserAsync());
             }
 
+            InfosEntreprise infosEntreprise;
+            if ((infosEntreprise = (await _infosEntrepriseRepo.FirstOrDefaultAsync(e => e.UserId == AbpSession.UserId))) != null )
+            {
+                output.EntrepriseName = infosEntreprise.RaisonSociale;
+
+            }
             return output;
         }
     }

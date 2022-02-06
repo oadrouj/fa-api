@@ -7,6 +7,7 @@ namespace Facturi.App
         public int Reference { get; set; }
         public string CategorieClient { get; set; }
         public string Nom { get; set; }
+        public string DisplayName { get; set; }
         public string SecteurActivite { get; set; }
         public string ICE { get; set; }
         public string RaisonSociale { get; set; }

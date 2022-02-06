@@ -161,12 +161,14 @@ namespace Facturi.Application.App
             foreach (var item in list)
             {
                 var factureItems = _factureRepository.GetAllIncluding(v => v.FactureItems)
-                    .Where(x => x.Statut == FactureStatutEnum.Valide)
-                    .SelectMany(v => v.FactureItems).Where(v => v.Id == item.Id);
+                    .Where(x => x.Statut == FactureStatutEnum.Regle)
+                    .SelectMany(v => v.FactureItems).Where(v => v.Designation == item.Designation);
 
                 item.TotalSalesTTC = factureItems.Sum(v => v.TotalTtc);
                 item.TotalUnitsSold = factureItems.Sum(v => v.Quantity);
             }
+
+
 
             var totalItems = await query.LongCountAsync();
             return new ListResultWithTotalEntityItemsDto<CatalogueDto>(list, totalItems);

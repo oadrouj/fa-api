@@ -172,11 +172,10 @@ namespace Facturi.App
            
             var query = _factureRepository.GetAllIncluding(f => f.FactureItems, f => f.Client)
                 .Where(f => (f.CreatorUserId == AbpSession.UserId || f.LastModifierUserId == AbpSession.UserId))
-                .WhereIf(factureCriterias.GlobalFilter != null & !isRef,
-                    f => f.Client.Nom.Trim().Contains(factureCriterias.GlobalFilter.Trim())
-                    || f.Client.RaisonSociale.Trim().Contains(factureCriterias.GlobalFilter.Trim()))
-                //.WhereIf(isRef, f => minRef <= f.Reference && f.Reference <= maxRef)
-
+                //.WhereIf(factureCriterias.GlobalFilter != null & !isRef,
+                //    f => f.Client.Nom.Trim().Contains(factureCriterias.GlobalFilter.Trim())
+                //    || f.Client.RaisonSociale.Trim().Contains(factureCriterias.GlobalFilter.Trim()))
+                .WhereIf(factureCriterias.GlobalFilter != null, f => f.Reference.StartsWith(factureCriterias.GlobalFilter))
                 .WhereIf(client != 0, f => f.ClientId == client)
                 .WhereIf(dateEmission != null, f => f.DateEmission.Date >= dateEmission[0] && f.DateEmission.Date <= dateEmission[1])
                 .WhereIf(echeancePaiement != 0, f => f.EcheancePaiement == echeancePaiement)
@@ -227,11 +226,10 @@ namespace Facturi.App
 
             var query = _factureRepository.GetAllIncluding(f => f.FactureItems, f => f.Client)
                 .Where(f => (f.CreatorUserId == AbpSession.UserId || f.LastModifierUserId == AbpSession.UserId))
-                .WhereIf(factureCriterias.GlobalFilter != null & !isRef,
-                    f => f.Client.Nom.Trim().Contains(factureCriterias.GlobalFilter.Trim())
-                    || f.Client.RaisonSociale.Trim().Contains(factureCriterias.GlobalFilter.Trim()))
-                //.WhereIf(isRef, f => minRef <= f.Reference && f.Reference <= maxRef)
-
+                //.WhereIf(factureCriterias.GlobalFilter != null & !isRef,
+                //    f => f.Client.Nom.Trim().Contains(factureCriterias.GlobalFilter.Trim())
+                //    || f.Client.RaisonSociale.Trim().Contains(factureCriterias.GlobalFilter.Trim()))
+                .WhereIf(factureCriterias.GlobalFilter != null, f => f.Reference.StartsWith(factureCriterias.GlobalFilter))
                 .WhereIf(client != 0, f => f.ClientId == client)
                 .WhereIf(dateEmission != null, f => f.DateEmission >= dateEmission[0] && f.DateEmission <= dateEmission[1])
                  .WhereIf(echeancePaiement != 0, f => f.EcheancePaiement == echeancePaiement)
@@ -254,11 +252,10 @@ namespace Facturi.App
             
             var query = _factureRepository.GetAllIncluding(f => f.FactureItems, f => f.Client)
                 .Where(f => (f.CreatorUserId == AbpSession.UserId || f.LastModifierUserId == AbpSession.UserId))
-                .WhereIf(factureCriterias.GlobalFilter != null & !isRef,
-                    f => f.Client.Nom.Trim().Contains(factureCriterias.GlobalFilter.Trim())
-                    || f.Client.RaisonSociale.Trim().Contains(factureCriterias.GlobalFilter.Trim()))
-                //.WhereIf(isRef, f => minRef <= f.Reference && f.Reference <= maxRef)
-
+                //.WhereIf(factureCriterias.GlobalFilter != null & !isRef,
+                //    f => f.Client.Nom.Trim().Contains(factureCriterias.GlobalFilter.Trim())
+                //    || f.Client.RaisonSociale.Trim().Contains(factureCriterias.GlobalFilter.Trim()))
+                .WhereIf(factureCriterias.GlobalFilter != null, f => f.Reference.StartsWith(factureCriterias.GlobalFilter))
                 .WhereIf(client != 0, f => f.ClientId == client)
                 .WhereIf(dateEmission != null, f => f.DateEmission >= dateEmission[0] && f.DateEmission <= dateEmission[1])
                 .WhereIf(echeancePaiement != 0, f => f.EcheancePaiement == echeancePaiement)
@@ -274,7 +271,7 @@ namespace Facturi.App
             foreach (var item in query)
             {
                 result += (float)(item.FactureItems.Sum(di => (float?)di.TotalTtc) -
-                 item.FactureItems.Sum(di => (float?)di.UnitPriceHT * di.Quantity) * item.Remise /100);
+                 item.FactureItems.Sum(di => (float?)di.UnitPriceHT * di.Quantity) * item.Remise / 100);
 
             }
             return result;

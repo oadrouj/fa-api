@@ -12,7 +12,6 @@ namespace Facturi.App.Dtos.ProfileDtos
     public class GeneralInfosDto: EntityDto<long>
     {
         public string RaisonSociale { get; set; }
-
         public string SecteurActivite { get; set; }
         public bool? HasLogo { get; set; }
     }

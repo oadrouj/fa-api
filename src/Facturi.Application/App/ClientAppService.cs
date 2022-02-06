@@ -38,14 +38,17 @@ namespace Facturi.App
             {
                 input.Reference = maxRefClient.First().Reference + 1;
             }
-            var client = ObjectMapper.Map<Client>(ObjectMapper.Map<CreateClientInput>(input));
-            client.Id = await _clientRepository.InsertAndGetIdAsync(client);
+
+            input.DisplayName = input.CategorieClient == "PRFS" ? input.RaisonSociale : input.Nom;
+            var client = ObjectMapper.Map<Client>(input);
+            var Id = await _clientRepository.InsertAndGetIdAsync(client);
             return ObjectMapper.Map<ClientDto>(client);
         }
 
         public async Task<ClientDto> UpdateClient(ClientDto input)
         {
-            var client = ObjectMapper.Map<Client>(ObjectMapper.Map<UpdateClientInput>(input));
+            input.DisplayName = input.CategorieClient == "PRFS" ? input.RaisonSociale : input.Nom;
+            var client = ObjectMapper.Map<Client>(input);
             var result = await _clientRepository.UpdateAsync(client);
             return ObjectMapper.Map<ClientDto>(result);
         }
@@ -72,7 +75,7 @@ namespace Facturi.App
             var clients = new List<Client>();
             var query = _clientRepository.GetAll()
                 .Where(c => (c.CreatorUserId == AbpSession.UserId || c.LastModifierUserId == AbpSession.UserId))
-                .WhereIf(listCriteria.GlobalFilter != null,
+                .WhereIf(listCriteria.GlobalFilter != null && !isRef,
                     c => c.Nom.Trim().StartsWith(listCriteria.GlobalFilter.Trim())
                     || c.RaisonSociale.Trim().StartsWith(listCriteria.GlobalFilter.Trim()))
                 .WhereIf(isRef, c => minRef <= c.Reference && c.Reference <= maxRef)
@@ -153,7 +156,7 @@ namespace Facturi.App
             var result = await _clientRepository.GetAll()
                 .Where(c => c.CreatorUserId == AbpSession.UserId || c.LastModifierUserId == AbpSession.UserId)
                 .WhereIf(motCle != null, c => (c.CategorieClient.Equals("PRTC") && c.Nom.Contains(motCle)) || (c.CategorieClient.Equals("PRFS") && c.RaisonSociale.Contains(motCle)))
-                .Select(c => new ClientForAutoCompleteDto() { Id = c.Id, Nom = c.CategorieClient.Equals("PRTC") ? c.Nom : c.RaisonSociale })
+                .Select(c => new ClientForAutoCompleteDto() { Id = c.Id, DisplayName = c.DisplayName })
                 .ToListAsync();
 
             return new ListResultDto<ClientForAutoCompleteDto>(result);
