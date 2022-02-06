@@ -220,7 +220,7 @@ namespace Facturi.App
                     targetInvoices.Add(item, 0);
             }
 
-            return targetInvoices.Values.ToArray();
+            return targetInvoices.OrderBy(e => e.Key).Select(e => e.Value).ToArray();
         }
 
         private float[] GetMonthsSerieForAnnualEstimates(IQueryable<DevisItem> estimates, DevisStatutEnum devisStatut)
@@ -240,7 +240,7 @@ namespace Facturi.App
                     targetInvoices.Add(item, 0);
             }
 
-            return targetInvoices.Values.ToArray();
+            return targetInvoices.OrderBy(e => e.Key).Select(e => e.Value).ToArray();
         }
 
 
@@ -285,7 +285,6 @@ namespace Facturi.App
 
 
                 var invoicePeriodicTracking = new InvoicePeriodicTrackingDto()
-
                 {
                     TotalInvoicesAmount = await allInvoices.SumAsync(e => e.TotalTtc - ((e.Quantity * e.UnitPriceHT) * e.Facture.Remise / 100)),
                     CashedInvoicesAmount = await allInvoices
@@ -321,11 +320,13 @@ namespace Facturi.App
 
                 var invoiceItemsEnumerable = _invoiceItemRepo.GetAllIncluding(e => e.Facture, e => e.Facture.Client)
                  .Where(e => e.Facture.CreatorUserId == AbpSession.UserId || e.Facture.LastModifierUserId == AbpSession.UserId)
+                 .WhereIf(periodicTrackingInputDto.DateStart != null, e => e.Facture.CreationTime >= periodicTrackingInputDto.DateStart)
+                 .WhereIf(periodicTrackingInputDto.DateEnd != null, e => e.Facture.CreationTime <= periodicTrackingInputDto.DateEnd)
                  .AsEnumerable();
 
                 var bestsellerInvoiceItems = invoiceItemsEnumerable
                  .Where(e => (e.Facture.Statut == FactureStatutEnum.Regle && e.Designation != null))
-                 .GroupBy(e => new {e.Id, e.Designation})
+                 .GroupBy(e => new {e.Designation})
                  .Select(e => new { Designation = e.Key.Designation, Total =  e.Sum(x => x.TotalTtc)})
                  .OrderByDescending(e => e.Total)
                  .Take(5)

@@ -169,10 +169,10 @@ namespace Facturi.App
             var DevisList = new List<Devis>();
             var query = _devisRepository.GetAllIncluding(f => f.DevisItems, f => f.Client)
             .Where(f => (f.CreatorUserId == AbpSession.UserId || f.LastModifierUserId == AbpSession.UserId))
-            .WhereIf(devisCriterias.GlobalFilter != null & !isRef,
-                f => f.Client.Nom.Trim().Contains(devisCriterias.GlobalFilter.Trim())
-                || f.Client.RaisonSociale.Trim().Contains(devisCriterias.GlobalFilter.Trim()))
-            // .WhereIf(isRef, f => minRef <= f.Reference && f.Reference <= maxRef)
+            //.WhereIf(devisCriterias.GlobalFilter != null & !isRef,
+            //    f => f.Client.Nom.Trim().Contains(devisCriterias.GlobalFilter.Trim())
+            //    || f.Client.RaisonSociale.Trim().Contains(devisCriterias.GlobalFilter.Trim()))
+            .WhereIf(devisCriterias.GlobalFilter != null, f => f.Reference.StartsWith(devisCriterias.GlobalFilter))
             .WhereIf(client != 0, f => f.ClientId == client)
             .WhereIf(dateEmission != null, f => f.DateEmission >= dateEmission[0] && f.DateEmission <= dateEmission[1])
             .WhereIf(echeancePaiement != 0, f => f.EcheancePaiement == echeancePaiement)
@@ -224,10 +224,10 @@ namespace Facturi.App
             var DevisList = new List<Devis>();
             var query = _devisRepository.GetAllIncluding(f => f.DevisItems, f => f.Client)
             .Where(f => (f.CreatorUserId == AbpSession.UserId || f.LastModifierUserId == AbpSession.UserId))
-            .WhereIf(devisCriterias.GlobalFilter != null & !isRef,
-                f => f.Client.Nom.Trim().Contains(devisCriterias.GlobalFilter.Trim())
-                || f.Client.RaisonSociale.Trim().Contains(devisCriterias.GlobalFilter.Trim()))
-            // .WhereIf(isRef, f => minRef <= f.Reference && f.Reference <= maxRef)
+            //.WhereIf(devisCriterias.GlobalFilter != null & !isRef,
+            //    f => f.Client.Nom.Trim().Contains(devisCriterias.GlobalFilter.Trim())
+            //    || f.Client.RaisonSociale.Trim().Contains(devisCriterias.GlobalFilter.Trim()))
+            .WhereIf(devisCriterias.GlobalFilter != null, f => f.Reference.StartsWith(devisCriterias.GlobalFilter))
             .WhereIf(client != 0, f => f.ClientId == client)
             .WhereIf(dateEmission != null, f => f.DateEmission >= dateEmission[0] && f.DateEmission <= dateEmission[1])
             .WhereIf(echeancePaiement != 0, f => f.EcheancePaiement == echeancePaiement)
@@ -250,10 +250,10 @@ namespace Facturi.App
             var DevisList = new List<Devis>();
             var query = _devisRepository.GetAllIncluding(f => f.DevisItems, f => f.Client)
             .Where(f => (f.CreatorUserId == AbpSession.UserId || f.LastModifierUserId == AbpSession.UserId))
-            .WhereIf(devisCriterias.GlobalFilter != null & !isRef,
-                f => f.Client.Nom.Trim().Contains(devisCriterias.GlobalFilter.Trim())
-                || f.Client.RaisonSociale.Trim().Contains(devisCriterias.GlobalFilter.Trim()))
-            // .WhereIf(isRef, f => minRef <= f.Reference && f.Reference <= maxRef)
+            //.WhereIf(devisCriterias.GlobalFilter != null & !isRef,
+            //    f => f.Client.Nom.Trim().Contains(devisCriterias.GlobalFilter.Trim())
+            //    || f.Client.RaisonSociale.Trim().Contains(devisCriterias.GlobalFilter.Trim()))
+            .WhereIf(devisCriterias.GlobalFilter != null, f => f.Reference.StartsWith(devisCriterias.GlobalFilter))
             .WhereIf(client != 0, f => f.ClientId == client)
             .WhereIf(dateEmission != null, f => f.DateEmission >= dateEmission[0] && f.DateEmission <= dateEmission[1])
             .WhereIf(echeancePaiement != 0, f => f.EcheancePaiement == echeancePaiement)

@@ -7,5 +7,6 @@
         public UserLoginInfoDto User { get; set; }
 
         public TenantLoginInfoDto Tenant { get; set; }
+        public string EntrepriseName { get; set; }
     }
 }
