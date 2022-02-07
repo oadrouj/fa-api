@@ -138,7 +138,9 @@ namespace Facturi.App
                         Currency = null
                     });
 
-                var lastCatalog = _catalogRepo.GetAll().OrderByDescending(e => e.CreationTime).FirstOrDefault();
+                var lastCatalog = _catalogRepo.GetAll().OrderByDescending(e => e.CreationTime)
+                    .Where(e => (e.CreatorUserId == AbpSession.UserId || e.LastModifierUserId == AbpSession.UserId))
+                    .FirstOrDefault();
 
                 if (lastCatalog != null)
                     activityLogList.Add(new ActivityLogDto()
