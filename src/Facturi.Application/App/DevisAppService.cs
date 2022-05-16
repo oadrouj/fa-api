@@ -125,14 +125,19 @@ namespace Facturi.App
             var devis = (await _devisRepository.GetAllListAsync())
                .Where(d => (d.CreatorUserId == AbpSession.UserId || d.LastModifierUserId == AbpSession.UserId)
                    && (Regex.IsMatch(d.Reference, @"^D[0-9]{5}"))).OrderByDescending(d => d.Reference).ToList();
-
             var defaultAnnotations = await _infosEntrepriseAppService.GetDefaultAnnotations();
+            var estimateInitiation = new EstimationInitiationDto();
 
-            var estimateInitiation = new EstimationInitiationDto()
+            if (defaultAnnotations == null)
             {
-                EstimateIntroMessage = defaultAnnotations.EstimateIntroMessage,
-                EstimateFooter = defaultAnnotations.EstimateFooter
-            };
+                estimateInitiation.EstimateIntroMessage = null;
+                estimateInitiation.EstimateFooter = null;
+            }
+            else
+            {
+                estimateInitiation.EstimateIntroMessage = defaultAnnotations.EstimateIntroMessage;
+                estimateInitiation.EstimateFooter = defaultAnnotations.EstimateFooter;
+            }
 
             if (devis != null && devis.Any() && Int32.TryParse(devis.First().Reference.Substring(1), out int reference))
                 estimateInitiation.LastReference = reference;

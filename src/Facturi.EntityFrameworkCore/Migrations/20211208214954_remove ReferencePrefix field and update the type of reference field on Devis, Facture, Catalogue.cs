@@ -6,17 +6,18 @@ namespace Facturi.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
+           /* migrationBuilder.DropColumn(
                 name: "ReferencePrefix",
                 table: "Facture");
 
             migrationBuilder.DropColumn(
                 name: "ReferencePrefix",
                 table: "Devis");
-
+           */
             migrationBuilder.DropColumn(
                 name: "ReferencePrefix",
                 table: "Catalogues");
+
 
             migrationBuilder.AlterColumn<string>(
                 name: "Reference",
@@ -46,13 +47,13 @@ namespace Facturi.Migrations
                 oldClrType: typeof(string),
                 oldType: "nvarchar(max)",
                 oldNullable: true);
-
+            /*
             migrationBuilder.AddColumn<string>(
                 name: "ReferencePrefix",
                 table: "Facture",
                 type: "nvarchar(1)",
                 nullable: true);
-
+            */
             migrationBuilder.AlterColumn<int>(
                 name: "Reference",
                 table: "Devis",
@@ -63,14 +64,14 @@ namespace Facturi.Migrations
                 oldType: "nvarchar(max)",
                 oldNullable: true);
 
-            migrationBuilder.AddColumn<string>(
-                name: "ReferencePrefix",
-                table: "Devis",
-                type: "nvarchar(1)",
-                nullable: true);
+            ////migrationBuilder.AddColumn<string>(
+            ////    name: "ReferencePrefix",
+            ////    table: "Devis",
+            ////    type: "nvarchar(1)",
+            ////    nullable: true);
 
             migrationBuilder.AddColumn<string>(
-                name: "ReferencePrefix",
+                  name: "ReferencePrefix",
                 table: "Catalogues",
                 type: "nvarchar(1)",
                 nullable: true);

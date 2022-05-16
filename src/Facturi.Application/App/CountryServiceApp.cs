@@ -23,21 +23,15 @@ namespace Facturi.Application.App
         }
         public async Task<ListResultDto<CountryDto>> GetAllCountries()
         {
-            var query =  _countryRepository.GetAll().OrderBy(x => x.PaysName);
-            
-            // if(listCriteria.First != 0 && listCriteria.Rows != 0)
-            //     query = Queryable.Skip(query, listCriteria.First).Take(listCriteria.Rows);
-            
-            var list =  await query.Select(x => ObjectMapper.Map<CountryDto>(x))
+            var list =await  _countryRepository.GetAll().OrderBy(x => x.PaysName)
+                .Select(x => ObjectMapper.Map<CountryDto>(x))
                 .ToListAsync();
 
-            var result = new ListResultDto<CountryDto>(list);
-            return result;
+            return new ListResultDto<CountryDto>(list);
         }
         public async Task<List<Country>> GetAllDBCountries()
         {
-            var query = await _countryRepository.GetAllListAsync();
-            return query;
+            return await _countryRepository.GetAllListAsync(); 
         }
         public async Task<bool> InsertManyCountries(List<Country> countries)
         {

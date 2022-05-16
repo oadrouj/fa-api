@@ -4,7 +4,7 @@ using Abp.Auditing;
 using Abp.Domain.Repositories;
 using Facturi.App;
 using Facturi.Sessions.Dto;
-
+using Facturi.Sessions.Mappers;
 namespace Facturi.Sessions
 {
     public class SessionAppService : FacturiAppServiceBase, ISessionAppService
@@ -19,6 +19,7 @@ namespace Facturi.Sessions
         [DisableAuditing]
         public async Task<GetCurrentLoginInformationsOutput> GetCurrentLoginInformations()
         {
+            InfosEntreprise infosEntreprise=null;
             var output = new GetCurrentLoginInformationsOutput
             {
                 Application = new ApplicationInfoDto
@@ -30,27 +31,28 @@ namespace Facturi.Sessions
             };
 
            
-            if(AbpSession.UserId.HasValue && !(await UserManager.FindByIdAsync(AbpSession.UserId.ToString())).IsActive)
-            {
-                return null;
-            }
+          if(AbpSession.UserId.HasValue){
+                if(!(await UserManager.FindByIdAsync(AbpSession.UserId.ToString())).IsActive)
+                {
+                    return null;
+                }
+                else
+                {
+                    output.User = UserMapper.MapToEntityDto(await GetCurrentUserAsync());
 
-            if (AbpSession.TenantId.HasValue)
-            {
-                output.Tenant = ObjectMapper.Map<TenantLoginInfoDto>(await GetCurrentTenantAsync());
-            }
+                    int checkIfIsNull = _infosEntrepriseRepo.Count(e => e.UserId == AbpSession.UserId);
 
-            if (AbpSession.UserId.HasValue)
-            {
-                output.User = ObjectMapper.Map<UserLoginInfoDto>(await GetCurrentUserAsync());
-            }
+                    if (checkIfIsNull != 0)
+                    {
+                        infosEntreprise = _infosEntrepriseRepo.FirstOrDefault(e => e.UserId == AbpSession.UserId);
+                        output.EntrepriseName = infosEntreprise.RaisonSociale;
 
-            InfosEntreprise infosEntreprise;
-            if ((infosEntreprise = (await _infosEntrepriseRepo.FirstOrDefaultAsync(e => e.UserId == AbpSession.UserId))) != null )
-            {
-                output.EntrepriseName = infosEntreprise.RaisonSociale;
+                    }
+                }
 
+               
             }
+            
             return output;
         }
     }

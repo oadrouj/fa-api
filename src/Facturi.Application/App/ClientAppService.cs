@@ -33,16 +33,35 @@ namespace Facturi.App
         public async Task<ClientDto> CreateClient(ClientDto input)
         {
             input.Reference = 1;
-            var maxRefClient = _clientRepository.GetAll().Where(c => c.CreatorUserId == AbpSession.UserId || c.LastModifierUserId == AbpSession.UserId).OrderByDescending(c => c.Reference).ToList();
-            if (maxRefClient != null && maxRefClient.Any())
+            ClientDto result = null;
+            try
             {
-                input.Reference = maxRefClient.First().Reference + 1;
-            }
+                int nombreClients = _clientRepository.Count();
+                var maxRefClient = _clientRepository.GetAll();
+          
+                if (nombreClients != 0)
+                {
+                    maxRefClient = maxRefClient.Where(c => c.CreatorUserId == AbpSession.UserId || c.LastModifierUserId == AbpSession.UserId).OrderByDescending(c => c.Reference);
+                    if (maxRefClient != null && maxRefClient.Any())
+                    {
+                        input.Reference = maxRefClient.ToList().First().Reference + 1;
+                        input.DisplayName = input.CategorieClient == "PRFS" ? input.RaisonSociale : input.Nom;
+                    }
 
-            input.DisplayName = input.CategorieClient == "PRFS" ? input.RaisonSociale : input.Nom;
-            var client = ObjectMapper.Map<Client>(input);
-            var Id = await _clientRepository.InsertAndGetIdAsync(client);
-            return ObjectMapper.Map<ClientDto>(client);
+                }
+
+                var client = ObjectMapper.Map<Client>(input);
+                var Id = await _clientRepository.InsertAndGetIdAsync(client);
+                result = ObjectMapper.Map<ClientDto>(client);
+            }
+            catch (Exception e)
+            {
+
+                throw new Exception(e.ToString());
+            }
+           
+            
+            return result;
         }
 
         public async Task<ClientDto> UpdateClient(ClientDto input)
@@ -73,15 +92,25 @@ namespace Facturi.App
            CheckIfIsRefSearch(listCriteria, out bool isRef, out int minRef, out int maxRef);
            CheckIfIsFilterSearch(listCriteria, out string type, out string categorie);
             var clients = new List<Client>();
-            var query = _clientRepository.GetAll()
-                .Where(c => (c.CreatorUserId == AbpSession.UserId || c.LastModifierUserId == AbpSession.UserId))
-                .WhereIf(listCriteria.GlobalFilter != null && !isRef,
-                    c => c.Nom.Trim().StartsWith(listCriteria.GlobalFilter.Trim())
-                    || c.RaisonSociale.Trim().StartsWith(listCriteria.GlobalFilter.Trim()))
-                .WhereIf(isRef, c => minRef <= c.Reference && c.Reference <= maxRef)
-                .WhereIf(categorie != null, c => c.CategorieClient == categorie);
-                
-            clients = query.ToList();
+            var query = _clientRepository.GetAll();
+            int nombresClients = _clientRepository.Count();
+            if (nombresClients !=0)
+            {
+               query= query.Where(c => (c.CreatorUserId == AbpSession.UserId || c.LastModifierUserId == AbpSession.UserId))
+               .WhereIf(listCriteria.GlobalFilter != null && !isRef,
+                   c => c.Nom.Trim().StartsWith(listCriteria.GlobalFilter.Trim())
+                   || c.RaisonSociale.Trim().StartsWith(listCriteria.GlobalFilter.Trim()))
+               .WhereIf(isRef, c => minRef <= c.Reference && c.Reference <= maxRef)
+               .WhereIf(categorie != null, c => c.CategorieClient == categorie);
+
+                clients = query.ToList();
+            }
+              
+               
+
+              
+            
+           
 
             if(type != null)
                 clients =  this.checkClientsByType(query, type);

@@ -130,13 +130,19 @@ namespace Facturi.App
                .Where(d => (d.CreatorUserId == AbpSession.UserId || d.LastModifierUserId == AbpSession.UserId)
                    && (Regex.IsMatch(d.Reference, @"^F[0-9]{5}"))).OrderByDescending(d => d.Reference).ToList();
 
-            var defaultAnnotations = await _infosEntrepriseAppService.GetDefaultAnnotations();
+           var defaultAnnotations = await _infosEntrepriseAppService.GetDefaultAnnotations();
+            var estimateInitiation = new InvoiceInitiationDto();
 
-            var estimateInitiation = new InvoiceInitiationDto()
+            if (defaultAnnotations == null)
             {
-                InvoiceIntroMessage = defaultAnnotations.InvoiceIntroMessage,
-                InvoiceFooter = defaultAnnotations.InvoiceFooter
-            };
+                estimateInitiation.InvoiceIntroMessage = null;
+                estimateInitiation.InvoiceFooter = null;
+            }
+            else
+            {
+                estimateInitiation.InvoiceIntroMessage = defaultAnnotations.EstimateIntroMessage;
+                estimateInitiation.InvoiceFooter = defaultAnnotations.EstimateFooter;
+            }
 
             if (facture != null && facture.Any() && Int32.TryParse(facture.First().Reference.Substring(1), out int reference))
                 estimateInitiation.LastReference = reference;

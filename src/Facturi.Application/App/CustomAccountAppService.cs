@@ -68,6 +68,7 @@ namespace Facturi.App
             SmtpClient client = new();
             client.Connect("smtp.gmail.com", 465, true);
             client.Authenticate("facturi277@gmail.com", "Facturi+123456");
+            //client.Authenticate("rmndkkrs01@gmail.com", "Tdi&&2011");
 
             client.Send(message);
             client.Disconnect(true);

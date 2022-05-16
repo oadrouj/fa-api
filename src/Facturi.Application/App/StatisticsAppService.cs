@@ -71,89 +71,114 @@ namespace Facturi.App
             try
             {
                 var activityLogList = new List<ActivityLogDto>();
-                var lastEstimate = await _estimateRepo.GetAllIncluding(e => e.Client, e => e.DevisItems)
+                var lastEstimate = _estimateRepo.GetAllIncluding(e => e.Client, e => e.DevisItems)
                     .Where(e => (e.CreatorUserId == AbpSession.UserId || e.LastModifierUserId == AbpSession.UserId))
-                    .OrderByDescending(e => e.CreationTime).FirstOrDefaultAsync();
+                    .OrderByDescending(e => e.LastModificationTime).ToList();
 
                 if(lastEstimate != null)
-                    activityLogList.Add(new ActivityLogDto()
+                {
+                    lastEstimate.ForEach(l =>
                     {
-                        LogType = "estimate",
-                        ClientName = lastEstimate.Client.Nom != "" ? lastEstimate.Client.Nom : lastEstimate.Client.RaisonSociale,
-                        Reference = lastEstimate.Reference,
-                        Date = lastEstimate.CreationTime,
-                        Amount = lastEstimate.DevisItems.Sum(e => e.TotalTtc - ((e.Quantity * e.UnitPriceHT) * e.Devis.Remise / 100)),
-                        Currency = lastEstimate.Currency
+                        activityLogList.Add(new ActivityLogDto()
+                        {
+                            LogType = "estimate",
+                            ClientName = l.Client.Nom != "" ? l.Client.Nom : l.Client.RaisonSociale,
+                            Reference = l.Reference,
+                            Date = l.CreationTime,
+                            Amount = l.DevisItems.Sum(e => e.TotalTtc - ((e.Quantity * e.UnitPriceHT) * e.Devis.Remise / 100)),
+                            Currency = l.Currency
+                        });
                     });
+                }
 
                 var lastInvoice = _invoiceRepo.GetAllIncluding(e => e.Client, e => e.FactureItems)
                     .Where(e => (e.CreatorUserId == AbpSession.UserId || e.LastModifierUserId == AbpSession.UserId))
-                    .OrderByDescending(e => e.CreationTime).FirstOrDefault();
+                    .OrderByDescending(e => e.LastModificationTime).ToList();
 
-                if(lastInvoice != null)
-                    activityLogList.Add(new ActivityLogDto()
+                if (lastInvoice != null)
+                {
+                    lastInvoice.ForEach(l =>
                     {
-                        LogType = "invoice",
-                        ClientName = lastInvoice.Client.Nom != "" ? lastInvoice.Client.Nom : lastInvoice.Client.RaisonSociale,
-                        Reference = lastInvoice.Reference,
-                        Date = lastInvoice.CreationTime,
-                        Amount = lastInvoice.FactureItems.Sum(e => e.TotalTtc - ((e.Quantity * e.UnitPriceHT) * e.Facture.Remise / 100)),
-                        Currency = lastInvoice.Currency
+                        activityLogList.Add(new ActivityLogDto()
+                        {
+                            LogType = "invoice",
+                            ClientName = l.Client.Nom != "" ? l.Client.Nom : l.Client.RaisonSociale,
+                            Reference = l.Reference,
+                            Date = l.CreationTime,
+                            Amount = l.FactureItems.Sum(e => e.TotalTtc - ((e.Quantity * e.UnitPriceHT) * e.Facture.Remise / 100)),
+                            Currency = l.Currency,
                     });
+                    });
+                }
 
                 var lastPayment = _factureInfosPaiementRepo.GetAll()
                     .Where(e => (e.CreatorUserId == AbpSession.UserId || e.LastModifierUserId == AbpSession.UserId))
-                    .OrderByDescending(e => e.DatePaiement).FirstOrDefault();
-
+                    .OrderByDescending(e => e.DatePaiement).ToList();
+                
                 if (lastPayment != null)
                 {
-                    var invoice = _invoiceRepo.GetAllIncluding(e => e.Client, e => e.FactureItems)
-                       .SingleOrDefault(e => e.Id == lastPayment.FactureId);
-
-                    activityLogList.Add(new ActivityLogDto()
+                    lastPayment.ForEach(l =>
                     {
-                        LogType = "payment",
-                        ClientName = invoice.Client.Nom != "" ? invoice.Client.Nom : invoice.Client.RaisonSociale,
-                        Reference = invoice.Reference,
-                        Date = lastPayment.DatePaiement,
-                        Amount = lastPayment.MontantPaye,
-                        Currency = invoice.Currency
+                        var invoice = _invoiceRepo.GetAllIncluding(e => e.Client, e => e.FactureItems)
+                       .SingleOrDefault(e => e.Id == l.FactureId);
+                        activityLogList.Add(new ActivityLogDto()
+                        {
+                            LogType = "payment",
+                            ClientName = invoice.Client.Nom != "" ? invoice.Client.Nom : invoice.Client.RaisonSociale,
+                            Reference = invoice.Reference,
+                            Date = l.DatePaiement,
+                            Amount = l.MontantPaye,
+                            Currency = invoice.Currency
+                        });
                     });
+                   
                 }
                    
 
                 var lastClient = _clientRepo.GetAll()
                     .Where(e => (e.CreatorUserId == AbpSession.UserId || e.LastModifierUserId == AbpSession.UserId))
-                    .OrderByDescending(e => e.CreationTime).FirstOrDefault();
+                    .OrderByDescending(e => e.LastModificationTime).ToList();
 
                 if (lastClient != null)
-                    activityLogList.Add(new ActivityLogDto()
+                {
+                    lastClient.ForEach(l =>
                     {
-                        LogType = "client",
-                        ClientName = lastClient.Nom != "" ? lastClient.Nom : lastClient.RaisonSociale,
-                        Reference = formatReferenceNumber(lastClient.Reference, 'C'),
-                        Date = lastClient.CreationTime,
+                        activityLogList.Add(new ActivityLogDto()
+                        {
+                            LogType = "client",
+                            ClientName = l.Nom != "" ? l.Nom : l.RaisonSociale,
+                            Reference = formatReferenceNumber(l.Reference, 'C'),
+                            Date = l.CreationTime,
 
-                        Amount = 0,
-                        Currency = null
+                            Amount = 0,
+                            Currency = null
+                        });
                     });
+                }
+                    
 
-                var lastCatalog = _catalogRepo.GetAll().OrderByDescending(e => e.CreationTime)
+                var lastCatalog = _catalogRepo.GetAll().OrderBy(e => e.LastModificationTime)
                     .Where(e => (e.CreatorUserId == AbpSession.UserId || e.LastModifierUserId == AbpSession.UserId))
-                    .FirstOrDefault();
+                    .ToList();
 
                 if (lastCatalog != null)
-                    activityLogList.Add(new ActivityLogDto()
+                {
+                    lastCatalog.ForEach(l =>
                     {
-                        LogType = "catalog",
-                        ClientName = null,
-                        Reference = formatReferenceNumber(lastCatalog.Reference, 'P'),
-                        Date = lastCatalog.CreationTime,
-                        Amount = 0,
-                        Currency = null
+                        activityLogList.Add(new ActivityLogDto()
+                        {
+                            LogType = "catalog",
+                            ClientName = null,
+                            Reference = formatReferenceNumber(l.Reference, 'P'),
+                            Date = l.CreationTime,
+                            Amount = 0,
+                            Currency = null
+                        });
                     });
+                }
+                    
 
-                return new ListResultDto<ActivityLogDto>(activityLogList);
+                return new ListResultDto<ActivityLogDto>(activityLogList.OrderByDescending(a=>a.Date).ToList());
             }
             catch(Exception e)
             {
@@ -206,7 +231,11 @@ namespace Facturi.App
                 expression = e => DateTime.Compare(e.Facture.DateEmission.AddDays(e.Facture.EcheancePaiement), DateTime.Now) < 0;
             }
 
-            var targetInvoices = invoices.Where(e => e.Facture.Statut == factureStatut)
+            var targetInvoices = new Dictionary<int,float>();
+
+            if (factureStatut == FactureStatutEnum.Regle)
+            {
+                targetInvoices=invoices.Where(e => e.Facture.Statut == factureStatut || e.Facture.Statut == FactureStatutEnum.ReglePartiellemt)
                 .WhereIf(expression != null, expression)
                 .AsEnumerable()
                 .GroupBy(e => new { e.Facture.CreationTime.Month })
@@ -215,6 +244,20 @@ namespace Facturi.App
                     Sum = e.Sum(i => i.TotalTtc - (i.Quantity * i.UnitPriceHT) * i.Facture.Remise / 100),
                 })
                 .ToDictionary(e => e.Month, e => e.Sum);
+            }
+            else
+            {
+                targetInvoices = invoices.Where(e => e.Facture.Statut == factureStatut)
+               .WhereIf(expression != null, expression)
+               .AsEnumerable()
+               .GroupBy(e => new { e.Facture.CreationTime.Month })
+               .Select(e => new {
+                   Month = e.Key.Month,
+                   Sum = e.Sum(i => i.TotalTtc - (i.Quantity * i.UnitPriceHT) * i.Facture.Remise / 100),
+               })
+               .ToDictionary(e => e.Month, e => e.Sum);
+            }
+           
 
             foreach (var item in Enumerable.Range(1, 12))
             {
@@ -248,16 +291,32 @@ namespace Facturi.App
 
         public async Task<MonthTargetInfosDto> GetMonthTargetInfos()
         {
-            var infoEnreprise = await _infosEntrepriseRepo
-              .SingleAsync(e => e.CreatorUserId == AbpSession.UserId || e.LastModifierUserId == AbpSession.UserId);
-
-            return (new MonthTargetInfosDto()
+            try
             {
-                MonthTargetAmount = infoEnreprise.MonthTargetAmount,
-                AccomplishedAmount = await _factureInfosPaiementRepo.GetAll()
-                .Where(e => e.CreatorUserId == AbpSession.UserId || e.LastModifierUserId == AbpSession.UserId)
-                .SumAsync(e => e.MontantPaye)
-            });
+                int nombreInfoEntreprise = _infosEntrepriseRepo.Count();
+                var infosEntreprise = _infosEntrepriseRepo.GetAll();
+
+                if (nombreInfoEntreprise != 0)
+                {
+                    infosEntreprise = infosEntreprise
+                                  .Where(e => e.CreatorUserId == AbpSession.UserId || e.LastModifierUserId == AbpSession.UserId);
+                    
+                    return (new MonthTargetInfosDto()
+                    {
+                        MonthTargetAmount = infosEntreprise.ToList().First().MonthTargetAmount,
+                        AccomplishedAmount = await _factureInfosPaiementRepo.GetAll()
+                       .Where(e => e.CreatorUserId == AbpSession.UserId || e.LastModifierUserId == AbpSession.UserId)
+                       .SumAsync(e => e.MontantPaye)
+                    });
+                }
+    
+                return new MonthTargetInfosDto() { MonthTargetAmount = 0, AccomplishedAmount = 0 };
+            }
+            catch (Exception e)
+            {
+
+                throw new Exception(e.Message);
+            }
 
         }
 
@@ -289,9 +348,9 @@ namespace Facturi.App
                 var invoicePeriodicTracking = new InvoicePeriodicTrackingDto()
                 {
                     TotalInvoicesAmount = await allInvoices.SumAsync(e => e.TotalTtc - ((e.Quantity * e.UnitPriceHT) * e.Facture.Remise / 100)),
-                    CashedInvoicesAmount = await allInvoices
-                        .Where(e => e.Facture.Statut == FactureStatutEnum.Regle)
-                        .SumAsync(e => e.TotalTtc - ((e.Quantity * e.UnitPriceHT) * e.Facture.Remise / 100)),
+                    CashedInvoicesAmount = _factureInfosPaiementRepo.GetAll()
+                        .Where(e => e.Facture.Statut == FactureStatutEnum.Regle || e.Facture.Statut == FactureStatutEnum.ReglePartiellemt)
+                        .Sum(e => e.MontantPaye),
                     PendingInvoicesAmount = await allInvoices
                         .Where(e => e.Facture.Statut == FactureStatutEnum.Valide
                             && DateTime.Compare(e.Facture.DateEmission.AddDays(e.Facture.EcheancePaiement), DateTime.Now) > 0)
@@ -327,7 +386,7 @@ namespace Facturi.App
                  .AsEnumerable();
 
                 var bestsellerInvoiceItems = invoiceItemsEnumerable
-                 .Where(e => (e.Facture.Statut == FactureStatutEnum.Regle && e.Designation != null))
+                 //.Where(e => (e.Facture.Statut == FactureStatutEnum.Regle && e.Designation != null))
                  .GroupBy(e => new {e.Designation})
                  .Select(e => new { Designation = e.Key.Designation, Total =  e.Sum(x => x.TotalTtc)})
                  .OrderByDescending(e => e.Total)
@@ -424,7 +483,7 @@ namespace Facturi.App
 
                 totalInvoicedAmountEvolved = 
                     await invoices.Where(e => e.Facture.CreationTime.Month == DateTime.Now.Month)
-                    .SumAsync(i => (i.TotalTtc - (i.Quantity * i.UnitPriceHT) * i.Facture.Remise / 100)) - invoicesAverageAmount;
+                    .SumAsync(i => (i.TotalTtc - (i.Quantity * i.UnitPriceHT) * i.Facture.Remise / 100));
             }  
 
             var estimates = _estimateItemRepo.GetAllIncluding(e => e.Devis)
@@ -440,7 +499,7 @@ namespace Facturi.App
 
                 totaEstimatedAmountEvolved =
                    await estimates.Where(e => e.Devis.CreationTime.Month == DateTime.Now.Month).
-                   SumAsync(i => (i.TotalTtc - (i.Quantity * i.UnitPriceHT) * i.Devis.Remise / 100)) - estimatesAverageAmount;
+                   SumAsync(i => (i.TotalTtc - (i.Quantity * i.UnitPriceHT) * i.Devis.Remise / 100));
             } 
 
             var clients = _clientRepo.GetAll()

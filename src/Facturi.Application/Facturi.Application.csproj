@@ -17,4 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Facturi.Core\Facturi.Core.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="App\NewFolder\" />
+  </ItemGroup>
 </Project>
