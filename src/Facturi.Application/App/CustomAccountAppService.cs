@@ -52,9 +52,14 @@ namespace Facturi.App
         {
             try
             {
+                string server = _config.GetValue<string>("Smtp:Server");
+                int port = Int16.Parse(_config.GetValue<string>("Smtp:Port"));
+                string fromAddress = _config.GetValue<string>("Smtp:FromAddress");
+                string authEmail = _config.GetValue<string>("Smtp:userEmailAuth");
+                string authPass = _config.GetValue<string>("Smtp:userPassAuth");
                 MimeMessage message = new();
 
-                MailboxAddress from = new("Admin", "contact@facturi.ma");
+                MailboxAddress from = new("Admin", fromAddress);
                 message.From.Add(from);
 
                 MailboxAddress to = new("User", emailAddress);
@@ -68,8 +73,8 @@ namespace Facturi.App
                 message.Body = bodyBuilder.ToMessageBody();
 
                 SmtpClient client = new();
-                client.Connect("mail.olap.ma", 465, true);
-                client.Authenticate("support@olap.ma", "Olap2022+@");
+                client.Connect(server, port, true);
+                client.Authenticate(authEmail, authPass);
                 //client.Authenticate("rmndkkrs01@gmail.com", "Tdi&&2011");
 
                 client.Send(message);
@@ -111,12 +116,17 @@ namespace Facturi.App
 
         public void SendResetPasswordMail(string emailAddress)
         {
+            string server = _config.GetValue<string>("Smtp:Server");
+            int port = Int16.Parse(_config.GetValue<string>("Smtp:Port"));
+            string fromAddress = _config.GetValue<string>("Smtp:FromAddress");
+            string authEmail = _config.GetValue<string>("Smtp:userEmailAuth");
+            string authPass = _config.GetValue<string>("Smtp:userPassAuth");
             try
             {
                 var user = GetUserByEmailAddress(emailAddress);
                 MimeMessage message = new();
 
-                MailboxAddress from = new("Admin", "contact@facturi.ma");
+                MailboxAddress from = new("Admin", fromAddress);
                 message.From.Add(from);
 
                 MailboxAddress to = new("User", emailAddress);
@@ -129,8 +139,8 @@ namespace Facturi.App
                 message.Body = bodyBuilder.ToMessageBody();
 
                 SmtpClient client = new();
-                client.Connect("mail.olap.ma", 465, true);
-                client.Authenticate("support@olap.ma", "Olap2022+@");
+                client.Connect(server, port, true);
+                client.Authenticate(authEmail, authPass);
 
                 client.Send(message);
                 client.Disconnect(true);
