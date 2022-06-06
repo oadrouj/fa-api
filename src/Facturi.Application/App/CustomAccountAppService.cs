@@ -50,30 +50,39 @@ namespace Facturi.App
 
         public long SendConfirmationEmail(string emailAddress, string prenom, long userId)
         {
-            MimeMessage message = new();
+            try
+            {
+                MimeMessage message = new();
 
-            MailboxAddress from = new("Admin", "admin@factiri.ma");
-            message.From.Add(from);
+                MailboxAddress from = new("Admin", "contact@facturi.ma");
+                message.From.Add(from);
 
-            MailboxAddress to = new("User", emailAddress);
-            message.To.Add(to);
+                MailboxAddress to = new("User", emailAddress);
+                message.To.Add(to);
 
-            message.Subject = "Facturi - Confirmation d'adresse email";
-            BodyBuilder bodyBuilder = new();
-            var url = _config["App:ClientRootAddress"];
+                message.Subject = "Facturi - Confirmation d'adresse email";
+                BodyBuilder bodyBuilder = new();
+                var url = _config["App:ClientRootAddress"];
+
+                bodyBuilder.TextBody = $"{url}/account/validateMail/" + userId;
+                message.Body = bodyBuilder.ToMessageBody();
+
+                SmtpClient client = new();
+                client.Connect("mail.olap.ma", 465, true);
+                client.Authenticate("support@olap.ma", "Olap2022+@");
+                //client.Authenticate("rmndkkrs01@gmail.com", "Tdi&&2011");
+
+                client.Send(message);
+                client.Disconnect(true);
+                client.Dispose();
+
+            }
+            catch (Exception e)
+            {
+
+                throw new Exception(e.Message);
+            }
             
-            bodyBuilder.TextBody = $"{url}/account/validateMail/" + userId;
-            message.Body = bodyBuilder.ToMessageBody();
-
-            SmtpClient client = new();
-            client.Connect("smtp.gmail.com", 465, true);
-            client.Authenticate("facturi277@gmail.com", "Facturi+123456");
-            //client.Authenticate("rmndkkrs01@gmail.com", "Tdi&&2011");
-
-            client.Send(message);
-            client.Disconnect(true);
-            client.Dispose();
-
             return userId;
         }
 
@@ -102,28 +111,36 @@ namespace Facturi.App
 
         public void SendResetPasswordMail(string emailAddress)
         {
-            var user = GetUserByEmailAddress(emailAddress);
-            MimeMessage message = new();
+            try
+            {
+                var user = GetUserByEmailAddress(emailAddress);
+                MimeMessage message = new();
 
-            MailboxAddress from = new("Admin", "admin@factiri.ma");
-            message.From.Add(from);
+                MailboxAddress from = new("Admin", "contact@facturi.ma");
+                message.From.Add(from);
 
-            MailboxAddress to = new("User", emailAddress);
-            message.To.Add(to);
+                MailboxAddress to = new("User", emailAddress);
+                message.To.Add(to);
 
-            message.Subject = "Facturi - Réinitialisation du mot de passe";
-            BodyBuilder bodyBuilder = new();
-            var url = _config["App:ClientRootAddress"];
-            bodyBuilder.TextBody = $"{url}/account/home/" + user.Id;
-            message.Body = bodyBuilder.ToMessageBody();
+                message.Subject = "Facturi - Réinitialisation du mot de passe";
+                BodyBuilder bodyBuilder = new();
+                var url = _config["App:ClientRootAddress"];
+                bodyBuilder.TextBody = $"{url}/account/home/" + user.Id;
+                message.Body = bodyBuilder.ToMessageBody();
 
-            SmtpClient client = new();
-            client.Connect("smtp.gmail.com", 465, true);
-            client.Authenticate("facturi277@gmail.com", "Facturi+123456");
+                SmtpClient client = new();
+                client.Connect("mail.olap.ma", 465, true);
+                client.Authenticate("support@olap.ma", "Olap2022+@");
 
-            client.Send(message);
-            client.Disconnect(true);
-            client.Dispose();
+                client.Send(message);
+                client.Disconnect(true);
+                client.Dispose();
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+           
         }
 
         public UserDto GetUserByEmailAddress(string emailAddress)
