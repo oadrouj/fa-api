@@ -94,13 +94,20 @@ namespace Facturi.App
         public async Task<bool> checkOrUpdateConfirmationEmailIsSent(long userId)
         {
             var user = await _userRepository.FirstOrDefaultAsync(e => e.Id == userId);
-            if (user.IsEmailConfirmed == true)
+            if (user == null)
+            {
                 return false;
+            }
+            else
+            {
+                if (user.IsEmailConfirmed == true)
+                    return false;
 
-            user.IsEmailConfirmed = true;
-            await _userRepository.UpdateAsync(user);
-            return true;
-
+                user.IsEmailConfirmed = true;
+                await _userRepository.UpdateAsync(user);
+                return true;
+            }
+           
         }
 
         public async Task ResetPassword(long userId, string password)

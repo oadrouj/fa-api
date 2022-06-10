@@ -3,7 +3,7 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://192.119.73.224/",
+      "applicationUrl": "http://app.facturi.ma:8000/",
       "sslPort": 0
     }
   },
@@ -18,11 +18,11 @@
     "Facturi.Web.Host": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "http://192.119.73.224/",
+      "launchUrl": "http://app.facturi.ma:8000/",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "http://192.119.73.224/"
+      "applicationUrl": "http://app.facturi.ma:8000/"
     }
   }
 }
