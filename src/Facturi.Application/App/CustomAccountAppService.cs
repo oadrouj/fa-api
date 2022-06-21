@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MailKit.Net.Smtp;
+using MailKit.Security;
 using MimeKit;
 using Facturi.App.Dtos;
 using Microsoft.AspNetCore.Identity;
@@ -73,7 +74,8 @@ namespace Facturi.App
                 message.Body = bodyBuilder.ToMessageBody();
 
                 SmtpClient client = new();
-                client.Connect(server, port, true);
+                client.ServerCertificateValidationCallback = (s, c, h, e) => true;
+                client.Connect(server, port, SecureSocketOptions.Auto);
                 client.Authenticate(authEmail, authPass);
                 //client.Authenticate("rmndkkrs01@gmail.com", "Tdi&&2011");
 
@@ -146,7 +148,8 @@ namespace Facturi.App
                 message.Body = bodyBuilder.ToMessageBody();
 
                 SmtpClient client = new();
-                client.Connect(server, port, true);
+                client.ServerCertificateValidationCallback = (s, c, h, e) => true;
+                client.Connect(server, port, SecureSocketOptions.Auto);
                 client.Authenticate(authEmail, authPass);
 
                 client.Send(message);

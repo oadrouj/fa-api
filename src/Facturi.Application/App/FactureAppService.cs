@@ -191,7 +191,8 @@ namespace Facturi.App
                 .WhereIf(statut == FactureStatutEnum.PaiementAttente, e => e.Statut == FactureStatutEnum.Valide &&
                     DateTime.Compare(e.DateEmission.AddDays(e.EcheancePaiement), DateTime.Now) > 0)
                 .WhereIf(statut == FactureStatutEnum.PaiementRetard, e => e.Statut == FactureStatutEnum.Valide &&
-                    DateTime.Compare(e.DateEmission.AddDays(e.EcheancePaiement), DateTime.Now) < 0);
+                    DateTime.Compare(e.DateEmission.AddDays(e.EcheancePaiement), DateTime.Now) < 0)
+                .OrderByDescending(f => f.LastModificationTime);
 
             if (factureCriterias.SortField != null && factureCriterias.SortField.Length != 0)
             {
@@ -245,7 +246,8 @@ namespace Facturi.App
                 .WhereIf(statut == FactureStatutEnum.PaiementAttente, e => e.Statut == FactureStatutEnum.Valide &&
                     DateTime.Compare(e.DateEmission.AddDays(e.EcheancePaiement), DateTime.Now) > 0)
                 .WhereIf(statut == FactureStatutEnum.PaiementRetard, e => e.Statut == FactureStatutEnum.Valide &&
-                    DateTime.Compare(e.DateEmission.AddDays(e.EcheancePaiement), DateTime.Now) < 0);
+                    DateTime.Compare(e.DateEmission.AddDays(e.EcheancePaiement), DateTime.Now) < 0)
+                .OrderByDescending(f => f.LastModificationTime);
 
             return await query.CountAsync();
         }
@@ -271,7 +273,8 @@ namespace Facturi.App
                 .WhereIf(statut == FactureStatutEnum.PaiementAttente, e => e.Statut == FactureStatutEnum.Valide &&
                     DateTime.Compare(e.DateEmission.AddDays(e.EcheancePaiement), DateTime.Now) > 0)
                 .WhereIf(statut == FactureStatutEnum.PaiementRetard, e => e.Statut == FactureStatutEnum.Valide &&
-                    DateTime.Compare(e.DateEmission.AddDays(e.EcheancePaiement), DateTime.Now) < 0);
+                    DateTime.Compare(e.DateEmission.AddDays(e.EcheancePaiement), DateTime.Now) < 0)
+                .OrderByDescending(f => f.LastModificationTime);
 
             var result = 0.0f;
             foreach (var item in query)

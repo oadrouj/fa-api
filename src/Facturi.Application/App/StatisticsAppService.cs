@@ -374,9 +374,11 @@ namespace Facturi.App
 
                 var estimatePeriodicTracking = new EstimatePeriodicTrackingDto()
                 {
-                    TotalEstimatesAmount = await allEstimates.SumAsync(e => e.TotalTtc - ((e.Quantity * e.UnitPriceHT) * e.Devis.Remise / 100)),
-                    TransformedInvoicesAmount = await allEstimates.Where(e => e.Devis.Statut == DevisStatutEnum.Converti)
-                        .SumAsync(e => e.TotalTtc - ((e.Quantity * e.UnitPriceHT) * e.Devis.Remise / 100))
+                    TotalEstimatesAmount = await allEstimates.SumAsync(e => e.TotalTtc - ((e.Quantity * e.UnitPriceHT) * e.Devis.Remise / 100))
+                    - await allEstimates.Where(e => e.Devis.Statut == DevisStatutEnum.Converti)
+                    .SumAsync(e => e.TotalTtc - ((e.Quantity * e.UnitPriceHT) * e.Devis.Remise / 100))
+                    + await allInvoices.SumAsync(e => e.TotalTtc - ((e.Quantity * e.UnitPriceHT) * e.Facture.Remise / 100)),
+                    TransformedInvoicesAmount = await allInvoices.SumAsync(e => e.TotalTtc - ((e.Quantity * e.UnitPriceHT) * e.Facture.Remise / 100))
                 };
 
                 var invoiceItemsEnumerable = _invoiceItemRepo.GetAllIncluding(e => e.Facture, e => e.Facture.Client)
