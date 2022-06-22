@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MailKit.Net.Smtp;
+using MailKit.Security;
 using MimeKit;
 using Facturi.App.Dtos;
 using Microsoft.AspNetCore.Identity;
@@ -52,6 +53,12 @@ namespace Facturi.App
         {
             try
             {
+
+		 var server =  _config.GetValue<string>("Smtp:Server");
+                var port =  _config.GetValue<int>("Smtp:Port");
+                var authEmail =  _config.GetValue<string>("Smtp:userEmailAuth");
+                var authPass =  _config.GetValue<string>("Smtp:userPassAuth");
+
                 MimeMessage message = new();
 
                 MailboxAddress from = new("Admin", "contact@facturi.ma");
@@ -66,11 +73,14 @@ namespace Facturi.App
 
                 bodyBuilder.TextBody = $"{url}/account/validateMail/" + userId;
                 message.Body = bodyBuilder.ToMessageBody();
+		
 
+  
                 SmtpClient client = new();
-                client.Connect("mail.olap.ma", 465, true);
-                client.Authenticate("support@olap.ma", "Olap2022+@");
-                //client.Authenticate("rmndkkrs01@gmail.com", "Tdi&&2011");
+
+                client.ServerCertificateValidationCallback = (s, c, h, e) => true;
+                client.Connect(server, port, SecureSocketOptions.Auto);
+                client.Authenticate(authEmail, authPass);
 
                 client.Send(message);
                 client.Disconnect(true);
@@ -89,13 +99,20 @@ namespace Facturi.App
         public async Task<bool> checkOrUpdateConfirmationEmailIsSent(long userId)
         {
             var user = await _userRepository.FirstOrDefaultAsync(e => e.Id == userId);
-            if (user.IsEmailConfirmed == true)
+            if (user == null)
+            {
                 return false;
+            }
+            else
+            {
+                if (user.IsEmailConfirmed == true)
+                    return false;
 
-            user.IsEmailConfirmed = true;
-            await _userRepository.UpdateAsync(user);
-            return true;
-
+                user.IsEmailConfirmed = true;
+                await _userRepository.UpdateAsync(user);
+                return true;
+            }
+           
         }
 
         public async Task ResetPassword(long userId, string password)
@@ -113,6 +130,12 @@ namespace Facturi.App
         {
             try
             {
+
+	        var server =  _config.GetValue<string>("Smtp:Server");
+                var port =  _config.GetValue<int>("Smtp:Port");
+                var authEmail =  _config.GetValue<string>("Smtp:userEmailAuth");
+                var authPass =  _config.GetValue<string>("Smtp:userPassAuth");
+
                 var user = GetUserByEmailAddress(emailAddress);
                 MimeMessage message = new();
 
@@ -129,8 +152,9 @@ namespace Facturi.App
                 message.Body = bodyBuilder.ToMessageBody();
 
                 SmtpClient client = new();
-                client.Connect("mail.olap.ma", 465, true);
-                client.Authenticate("support@olap.ma", "Olap2022+@");
+                client.ServerCertificateValidationCallback = (s, c, h, e) => true;
+                client.Connect(server, port, SecureSocketOptions.Auto);
+                client.Authenticate(authEmail, authPass);
 
                 client.Send(message);
                 client.Disconnect(true);
