@@ -81,6 +81,22 @@ namespace Facturi.App
             }
         }
 
+        public async Task<bool> UpdateTvaAndCurrency(TvaCurrencyDto tvaCurrencyDto)
+        {
+            try
+            {
+                var entity = await _infosEntrepriseRepository.FirstOrDefaultAsync(x => x.Id == tvaCurrencyDto.Id);
+                entity.Currency = tvaCurrencyDto.Currency;
+                entity.Tva = tvaCurrencyDto.Tva;
+                await _infosEntrepriseRepository.UpdateAsync(entity);
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
+
         public async Task<ContactInfosDto> GetContactInfos()
         {
             try

@@ -17,6 +17,23 @@ using Facturi.Users.Dto;
 using System.Configuration;
 using Microsoft.Extensions.Configuration;
 
+using System.Text.RegularExpressions;
+using Abp.Application.Services.Dto;
+using Abp.Authorization;
+using Abp.Domain.Entities;
+using Abp.Extensions;
+using Abp.IdentityFramework;
+using Abp.Linq.Extensions;
+using Abp.Localization;
+using Abp.Runtime.Session;
+using Abp.UI;
+using Facturi.Authorization;
+using Facturi.Authorization.Accounts;
+using Facturi.Authorization.Roles;
+using Facturi.Authorization.Users;
+using Facturi.Roles.Dto;
+using Microsoft.EntityFrameworkCore;
+
 namespace Facturi.App
 {
     public class CustomAccountAppService : ApplicationService, ICustomAccountAppService
@@ -49,12 +66,50 @@ namespace Facturi.App
             return !(await _userRepository.GetAll().Where(u => u.EmailAddress.ToLower().Trim().Equals(emailAddres.ToLower().Trim())).ToListAsync()).Any();
         }
 
+        protected virtual void CheckErrors(IdentityResult identityResult)
+        {
+            identityResult.CheckErrors(LocalizationManager);
+        }
+        public async Task<bool> ChangePassword(long id, string currentPassword, string newPassword, string confirmPassword )
+        {
+           /*  return await _userRepository.GetAll().Where(u => u.EmailAddress.ToLower().Trim().Equals(email.ToLower().Trim())).ToListAsync().Any(); */
+          
+          var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user == null)
+            {
+                throw new Exception("There is no current user!");
+            }
+            if(newPassword == confirmPassword){
+            
+                if (await _userManager.CheckPasswordAsync(user, currentPassword))
+                {
+                    CheckErrors(await _userManager.ChangePasswordAsync(user, newPassword));
+                }
+                else
+                {
+                    CheckErrors(IdentityResult.Failed(new IdentityError
+                    {
+                        Description = "Incorrect password."
+                    }));
+                }
+            }else{
+                CheckErrors(IdentityResult.Failed(new IdentityError
+                    {
+                        Description = "Passwords don't match."
+                    }));
+            }
+            
+
+           /*  return true; */
+           return true;
+        }
+
         public long SendConfirmationEmail(string emailAddress, string prenom, long userId)
         {
             try
             {
 
-		 var server =  _config.GetValue<string>("Smtp:Server");
+		        var server =  _config.GetValue<string>("Smtp:Server");
                 var port =  _config.GetValue<int>("Smtp:Port");
                 var authEmail =  _config.GetValue<string>("Smtp:userEmailAuth");
                 var authPass =  _config.GetValue<string>("Smtp:userPassAuth");
@@ -124,6 +179,35 @@ namespace Facturi.App
                 user.Password = _passwordHasher.HashPassword(user, password);
                 await CurrentUnitOfWork.SaveChangesAsync();
             }
+        }
+
+         public async Task<bool> ChangeEmail(long userId, string emailAddress)
+        {
+            if(await IsEmailAddresUnique(emailAddress)){
+                var user = await _userManager.GetUserByIdAsync(userId);
+                if (user != null)
+                {
+                    user.EmailAddress = emailAddress;
+                    await CurrentUnitOfWork.SaveChangesAsync();
+                    return true;
+                }else{
+                    return false;
+                }
+            }else{
+                return false;
+            }
+        }
+
+        public async Task<UserDto> GetUserById(long id)
+        {
+             var user = await _userManager.GetUserByIdAsync(id);
+
+            if (user == null)
+            {
+                throw new EntityNotFoundException(typeof(User), id);
+            }
+
+            return ObjectMapper.Map<UserDto>(user);
         }
 
         public void SendResetPasswordMail(string emailAddress)

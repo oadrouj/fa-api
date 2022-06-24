@@ -15,6 +15,7 @@ namespace Facturi.App
         Task<InfosEntrepriseDto> GetByIdInfosEntreprise(long id);
         Task<GeneralInfosDto> GetGeneralInfos();
         Task<bool> UpdateGeneralInfos(GeneralInfosDto generalInfosDto);
+        Task<bool> UpdateTvaAndCurrency(TvaCurrencyDto tvaCurrencyDto);
         Task<ContactInfosDto> GetContactInfos();
         Task<bool> UpdateContactInfos(ContactInfosDto contactInfosDto);
         Task<DefaultAnnotationsDto> GetDefaultAnnotations();

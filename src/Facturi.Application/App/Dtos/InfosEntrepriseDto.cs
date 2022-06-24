@@ -15,5 +15,7 @@ namespace Facturi.App.Dtos
         public string AdresseMail { get; set; }
         public long UserId { get; set; }
         public UserDto User { get; set; }
+        public string? Tva { get; set; }
+        public string? Currency { get; set; }
     }
 }

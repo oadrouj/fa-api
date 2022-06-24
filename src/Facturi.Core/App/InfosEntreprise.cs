@@ -16,6 +16,8 @@ namespace Facturi.App
         public string Pays { get; set; }
         public string Telephone { get; set; }
         public string AdresseMail { get; set; }
+        public string? Currency { get; set; }
+        public string? Tva { get; set; }
 
         [ForeignKey("UserId")]
         public long UserId { get; set; }

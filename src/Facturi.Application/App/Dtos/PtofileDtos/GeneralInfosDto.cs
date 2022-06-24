@@ -14,5 +14,7 @@ namespace Facturi.App.Dtos.ProfileDtos
         public string RaisonSociale { get; set; }
         public string SecteurActivite { get; set; }
         public bool? HasLogo { get; set; }
+        public string? Currency { get; set; }
+        public string? Tva { get; set; }
     }
 }
