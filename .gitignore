@@ -4,7 +4,7 @@ src/Facturi.Web.Host/appsettings.Staging.json
 src/Facturi.Web.Host/appsettings.development.json  
 src/Facturi.Web.Host/appsettings.json
 src/Facturi.Migrator/appsettings.json
-src/Facturi.Web.Host/App_Data/Logs/*
+src/Facturi.Web.Host/App_Data/Logs/*.txt
 # User-specific files
 *.suo
 *.user
