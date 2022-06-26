@@ -42,7 +42,7 @@ namespace Facturi.Web.Host.Controllers
                     if ((findedFile = this.findFile(uploads)) != null)
                         System.IO.File.Delete(findedFile);
 
-                    var filePath = Path.Combine(uploads, AbpSession.UserId.ToString() + Path.GetExtension(file.FileName));
+                    var filePath = Path.Combine(uploads, "id_"+ AbpSession.UserId.ToString() + Path.GetExtension(file.FileName));
                     using (var fileStream = new FileStream(filePath, FileMode.Create))
                     {
                         await file.CopyToAsync(fileStream);
@@ -106,7 +106,7 @@ namespace Facturi.Web.Host.Controllers
         private string findFile(string directoryPath)
         {
             var files = Directory.GetFiles(directoryPath);
-            var result = files.Where(x => x.Contains("\\" + AbpSession.UserId + ".")).FirstOrDefault();
+            var result = files.Where(x => x.Contains("id_"+ AbpSession.UserId + ".")).FirstOrDefault();
             return result;
         }
         private string GetContentType(string path)

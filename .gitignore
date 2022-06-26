@@ -5,6 +5,7 @@ src/Facturi.Web.Host/appsettings.development.json
 src/Facturi.Web.Host/appsettings.json
 src/Facturi.Migrator/appsettings.json
 src/Facturi.Web.Host/App_Data/Logs/*.txt
+src/Facturi.Web.Host/App_Data/Logs/
 # User-specific files
 *.suo
 *.user
