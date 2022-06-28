@@ -44,6 +44,12 @@ namespace Facturi.App
             return ObjectMapper.Map<InfosEntrepriseDto>(infosEntreprise);
         }
 
+        public async Task<InfosEntrepriseDto> GetCurrentUserInfosEntreprise()
+        {
+                var infosEnteprise = await _infosEntrepriseRepository.FirstOrDefaultAsync(x => x.UserId == AbpSession.UserId);
+                return ObjectMapper.Map<InfosEntrepriseDto>(infosEnteprise);
+        }
+
         public async Task<GeneralInfosDto> GetGeneralInfos()
         {
             try

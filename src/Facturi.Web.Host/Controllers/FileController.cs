@@ -7,8 +7,21 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using System.Linq;
-using Microsoft.AspNetCore.StaticFiles;
 using NSwag.Annotations;
+using Facturi.App;
+using Abp.Domain.Repositories;
+using Abp.Application.Services;
+using Abp.Application.Services.Dto;
+using Abp.Domain.Repositories;
+using Abp.Linq.Extensions;
+using Facturi.App.Dtos;
+using Facturi.App.Dtos.GenericDtos;
+using Facturi.App.Dtos.InvoiceDtos;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+
+
 
 namespace Facturi.Web.Host.Controllers
 {
@@ -17,11 +30,36 @@ namespace Facturi.Web.Host.Controllers
     public class FileController : FacturiControllerBase
     {
         private IWebHostEnvironment _hostingEnvironment;
+        private readonly ReportGeneratorAppService _reportGeneratorAppService;
+        private readonly IRepository<Facture, long> _factureRepository;
+        private readonly IRepository<FactureInfosPaiement, long> _factureInfosPaiementRepository;
+        private readonly IRepository<FactureItem, long> _factureItemRepository;
+        private readonly IRepository<Devis, long> _devisRepository;
+        private readonly IRepository<DevisItem, long> _devisItemRepository;
+        private readonly IRepository<Client, long> _clientRepository;
+        private readonly IInfosEntrepriseAppService _infosEntrepriseAppService;
+
         public FileController(
-            IWebHostEnvironment hostingEnvironment
+            IWebHostEnvironment hostingEnvironment,
+            ReportGeneratorAppService reportGeneratorAppService,
+            IRepository<Facture, long> FactureRepository, 
+            IRepository<FactureItem, long> factureItemRepository, 
+            IRepository<Devis, long> devisRepository, 
+            IRepository<DevisItem, long> devisItemRepository, 
+            IRepository<FactureInfosPaiement, long> factureInfosPaiementRepository,
+            IRepository<Client, long> clientRepository,
+            IInfosEntrepriseAppService infosEntrepriseAppService
          )
         {
             this._hostingEnvironment = hostingEnvironment;
+            _factureRepository = FactureRepository ?? throw new ArgumentNullException(nameof(FactureRepository));
+            _factureItemRepository = factureItemRepository ?? throw new ArgumentNullException(nameof(factureItemRepository));
+            _devisRepository = devisRepository ?? throw new ArgumentNullException(nameof(devisRepository));
+            _devisItemRepository = devisItemRepository ?? throw new ArgumentNullException(nameof(devisItemRepository));
+            _reportGeneratorAppService = reportGeneratorAppService ?? throw new ArgumentNullException(nameof(reportGeneratorAppService));
+            _factureInfosPaiementRepository = factureInfosPaiementRepository ?? throw new ArgumentNullException(nameof(factureInfosPaiementRepository));
+            _clientRepository = clientRepository ?? throw new ArgumentNullException(nameof(clientRepository));
+            _infosEntrepriseAppService = infosEntrepriseAppService ?? throw new ArgumentNullException(nameof(infosEntrepriseAppService));
         }
 
         [HttpPost]
@@ -41,6 +79,8 @@ namespace Facturi.Web.Host.Controllers
                     string findedFile = null;
                     if ((findedFile = this.findFile(uploads)) != null)
                         System.IO.File.Delete(findedFile);
+
+
 
                     var filePath = Path.Combine(uploads, "id_"+ AbpSession.UserId.ToString() + Path.GetExtension(file.FileName));
                     using (var fileStream = new FileStream(filePath, FileMode.Create))
@@ -118,6 +158,45 @@ namespace Facturi.Web.Host.Controllers
                 contentType = "application/octet-stream";
             }
             return contentType;
+        }
+
+
+
+        [HttpGet]
+        [Route("download-backend")]
+        public async Task<ActionResult> DownloadPdfFromBackend()
+        {
+            var file = await _reportGeneratorAppService.GetUsersAsPdfAsync();
+         	return File(file.FileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", file.FileName);
+        }
+
+        [HttpGet]
+        [Route("download-facture")]
+        public async Task<ActionResult> DownloadPdfFromBackend(long id)
+        {
+            var facture = await _factureRepository.GetAllIncluding(f => f.Client, f => f.FactureItems)
+                .Where(f => f.Id == id)
+                .ToListAsync();
+            
+            var infosEnteprise = await _infosEntrepriseAppService.GetCurrentUserInfosEntreprise();
+            var file = await _reportGeneratorAppService.GetFactureAsPdfAsync(ObjectMapper.Map<FactureDto>(facture.First()), infosEnteprise);
+         	return File(file.FileBytes, "application/pdf", file.FileName);
+        }
+
+
+        [HttpGet]
+        [Route("download-devis")]
+        public async Task<ActionResult> DownloadDevisPdfFromBackend(long id)
+        {
+            var devis = await _devisRepository.GetAllIncluding(d => d.Client, d => d.DevisItems)
+                .Where(d => d.Id == id)
+                .ToListAsync();
+            
+            var infosEnteprise = await _infosEntrepriseAppService.GetCurrentUserInfosEntreprise();
+           
+
+            var file = await _reportGeneratorAppService.GetDevisAsPdfAsync(ObjectMapper.Map<DevisDto>(devis.First()), infosEnteprise);
+         	return File(file.FileBytes, "application/pdf", file.FileName);
         }
 
     }

@@ -20,6 +20,7 @@ namespace Facturi.App
         Task<bool> UpdateContactInfos(ContactInfosDto contactInfosDto);
         Task<DefaultAnnotationsDto> GetDefaultAnnotations();
         Task<bool> UpdateDefaultAnnotations(DefaultAnnotationsDto defaultAnnotationsDto);
+        Task<InfosEntrepriseDto> GetCurrentUserInfosEntreprise();
 
     }
 }
