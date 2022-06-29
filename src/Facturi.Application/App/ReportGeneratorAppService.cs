@@ -75,17 +75,17 @@ namespace Facturi.App
 		{
 			var uploads = Path.Combine(_hostingEnvironment.WebRootPath, "uploads");
 
-            var file = this.findFile(uploads);
+            		var file = this.findFile(uploads);
 			var filePath = "";
 
-            if (file != null){
-            	 filePath = Path.Combine(uploads, file);
+            		if (file != null){
+            	 		filePath = Path.Combine(uploads, file);
 			}
 
 			
 			var sb = new StringBuilder();
 
-			string cssPath = @"file:///" + _hostingEnvironment.ContentRootPath + @"\wwwroot\arial-webfont\style.css";
+			string cssPath = _hostingEnvironment.ContentRootPath + @"wwwroot/arial-webfont/style.css";
 			sb.Append(@"<!doctype html>
 			<html lang='fr'>
 			<head>
@@ -129,13 +129,14 @@ namespace Facturi.App
 				.pPourDe {font-size: 26px;line-height:37px !important;}
 
 				.cordonneesFacture .divPour .divPourContent {
-						left: 78px;
+						left: 79px;
 				}
 				.cordonneesFacture .divPour .divPourContent p, 
 				.cordonneesFacture .divDe .divDeContent p  {font-size:20px;}
 				
-				.raison-sociale{line-height:42px !important;letter-spacing:500px !important;}
-				.adresse, .ville, .pays, .numTel, .ice{font-weight: 300 !important;letter-spacing:4px;}
+				.raison-sociale{line-height:40px !important;}
+				
+				.adresse, .ville, .pays, .numTel, .ice{font-weight: 300 !important;letter-spacing:1px;}
 				.adresse, .ville, .pays {text-transform:lowercase;}
 				.adresse::first-letter, .ville::first-letter, .pays::first-letter{text-transform:capitalize;}
 				
@@ -167,8 +168,8 @@ namespace Facturi.App
 			}
 				.header-message .message{
 					
-					font-size: 24px;
-					font-weight:300;
+					font-size: 22px;
+					font-weight:300 !important;
 					margin-bottom: 0px;
 				}
 			.elementsFacture {
@@ -325,7 +326,6 @@ namespace Facturi.App
 					</div>
 				<div class='divPourContent'>
 						<p class='raison-sociale'>");
-
 							sb.Append(facture.Client.CategorieClient.Equals("PRTC") ? facture.Client.Nom : facture.Client.RaisonSociale);
 							sb.Append(@"</p>");
 
@@ -607,7 +607,7 @@ namespace Facturi.App
 
 			var sb = new StringBuilder();
 
-			string cssPath = @"file:///" + _hostingEnvironment.ContentRootPath + @"\wwwroot\arial-webfont\style.css";
+			string cssPath = @"file:///" + _hostingEnvironment.ContentRootPath + @"/wwwroot/arial-webfont/style.css";
 			sb.Append(@"<!doctype html>
 			<html lang='fr'>
 			<head>
@@ -656,8 +656,8 @@ namespace Facturi.App
 				.cordonneesFacture .divPour .divPourContent p, 
 				.cordonneesFacture .divDe .divDeContent p  {font-size:20px;}
 				
-				.raison-sociale{line-height:42px !important;letter-spacing:500px !important;}
-				.adresse, .ville, .pays, .numTel, .ice{font-weight: 300 !important;letter-spacing:4px;}
+				.raison-sociale{line-height:42px !important;}
+				.adresse, .ville, .pays, .numTel, .ice{font-weight: 300 !important;letter-spacing:1px;}
 				.adresse, .ville, .pays {text-transform:lowercase;}
 				.adresse::first-letter, .ville::first-letter, .pays::first-letter{text-transform:capitalize;}
 				
@@ -1331,7 +1331,7 @@ namespace Facturi.App
 			<div class='headerFacture'>
 				<div class='divImg'>
 					<img src='");
-						sb.Append(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\ReportPages", "logo.png"));
+						sb.Append(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/ReportPages", "logo.png"));
 						sb.Append(@"'>
 				</div>
 				<div class='divInfosFacture'>
@@ -1526,8 +1526,8 @@ namespace Facturi.App
 				};
 
 				//INIT THE FOOTER HTML FILE FROM FOOTER BLANK BECAUSE IT S OVERRIDED EACH TIME
-				string footerPath = _hostingEnvironment.WebRootPath + @"\templates\footer.html";
-				string footerPathBlank = _hostingEnvironment.WebRootPath + @"\templates\footer-blank.html";
+				string footerPath = _hostingEnvironment.WebRootPath + @"/templates/footer.html";
+				string footerPathBlank = _hostingEnvironment.WebRootPath + @"/templates/footer-blank.html";
 				string textInit = File.ReadAllText(footerPathBlank);
 				File.WriteAllText(footerPath, textInit);
 				//
@@ -1541,7 +1541,7 @@ namespace Facturi.App
 					filePath = Path.Combine(uploads, file);
 				}
 
-			  	string cssArialPath = _hostingEnvironment.ContentRootPath + @"\wwwroot\arial-webfont\ARIALLGT_footer.woff";
+			  	string cssArialPath = _hostingEnvironment.ContentRootPath + @"/wwwroot/arial-webfont/ARIALLGT_footer.woff";
 				cssArialPath = cssArialPath.Replace("\\", "/");
 
 				/* cssArialPath = cssArialPath.Replace(":/", "://"); */
@@ -1556,8 +1556,8 @@ namespace Facturi.App
 
 
 				//INIT THE HEADER HTML FILE FROM FOOTER BLAN°°°K BECAUSE IT S OVERRIDED EACH TIME
-				string headerPath = _hostingEnvironment.WebRootPath + @"\templates\header.html";
-				string headerPathBlank = _hostingEnvironment.WebRootPath + @"\templates\header-blank.html";
+				string headerPath = _hostingEnvironment.WebRootPath + @"/templates/header.html";
+				string headerPathBlank = _hostingEnvironment.WebRootPath + @"/templates/header-blank.html";
 				string textHeaderInit = File.ReadAllText(headerPathBlank);
 				File.WriteAllText(headerPath, textHeaderInit);
 				//
@@ -1636,8 +1636,8 @@ namespace Facturi.App
 				};
 
 				//INIT THE FOOTER HTML FILE FROM FOOTER BLANK BECAUSE IT S OVERRIDED EACH TIME
-				string footerPath = _hostingEnvironment.WebRootPath + @"\templates\Devis\footer.html";
-				string footerPathBlank = _hostingEnvironment.WebRootPath + @"\templates\Devis\footer-blank.html";
+				string footerPath = _hostingEnvironment.WebRootPath + @"/templates/Devis/footer.html";
+				string footerPathBlank = _hostingEnvironment.WebRootPath + @"/templates/Devis/footer-blank.html";
 				string textInit = File.ReadAllText(footerPathBlank);
 				File.WriteAllText(footerPath, textInit);
 				//
@@ -1651,7 +1651,7 @@ namespace Facturi.App
 					filePath = Path.Combine(uploads, file);
 				}
 
-			  	string cssArialPath = _hostingEnvironment.ContentRootPath + @"\wwwroot\arial-webfont\ARIALLGT_footer.woff";
+			  	string cssArialPath = _hostingEnvironment.ContentRootPath + @"/wwwroot/arial-webfont/ARIALLGT_footer.woff";
 				cssArialPath = cssArialPath.Replace("\\", "/");
 
 				/* cssArialPath = cssArialPath.Replace(":/", "://"); */
@@ -1666,8 +1666,8 @@ namespace Facturi.App
 
 
 				//INIT THE HEADER HTML FILE FROM FOOTER BLAN°°°K BECAUSE IT S OVERRIDED EACH TIME
-				string headerPath = _hostingEnvironment.WebRootPath + @"\templates\Devis\header.html";
-				string headerPathBlank = _hostingEnvironment.WebRootPath + @"\templates\Devis\header-blank.html";
+				string headerPath = _hostingEnvironment.WebRootPath + @"/templates/Devis/header.html";
+				string headerPathBlank = _hostingEnvironment.WebRootPath + @"/templates/Devis/header-blank.html";
 				string textHeaderInit = File.ReadAllText(headerPathBlank);
 				File.WriteAllText(headerPath, textHeaderInit);
 				//
@@ -1841,8 +1841,8 @@ namespace Facturi.App
 						left: 78px;
 				}
 				.cordonneesFacture .divPour .divPourContent p {font-size:20px;}
-				.raison-sociale{line-height:37px !important;letter-spacing:500px !important;}
-				.adresse, .ville, .pays, .numTel{font-weight: 300 !important;letter-spacing:4px; text-transform:lowercase;}
+				.raison-sociale{line-height:37px !important;}
+				.adresse, .ville, .pays, .numTel{font-weight: 300 !important;letter-spacing:1px; text-transform:lowercase;}
 				.adresse::first-letter, .ville::first-letter, .pays::first-letter{text-transform:capitalize;}
 				.cordonneesFacture .divDe {
 					right: 0px;
