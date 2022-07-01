@@ -68,7 +68,7 @@ namespace Facturi.Web.Host.Controllers
         {
             try
             {
-                var uploads = Path.Combine(_hostingEnvironment.WebRootPath, "uploads");
+                var uploads = Path.Combine(_hostingEnvironment.WebRootPath, @"uploads");
                 if (!Directory.Exists(uploads))
                 {
                     Directory.CreateDirectory(uploads);
@@ -103,11 +103,12 @@ namespace Facturi.Web.Host.Controllers
         [ProducesResponseType(typeof(FileContentResult), 200)]
         public async Task<FileContentResult> Download()
         {
-            var uploads = Path.Combine(_hostingEnvironment.WebRootPath, "uploads");
+            var uploads = Path.Combine(_hostingEnvironment.WebRootPath, @"uploads");
 
             var file = this.findFile(uploads);
             if (file == null)
             {
+		Console.WriteLine("SO IT DOESN T FIND THE FILE");
                 return null;
             }
 

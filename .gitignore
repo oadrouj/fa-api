@@ -7,7 +7,10 @@ src/Facturi.Migrator/appsettings.json
 src/Facturi.Web.Host/App_Data/Logs/*.txt
 src/Facturi.Web.Host/App_Data/Logs/
 src/Facturi.Web.Host/Startup/Startup.cs
+<<<<<<< HEAD
 
+=======
+>>>>>>> ca5264670064f3cd5c53c67464c0e384dda37f4a
 # User-specific files
 *.suo
 *.user
