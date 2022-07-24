@@ -205,6 +205,14 @@ namespace Facturi.App
                         if (devisCriterias.SortOrder.Equals("1")) { DevisList = await query.OrderBy(d => d.DateEmission).Skip(devisCriterias.First).Take(devisCriterias.Rows).ToListAsync(); }
                         else if (devisCriterias.SortOrder.Equals("-1")) { DevisList = await query.OrderByDescending(d => d.DateEmission).Skip(devisCriterias.First).Take(devisCriterias.Rows).ToListAsync(); }
                         break;
+                    case "montantTtc":
+                        if (devisCriterias.SortOrder.Equals("1")) { DevisList = await query.OrderBy(d => d.MontantTtc).Skip(devisCriterias.First).Take(devisCriterias.Rows).ToListAsync(); }
+                        else if (devisCriterias.SortOrder.Equals("-1")) { DevisList = await query.OrderByDescending(d => d.MontantTtc).Skip(devisCriterias.First).Take(devisCriterias.Rows).ToListAsync(); }
+                        break;
+                     case "statut":
+                        if (devisCriterias.SortOrder.Equals("1")) { DevisList = await query.OrderBy(d => d.Statut).Skip(devisCriterias.First).Take(devisCriterias.Rows).ToListAsync(); }
+                        else if (devisCriterias.SortOrder.Equals("-1")) { DevisList = await query.OrderByDescending(d => d.Statut).Skip(devisCriterias.First).Take(devisCriterias.Rows).ToListAsync(); }
+                        break;
                     default:
                         DevisList = await query.OrderBy(d => d.EcheancePaiement).Skip(devisCriterias.First).Take(devisCriterias.Rows).ToListAsync();
                         break;

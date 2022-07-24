@@ -210,6 +210,14 @@ namespace Facturi.App
                         if (factureCriterias.SortOrder.Equals("1")) { FactureList = await query.OrderBy(f => f.DateEmission).Skip(factureCriterias.First).Take(factureCriterias.Rows).ToListAsync(); }
                         else if (factureCriterias.SortOrder.Equals("-1")) { FactureList = await query.OrderByDescending(f => f.DateEmission).Skip(factureCriterias.First).Take(factureCriterias.Rows).ToListAsync(); }
                         break;
+                    case "montantTtc":
+                        if (factureCriterias.SortOrder.Equals("1")) { FactureList = await query.OrderBy(f => f.MontantTtc).Skip(factureCriterias.First).Take(factureCriterias.Rows).ToListAsync(); }
+                        else if (factureCriterias.SortOrder.Equals("-1")) { FactureList = await query.OrderByDescending(f => f.MontantTtc).Skip(factureCriterias.First).Take(factureCriterias.Rows).ToListAsync(); }
+                        break;
+                    case "statut":
+                        if (factureCriterias.SortOrder.Equals("1")) { FactureList = await query.OrderBy(f => f.Statut).Skip(factureCriterias.First).Take(factureCriterias.Rows).ToListAsync(); }
+                        else if (factureCriterias.SortOrder.Equals("-1")) { FactureList = await query.OrderByDescending(f => f.Statut).Skip(factureCriterias.First).Take(factureCriterias.Rows).ToListAsync(); }
+                        break;
                     default:
                         FactureList = await query.OrderBy(d => d.EcheancePaiement).Skip(factureCriterias.First).Take(factureCriterias.Rows).ToListAsync();
                         break;
@@ -377,6 +385,18 @@ namespace Facturi.App
             try{
                 await _factureInfosPaiementRepository
                 .DeleteAsync(item => item.FactureId == factureId);
+                return true;
+            }
+            catch(Exception ){
+                return false;
+            }
+        }
+
+        public async Task<bool> deleteFactureInfosPaiement(long paiementId)
+        {
+            try{
+                await _factureInfosPaiementRepository
+                .DeleteAsync(item => item.Id == paiementId);
                 return true;
             }
             catch(Exception ){
