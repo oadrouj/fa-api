@@ -128,8 +128,12 @@ namespace Facturi.App
                         else { clients = clients.OrderByDescending(c => c.CreationTime).ToList(); }
                         break;
                     case "nom":
-                        if (listCriteria.SortOrder == "1") { clients = clients.OrderBy(c => c.RaisonSociale + c.Nom).ToList(); }
-                        else { clients = clients.OrderByDescending(c => c.Nom + c.RaisonSociale).ToList(); }
+                        if (listCriteria.SortOrder == "1") { clients = clients.OrderBy(c => c.DisplayName).ToList(); }
+                        else { clients = clients.OrderByDescending(c =>c.DisplayName ).ToList(); }
+                        break;
+                    case "displayName":
+                        if (listCriteria.SortOrder == "1") { clients = clients.OrderBy(c => c.DisplayName).ToList(); }
+                        else { clients = clients.OrderByDescending(c =>c.DisplayName).ToList(); }
                         break;
                     default:
                         clients = clients.OrderByDescending(c => c.CreationTime ).ToList();
@@ -144,6 +148,37 @@ namespace Facturi.App
 
             var list = ObjectMapper.Map<List<ClientDto>>(clients.Skip(listCriteria.First).Take(listCriteria.Rows));
            
+          /*    if (listCriteria.SortField != null && listCriteria.SortField.Length != 0)
+            {
+                switch (listCriteria.SortField)
+                {
+                    case "pendingInvoicesAmount":
+                        if (listCriteria.SortOrder == "1") {
+                            list = list.OrderBy(c => c.PendingInvoicesAmount ).ToList(); 
+                        }else { 
+                            list = list.OrderByDescending(c => c.PendingInvoicesAmount).ToList(); 
+                         }
+                        break;
+                    case "overdueInvoicesAmount":
+                        if (listCriteria.SortOrder == "1") {
+                            list = list.OrderBy(c => c.OverdueInvoicesAmount ).ToList(); 
+                        }else { 
+                            list = list.OrderByDescending(c => c.OverdueInvoicesAmount).ToList(); 
+                         }
+                        break;
+                    default:
+                        list = list.OrderByDescending(c => c.CreationTime ).ToList();
+                        break;
+                }
+
+            }
+            else
+            {
+                clients = clients.OrderByDescending(c => c.CreationTime).ToList();
+            }
+
+            list = ObjectMapper.Map<List<ClientDto>>(list.Skip(listCriteria.First).Take(listCriteria.Rows)); */
+
            
             IQueryable<Facture> allValidesFactures;
             float calculationResult = 0;
@@ -170,6 +205,54 @@ namespace Facturi.App
                });
 
              });
+
+             if (listCriteria.SortField != null && listCriteria.SortField.Length != 0)
+            {
+                switch (listCriteria.SortField)
+                {
+                      case "reference":
+                        if (listCriteria.SortOrder == "1") { clients = clients.OrderBy(c => c.Reference).ToList(); }
+                        else { clients = clients.OrderByDescending(c => c.Reference).ToList(); }
+                        break;
+                    case "creationTime":
+                        if (listCriteria.SortOrder == "1") { clients = clients.OrderBy(c => c.CreationTime).ToList(); }
+                        else { clients = clients.OrderByDescending(c => c.CreationTime).ToList(); }
+                        break;
+                    case "nom":
+                        if (listCriteria.SortOrder == "1") { clients = clients.OrderBy(c => c.DisplayName).ToList(); }
+                        else { clients = clients.OrderByDescending(c =>c.DisplayName ).ToList(); }
+                        break;
+                    case "displayName":
+                        if (listCriteria.SortOrder == "1") { clients = clients.OrderBy(c => c.DisplayName).ToList(); }
+                        else { clients = clients.OrderByDescending(c =>c.DisplayName).ToList(); }
+                        break;
+                    case "pendingInvoicesAmount":
+                        if (listCriteria.SortOrder == "1") {
+                            list = list.OrderBy(c => c.PendingInvoicesAmount ).ToList(); 
+                        }else { 
+                            list = list.OrderByDescending(c => c.PendingInvoicesAmount).ToList(); 
+                         }
+                        break;
+                    case "overdueInvoicesAmount":
+                        if (listCriteria.SortOrder == "1") {
+                            list = list.OrderBy(c => c.OverdueInvoicesAmount ).ToList(); 
+                        }else { 
+                            list = list.OrderByDescending(c => c.OverdueInvoicesAmount).ToList(); 
+                         }
+                        break;
+                    default:
+                        list = list.OrderByDescending(c => c.CreationTime ).ToList();
+                        break;
+                }
+
+            }
+            else
+            {
+                list = list.OrderByDescending(c => c.CreationTime).ToList();
+            }
+
+            
+            list = ObjectMapper.Map<List<ClientDto>>(list.Skip(listCriteria.First).Take(listCriteria.Rows)); 
             var totalRecords = await query.LongCountAsync();
             var result = new ListResultWithTotalEntityItemsDto<ClientDto>(list, totalRecords);
             return result;

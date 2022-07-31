@@ -287,9 +287,9 @@ namespace Facturi.App
             var result = 0.0f;
             foreach (var item in query)
             {
-                result += (float)(item.FactureItems.Sum(di => (float?)di.TotalTtc) -
-                 item.FactureItems.Sum(di => (float?)di.UnitPriceHT * di.Quantity) * item.Remise / 100);
-
+               /*  result += (float)(item.FactureItems.Sum(di => (float?)di.TotalTtc) -
+                 item.FactureItems.Sum(di => (float?)di.UnitPriceHT * di.Quantity) * item.Remise / 100); */
+                result += item.MontantTtc;
             }
             return result;
         }

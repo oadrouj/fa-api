@@ -266,7 +266,7 @@ namespace Facturi.App
             //.WhereIf(devisCriterias.GlobalFilter != null & !isRef,
             //    f => f.Client.Nom.Trim().Contains(devisCriterias.GlobalFilter.Trim())
             //    || f.Client.RaisonSociale.Trim().Contains(devisCriterias.GlobalFilter.Trim()))
-            .WhereIf(devisCriterias.GlobalFilter != null, f => f.Reference.StartsWith(devisCriterias.GlobalFilter))
+            .WhereIf(devisCriterias.GlobalFilter != null, f => f.Reference.StartsWith(devisCriterias.GlobalFilter) )
             .WhereIf(client != 0, f => f.ClientId == client)
             .WhereIf(dateEmission != null, f => f.DateEmission >= dateEmission[0] && f.DateEmission <= dateEmission[1])
             .WhereIf(echeancePaiement != 0, f => f.EcheancePaiement == echeancePaiement)
@@ -280,8 +280,9 @@ namespace Facturi.App
             var result = 0.0f;
             foreach (var item in query)
             {
-                result += (float)(item.DevisItems.Sum(di => (float?)di.TotalTtc) -
-                 item.DevisItems.Sum(di => (float?)di.UnitPriceHT * di.Quantity) * item.Remise /100);
+               /*  result += (float)(item.DevisItems.Sum(di => (float?)di.TotalTtc) -
+                 item.DevisItems.Sum(di => (float?)di.UnitPriceHT * di.Quantity) * item.Remise /100); */
+                 result += item.MontantTtc;
 
             }
             return result;
